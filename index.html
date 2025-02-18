@@ -145,12 +145,17 @@
     <div class="modal-content">
       <h3>Ajouter un manuel</h3>
       <input type="file" id="manual-file-input" accept="application/pdf" />
+        <!-- Conteneur pour la barre de progression du manuel -->
+<div id="manual-progress-container" class="hidden">
+    <div id="manual-progress-bar" style="width:0%; height:5px; background-color:#4caf50;"></div>
+  </div>
       <div class="buttons-row">
         <button id="cancel-add-manual" class="secondary-button">Annuler</button>
         <button id="confirm-add-manual" class="confirm-button">Ajouter</button>
       </div>
     </div>
   </div>
+
 
   <!-- Fenêtre modale pour supprimer (demander mot de passe) -->
   <div id="password-modal" class="modal hidden">

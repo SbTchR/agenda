@@ -637,35 +637,66 @@ cancelAddManualBtn.addEventListener("click", () => {
 });
 
 confirmAddManualBtn.addEventListener("click", async () => {
-  const file = manualFileInput.files[0];
-  if (!file) {
-    alert("Veuillez sélectionner un fichier PDF à téléverser.");
-    return;
-  }
-  if (!selectedBranch) {
-    alert("Aucune branche sélectionnée.");
-    return;
-  }
-  try {
-    // On upload le PDF dans "manuals/{branch}/{nomFichier}"
-    const storageRef = storage.ref(`manuals/${selectedBranch}/${file.name}`);
-    await storageRef.put(file);
-    const url = await storageRef.getDownloadURL();
-
-    // On enregistre ensuite dans Firestore
-    await db.collection("manuals").add({
-      branch: selectedBranch,
-      title: file.name,     // on peut se baser sur le nom du fichier
-      pdfUrl: url
-    });
-
-    addManualModal.classList.add("hidden");
-    loadManualsForBranch(selectedBranch);
-  } catch (error) {
-    console.error("Erreur lors de l'ajout du manuel:", error);
-    alert("Une erreur est survenue lors de l'upload du PDF.");
-  }
-});
+    const file = manualFileInput.files[0];
+    if (!file) {
+      alert("Veuillez sélectionner un fichier PDF à téléverser.");
+      return;
+    }
+    if (!selectedBranch) {
+      alert("Aucune branche sélectionnée.");
+      return;
+    }
+    try {
+      // Afficher la barre de progression pour le manuel
+      const manualProgressContainer = document.getElementById("manual-progress-container");
+      const manualProgressBar = document.getElementById("manual-progress-bar");
+      manualProgressContainer.classList.remove("hidden");
+  
+      // Créer une référence dans Storage pour le manuel
+      const storageRef = storage.ref(`manuals/${selectedBranch}/${file.name}`);
+      const uploadTask = storageRef.put(file);
+  
+      // Suivre la progression de l'upload avec une Promise
+      await new Promise((resolve, reject) => {
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            // Calcul de la progression
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            manualProgressBar.style.width = progress + "%";
+          },
+          (error) => {
+            console.error("Erreur d'upload du manuel :", error);
+            reject(error);
+          },
+          () => {
+            resolve();
+          }
+        );
+      });
+  
+      // Une fois l'upload terminé, récupérer l'URL du PDF
+      const url = await storageRef.getDownloadURL();
+  
+      // Enregistrer le manuel dans Firestore
+      await db.collection("manuals").add({
+        branch: selectedBranch,
+        title: file.name,
+        pdfUrl: url
+      });
+  
+      // Cacher la barre de progression et réinitialiser sa largeur
+      manualProgressContainer.classList.add("hidden");
+      manualProgressBar.style.width = "0%";
+  
+      // Fermer la modale d'ajout et recharger la liste des manuels
+      addManualModal.classList.add("hidden");
+      loadManualsForBranch(selectedBranch);
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du manuel:", error);
+      alert("Une erreur est survenue lors de l'upload du PDF.");
+    }
+  });
 
 /*****************************************************
  * Suppression d'un manuel (demande mot de passe)
