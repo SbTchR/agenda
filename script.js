@@ -205,7 +205,6 @@ function loadTasksForWeek(week) {
     .then((snapshot) => {
       snapshot.forEach((doc) => {
         const taskData = doc.data();
-        displayTask(doc.id, taskData);
       });
     })
     .catch((error) => {
