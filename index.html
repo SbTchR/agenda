@@ -35,8 +35,7 @@
 
   <!-- Contenu principal : liste des jours et devoirs -->
   <main id="main-content">
-    <!-- Les 5 jours s'affichent dynamiquement (lundi à vendredi) avec la date du jour : "Lundi 04.10" etc. -->
-    <!-- Chaque jour contiendra la liste des devoirs correspondants -->
+    <!-- Les 5 jours s'affichent dynamiquement (lundi à vendredi) avec la date : "Lundi 04.10" etc. -->
   </main>
 
   <!-- Écran (ou "section") d'ajout d'un devoir -->
@@ -50,7 +49,7 @@
       <h2>Ajouter un devoir</h2>
       <!-- Sélection de la branche -->
       <div class="branch-selection">
-        <!-- Les 11 branches sont créées dynamiquement dans script.js pour éviter de dupliquer le code -->
+        <!-- Les branches sont créées dynamiquement via script.js -->
       </div>
 
       <!-- Sélection du type de devoir (Devoir, TA, TS) -->
@@ -133,12 +132,11 @@
     </div>
   </section>
 
-  <!-- Fenêtre modale pour ajouter un manuel -->
+  <!-- Fenêtre modale pour ajouter un manuel (upload PDF) -->
   <div id="add-manual-modal" class="modal hidden">
     <div class="modal-content">
       <h3>Ajouter un manuel</h3>
-      <input type="text" id="manual-title-input" placeholder="Titre du manuel" />
-      <input type="url" id="manual-url-input" placeholder="URL du PDF" />
+      <input type="file" id="manual-file-input" accept="application/pdf" />
       <div class="buttons-row">
         <button id="cancel-add-manual" class="secondary-button">Annuler</button>
         <button id="confirm-add-manual" class="confirm-button">Ajouter</button>
@@ -158,10 +156,13 @@
       </div>
     </div>
   </div>
+
+  <!-- Scripts Firebase (ex: version 8.10.0) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-  
+
+  <!-- Ton script -->
   <script src="script.js"></script>
 </body>
 </html>

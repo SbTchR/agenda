@@ -11,12 +11,11 @@
     background: linear-gradient(135deg, #141E30, #243B55);
     color: #fff;
     height: 100vh;
-    overflow: hidden; /* On gère le scroll nous-même via JS ou via sections internes */
+    overflow: hidden; /* On gère le scroll via sections internes */
     display: flex;
     flex-direction: column;
   }
   
-  /* Pour autoriser le défilement dans le main si besoin */
   main {
     flex: 1;
     overflow-y: auto;
@@ -30,10 +29,8 @@
     justify-content: space-between;
     background: rgba(255, 255, 255, 0.1);
     padding: 0.5rem 1rem;
-    position: relative;
   }
   
-  /* Boutons du header */
   .week-selector {
     position: relative;
   }
@@ -111,6 +108,13 @@
   .day-container h3 {
     font-weight: 700;
     margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .day-container h3:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 0.3rem;
   }
   
   /* Liste de devoirs */
@@ -141,8 +145,8 @@
     background: rgba(244, 67, 54, 0.2); /* rouge clair transparent */
   }
   
-  /* Couleurs par branche (petits badges ou textes) */
-  .all { color: #ffc107; }   /* Allemand => Jaune par ex. */
+  /* Couleurs par branche */
+  .all { color: #ffc107; }
   .fra { color: #e91e63; }
   .math { color: #ff9800; }
   .his { color: #9c27b0; }
@@ -170,7 +174,6 @@
     display: none;
   }
   
-  /* Titres / Contenu */
   .screen .content {
     margin-top: 2rem;
   }
@@ -179,7 +182,7 @@
     margin-bottom: 1rem;
   }
   
-  /* Bouton annuler ou retour dans la barre de l'écran secondaire */
+  /* Header écrans */
   #add-task-screen header,
   #task-details-screen header,
   #library-screen header {
@@ -211,6 +214,9 @@
     transform: scale(1.05);
     background: rgba(255,255,255,0.2);
   }
+  .selected-branch {
+    border: 3px solid #fff;
+  }
   
   /* Boutons type de devoir */
   .task-type-container {
@@ -228,11 +234,14 @@
     color: #fff;
     transition: transform 0.2s, background 0.2s;
   }
-  #type-devoir { background-color: #2196f3; } /* bleu */
-  #type-ta { background-color: #4caf50; }     /* vert */
-  #type-ts { background-color: #f44336; }    /* rouge */
+  #type-devoir { background-color: #2196f3; }
+  #type-ta { background-color: #4caf50; }
+  #type-ts { background-color: #f44336; }
   .task-type:hover {
     transform: scale(1.05);
+  }
+  .selected-type {
+    border: 3px solid #fff;
   }
   
   /* Champ titre devoir */
@@ -264,7 +273,7 @@
   }
   #attachment-input,
   #edit-attachment-input {
-    display: none; /* on ne l'affiche pas, on clique sur le label */
+    display: none; /* on clique sur le label */
   }
   
   /* Bouton "Ajouter" */
@@ -353,6 +362,10 @@
     transform: scale(1.05);
     background: rgba(255,255,255,0.3);
   }
+  .selected-lib-branch {
+    border: 3px solid #fff;
+  }
+  
   .manuals-list {
     margin-top: 1rem;
   }
@@ -422,7 +435,6 @@
   }
   
   @media (max-width: 600px) {
-    /* Adaptation smartphone : */
     .branch-selection, .library-branches {
       grid-template-columns: repeat(3, 1fr);
     }
