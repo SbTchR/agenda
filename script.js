@@ -1,560 +1,632 @@
-/*******************************************************
- * Configuration de base
- *******************************************************/
-
-// Nombre total de semaines
-const TOTAL_WEEKS = 39;
-
-// Branches disponibles
-const BRANCHES = [
-  "All", "Fra", "Math", "His", "Géo", "Ang", "Scn", "Mus", "AVI", "Forgen", "Autre"
-];
-
-// Mot de passe pour supprimer un devoir
-const DELETE_PASSWORD = "xxx";
-
-/*******************************************************
- * Éléments du DOM
- *******************************************************/
-const weekSelectorBtn = document.getElementById("weekSelectorBtn");
-const weekList = document.getElementById("weekList");
-const currentWeekDisplay = document.getElementById("currentWeekDisplay");
-const weekDates = document.getElementById("weekDates");
-
-const daysContainer = document.getElementById("daysContainer");
-
-// Overlays
-const addHomeworkScreen = document.getElementById("addHomeworkScreen");
-const detailsScreen = document.getElementById("detailsScreen");
-const deleteModal = document.getElementById("deleteModal");
-const libraryScreen = document.getElementById("libraryScreen");
-const branchLibraryScreen = document.getElementById("branchLibraryScreen");
-const addManualScreen = document.getElementById("addManualScreen");
-
-// Boutons / inputs
-const closeAddBtn = document.getElementById("closeAddBtn");
-const createHomeworkBtn = document.getElementById("createHomeworkBtn");
-const homeworkTitleInput = document.getElementById("homeworkTitle");
-const attachmentInput = document.getElementById("attachmentInput");
-const addAttachmentBtn = document.getElementById("addAttachmentBtn");
-
-const detailsBackBtn = document.getElementById("detailsBackBtn");
-const detailsTitle = document.getElementById("detailsTitle");
-const detailsAttachments = document.getElementById("detailsAttachments");
-const modifyBtn = document.getElementById("modifyBtn");
-const validateBtn = document.getElementById("validateBtn");
-const deleteBtn = document.getElementById("deleteBtn");
-
-const deletePasswordInput = document.getElementById("deletePassword");
-const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
-const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
-
-const openLibraryBtn = document.getElementById("openLibraryBtn");
-const closeLibraryBtn = document.getElementById("closeLibraryBtn");
-
-const libraryMain = document.getElementById("libraryMain");
-const branchLibraryTitle = document.getElementById("branchLibraryTitle");
-const manualsList = document.getElementById("manualsList");
-const backToLibraryBtn = document.getElementById("backToLibraryBtn");
-const addManualBtn = document.getElementById("addManualBtn");
-const closeAddManualBtn = document.getElementById("closeAddManualBtn");
-const createManualBtn = document.getElementById("createManualBtn");
-const manualTitleInput = document.getElementById("manualTitleInput");
-const manualLinkInput = document.getElementById("manualLinkInput");
-
-// Type de devoir
-let selectedType = null;
-
-// Branche sélectionnée
-let selectedBranch = null;
-
-// Jour actuel sur lequel on ajoute un devoir
-let currentDayForAdd = null;
-
-// Devoir actuellement en cours de visualisation
-let currentHomeworkId = null;
-
-// Semaine sélectionnée
-let currentWeek = 1;
-
-// Structure des données
-// homeworkData = [
-//   {
-//     id: "someUniqueId",
-//     week: 1,
-//     day: "Lundi",
-//     branch: "All",
-//     type: "devoir" / "ta" / "ts",
-//     title: "nom du devoir",
-//     attachments: [ ...paths ou URLs ou base64 ... ]
-//   },
-//   ...
-// ]
-let homeworkData = [];
-
-// manuels = {
-//   "All": [ { title: "...", link: "..." }, ... ],
-//   "Fra": [],
-//   ...
-// }
-let manuels = {
-  All: [],
-  Fra: [],
-  Math: [],
-  His: [],
-  Géo: [],
-  Ang: [],
-  Scn: [],
-  Mus: [],
-  AVI: [],
-  Forgen: [],
-  Autre: []
-};
-
-/*******************************************************
- * Initialisation
- *******************************************************/
-document.addEventListener("DOMContentLoaded", () => {
-  // Charger localStorage si besoin
-  loadDataFromLocalStorage();
-
-  // Initialiser la liste de semaines
-  renderWeekList();
-
-  // Initialiser la semaine par défaut
-  setWeek(currentWeek);
-
-  // Générer l’affichage principal
-  renderDays();
-
-  // Générer la liste de branches sur l'écran d'ajout de devoir
-  renderBranchButtons();
-
-  // Générer la bibliothèque principale
-  renderLibraryMain();
-
-  // Events
-  setEventListeners();
-});
-
-/*******************************************************
- * Gestion des événements
- *******************************************************/
-function setEventListeners() {
-  // Ouvrir/fermer la liste des semaines
-  weekSelectorBtn.addEventListener("click", () => {
+/*****************************************************
+ * Configuration Firebase : à remplacer par tes infos
+ *****************************************************/
+const firebaseConfig = {
+    apiKey: "AIzaSyAmVSJwvMama0h79rPHiUvPKRgZnfjymXA",
+    authDomain: "agenda-bed4f.firebaseapp.com",
+    projectId: "agenda-bed4f",
+    storageBucket: "agenda-bed4f.firebasestorage.app",
+    messagingSenderId: "993980335293",
+    appId: "G-99GFMTCCCG"
+  };
+  
+  // Initialisation de Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const storage = firebase.storage();
+  
+  /*****************************************************
+   * Variables et sélecteurs HTML
+   *****************************************************/
+  const weekButton = document.getElementById("week-button");
+  const weekList = document.getElementById("week-list");
+  const currentWeekSpan = document.getElementById("current-week");
+  const weekDates = document.getElementById("week-dates");
+  
+  const mainContent = document.getElementById("main-content");
+  
+  // Écrans
+  const addTaskScreen = document.getElementById("add-task-screen");
+  const taskDetailsScreen = document.getElementById("task-details-screen");
+  const libraryScreen = document.getElementById("library-screen");
+  
+  // Boutons / Inputs (ajout d'un devoir)
+  const cancelAddTaskBtn = document.getElementById("cancel-add-task");
+  const confirmAddTaskBtn = document.getElementById("confirm-add-task");
+  const taskTitleInput = document.getElementById("task-title-input");
+  const attachmentInput = document.getElementById("attachment-input");
+  
+  // Sélection de branche (container)
+  const branchSelectionContainer = document.querySelector(".branch-selection");
+  // Boutons du type de devoir
+  const typeDevoirBtn = document.getElementById("type-devoir");
+  const typeTaBtn = document.getElementById("type-ta");
+  const typeTsBtn = document.getElementById("type-ts");
+  
+  // Détails devoir
+  const backToMainBtn = document.getElementById("back-to-main");
+  const detailsTaskTitle = document.getElementById("details-task-title");
+  const attachmentsList = document.getElementById("attachments-list");
+  const toggleEditBtn = document.getElementById("toggle-edit");
+  const validateChangesBtn = document.getElementById("validate-changes");
+  const editTaskTitleInput = document.getElementById("edit-task-title");
+  const editAttachmentInput = document.getElementById("edit-attachment-input");
+  const deleteTaskBtn = document.getElementById("delete-task");
+  
+  // Modale de mot de passe pour suppression
+  const passwordModal = document.getElementById("password-modal");
+  const deletePasswordInput = document.getElementById("delete-password");
+  const cancelDeleteBtn = document.getElementById("cancel-delete");
+  const confirmDeleteBtn = document.getElementById("confirm-delete");
+  
+  // Bibliothèque
+  const libraryButton = document.getElementById("library-button");
+  const closeLibraryBtn = document.getElementById("close-library");
+  const libraryBranchesContainer = document.getElementById("library-branches");
+  const manualsListContainer = document.getElementById("manuals-list-container");
+  const manualsList = document.getElementById("manuals-list");
+  const selectedBranchTitle = document.getElementById("selected-branch-title");
+  const addManualButton = document.getElementById("add-manual-button");
+  
+  // Modale pour ajouter un manuel
+  const addManualModal = document.getElementById("add-manual-modal");
+  const manualTitleInput = document.getElementById("manual-title-input");
+  const manualUrlInput = document.getElementById("manual-url-input");
+  const cancelAddManualBtn = document.getElementById("cancel-add-manual");
+  const confirmAddManualBtn = document.getElementById("confirm-add-manual");
+  
+  // Variables en mémoire
+  let selectedBranch = null;
+  let currentWeek = 1;
+  let currentDayClicked = null;
+  let selectedTaskId = null;
+  let selectedTaskData = null;
+  let selectedTaskType = null;
+  let selectedTaskBranch = null;
+  
+  /*****************************************************
+   * Liste des branches et leurs codes/couleurs
+   *****************************************************/
+  const branches = [
+    { code: "All", color: "#ffc107" },
+    { code: "Fra", color: "#e91e63" },
+    { code: "Math", color: "#ff9800" },
+    { code: "His", color: "#9c27b0" },
+    { code: "Géo", color: "#4caf50" },
+    { code: "Ang", color: "#00bcd4" },
+    { code: "Scn", color: "#9e9d24" },
+    { code: "Mus", color: "#f44336" },
+    { code: "AVI", color: "#795548" },
+    { code: "Forgen", color: "#009688" },
+    { code: "Autre", color: "#ffffff" }
+  ];
+  
+  /*****************************************************
+   * Initialisation
+   *****************************************************/
+  document.addEventListener("DOMContentLoaded", () => {
+    // Crée la liste des semaines 1 à 39
+    for (let i = 1; i <= 39; i++) {
+      const div = document.createElement("div");
+      div.textContent = "S. " + i;
+      div.addEventListener("click", () => {
+        selectWeek(i);
+        toggleWeekList(false);
+      });
+      weekList.appendChild(div);
+    }
+  
+    // Sélection de la semaine initiale
+    selectWeek(1);
+  
+    // Génère les 5 jours à l'écran principal
+    generateDays();
+  
+    // Génère les boutons de branches pour l'ajout d'un devoir
+    generateBranchSelection();
+  
+    // Génère les boutons de branches pour la bibliothèque
+    generateLibraryBranches();
+  
+    // Chargement initial
+    loadTasksForWeek(currentWeek);
+  });
+  
+  /*****************************************************
+   * Fonctions de gestion de la semaine
+   *****************************************************/
+  weekButton.addEventListener("click", () => {
     toggleWeekList();
   });
-
-  // Bouton pour fermer l’écran d’ajout
-  closeAddBtn.addEventListener("click", closeAddHomeworkScreen);
-
-  // Création du devoir
-  createHomeworkBtn.addEventListener("click", createHomework);
-
-  // Bouton ajout d'attachement
-  addAttachmentBtn.addEventListener("click", () => {
-    attachmentInput.click();
-  });
-
-  // Retour depuis détails
-  detailsBackBtn.addEventListener("click", () => {
-    detailsScreen.classList.add("hidden");
-  });
-
-  // Modifier un devoir
-  modifyBtn.addEventListener("click", enableHomeworkEditing);
-
-  // Valider la modification
-  validateBtn.addEventListener("click", validateHomeworkEditing);
-
-  // Supprimer un devoir (ouvrir le modal)
-  deleteBtn.addEventListener("click", () => {
-    deleteModal.classList.remove("hidden");
-    deletePasswordInput.value = "";
-  });
-
-  // Confirm / cancel delete
-  confirmDeleteBtn.addEventListener("click", confirmDelete);
-  cancelDeleteBtn.addEventListener("click", () => {
-    deleteModal.classList.add("hidden");
-  });
-
-  // Ouvrir la bibliothèque
-  openLibraryBtn.addEventListener("click", () => {
-    libraryScreen.classList.remove("hidden");
-  });
-  // Fermer la bibliothèque
-  closeLibraryBtn.addEventListener("click", () => {
-    libraryScreen.classList.add("hidden");
-  });
-
-  // Retour à la bibliothèque principale
-  backToLibraryBtn.addEventListener("click", () => {
-    branchLibraryScreen.classList.add("hidden");
-  });
-
-  // Bouton + pour ajouter un manuel
-  addManualBtn.addEventListener("click", () => {
-    addManualScreen.classList.remove("hidden");
-  });
-  closeAddManualBtn.addEventListener("click", () => {
-    addManualScreen.classList.add("hidden");
-  });
-  createManualBtn.addEventListener("click", createManual);
-}
-
-/*******************************************************
- * Gestion de la liste des semaines
- *******************************************************/
-function renderWeekList() {
-  weekList.innerHTML = "";
-  for (let i = 1; i <= TOTAL_WEEKS; i++) {
-    const li = document.createElement("li");
-    li.textContent = "S. " + i;
-    li.addEventListener("click", () => setWeek(i));
-    weekList.appendChild(li);
+  
+  function toggleWeekList(forceHide = null) {
+    if (forceHide === true) {
+      weekList.classList.add("hidden");
+      return;
+    }
+    weekList.classList.toggle("hidden");
   }
-}
-
-function toggleWeekList() {
-  if (weekList.classList.contains("hidden")) {
-    weekList.classList.remove("hidden");
-    // Calculer la hauteur max pour animer
-    weekList.style.maxHeight = `${weekList.scrollHeight}px`;
-  } else {
-    weekList.classList.add("hidden");
-    weekList.style.maxHeight = "0";
+  
+  function selectWeek(week) {
+    currentWeek = week;
+    currentWeekSpan.textContent = week;
+    // Met à jour la fourchette de dates (exemple simplifié)
+    // Dans la vraie vie, on calculerait à partir d'une date de début...
+    // Ici on va faire juste un affichage indicatif
+    weekDates.textContent = `Semaine ${week}`; 
+  
+    loadTasksForWeek(week);
   }
-}
-
-function setWeek(week) {
-  currentWeek = week;
-  currentWeekDisplay.textContent = "S. " + week;
-  // Mettre à jour les dates (ici en démo, on ne calcule pas vraiment)
-  weekDates.textContent = `Dates semaine ${week}`;
-  // Actualiser l'affichage
-  renderDays();
-  // Fermer la liste
-  weekList.classList.add("hidden");
-  weekList.style.maxHeight = "0";
-}
-
-/*******************************************************
- * Affichage des jours
- *******************************************************/
-function renderDays() {
-  daysContainer.innerHTML = "";
-  const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
-
-  days.forEach(day => {
-    const dayBlock = document.createElement("div");
-    dayBlock.className = "day-block";
-    dayBlock.innerHTML = `<h3>${day}</h3>`;
-    dayBlock.addEventListener("click", () => openAddHomeworkScreen(day));
-
-    // Ajouter les devoirs existants
-    const filteredHomework = homeworkData.filter(
-      hw => hw.week === currentWeek && hw.day === day
-    );
-
-    filteredHomework.forEach(hw => {
-      const hwDiv = document.createElement("div");
-      hwDiv.classList.add("homework-item");
-      hwDiv.classList.add(`hw-${hw.type}`);
-      hwDiv.innerHTML = `
-        <span class="branch-${hw.branch.toLowerCase()}">${hw.branch}</span> : ${hw.title}
-      `;
-      hwDiv.addEventListener("click", (e) => {
-        // Empêcher d'ouvrir l'écran d'ajout en même temps
-        e.stopPropagation();
-        openHomeworkDetails(hw.id);
+  
+  /*****************************************************
+   * Génération de l'affichage des jours (lundi->vendredi)
+   *****************************************************/
+  function generateDays() {
+    const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
+    mainContent.innerHTML = "";
+    days.forEach((day) => {
+      const dayContainer = document.createElement("div");
+      dayContainer.classList.add("day-container");
+  
+      // Exemple de date fictive, ici on ne calcule pas la date réelle
+      const randomDate = "04.10";
+  
+      const dayTitle = document.createElement("h3");
+      dayTitle.textContent = `${day} ${randomDate}`;
+      dayTitle.addEventListener("click", () => {
+        // Ouvrir l'écran d'ajout de devoir pour ce jour
+        currentDayClicked = day;
+        openAddTaskScreen();
       });
-      dayBlock.appendChild(hwDiv);
+  
+      dayContainer.appendChild(dayTitle);
+  
+      // Liste de tâches
+      const tasksList = document.createElement("div");
+      tasksList.classList.add("tasks-list");
+      tasksList.id = `tasks-${day}`;
+      dayContainer.appendChild(tasksList);
+  
+      mainContent.appendChild(dayContainer);
     });
-
-    daysContainer.appendChild(dayBlock);
-  });
-}
-
-/*******************************************************
- * Ouverture/fermeture de l'écran d'ajout
- *******************************************************/
-function openAddHomeworkScreen(day) {
-  currentDayForAdd = day;
-  selectedType = null;
-  selectedBranch = null;
-  homeworkTitleInput.value = "";
-  addHomeworkScreen.classList.remove("hidden");
-}
-
-function closeAddHomeworkScreen() {
-  addHomeworkScreen.classList.add("hidden");
-}
-
-/*******************************************************
- * Affichage des boutons de branches (ajout d’un devoir)
- *******************************************************/
-function renderBranchButtons() {
-  const container = document.querySelector(".branch-container");
-  container.innerHTML = "";
-
-  BRANCHES.forEach(branch => {
-    const btn = document.createElement("button");
-    btn.classList.add("branch-btn");
-    btn.dataset.branch = branch;
-    btn.textContent = branch;
-    btn.addEventListener("click", () => {
-      selectedBranch = branch;
-      // Visuel : mettre en évidence la sélection
-      highlightSelectedBranchButton(branch);
+  }
+  
+  /*****************************************************
+   * Chargement des devoirs depuis Firestore
+   *****************************************************/
+  function loadTasksForWeek(week) {
+    // On vide l'affichage des tâches
+    const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
+    days.forEach(day => {
+      const tasksList = document.getElementById(`tasks-${day}`);
+      if (tasksList) tasksList.innerHTML = "";
     });
-    container.appendChild(btn);
-  });
-}
-
-function highlightSelectedBranchButton(branch) {
-  const container = document.querySelector(".branch-container");
-  const buttons = container.querySelectorAll(".branch-btn");
-  buttons.forEach(btn => {
-    btn.style.outline = "none";
-  });
-  const selectedBtn = container.querySelector(`[data-branch="${branch}"]`);
-  if (selectedBtn) {
-    selectedBtn.style.outline = "2px solid #fff";
+  
+    db.collection("tasks")
+      .where("week", "==", week)
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const taskData = doc.data();
+          displayTask(doc.id, taskData);
+        });
+      })
+      .catch((error) => {
+        console.error("Erreur lors du chargement des tâches:", error);
+      });
   }
-}
-
-/*******************************************************
- * Création du devoir
- *******************************************************/
-function createHomework() {
-  if (!selectedBranch || !selectedType || !homeworkTitleInput.value.trim()) {
-    alert("Veuillez sélectionner une branche, un type de devoir et saisir un titre.");
-    return;
+  
+  /*****************************************************
+   * Affichage d'un devoir dans la liste
+   *****************************************************/
+  function displayTask(taskId, taskData) {
+    const tasksList = document.getElementById(`tasks-${taskData.day}`);
+    if (!tasksList) return; // Au cas où
+  
+    const taskItem = document.createElement("div");
+    taskItem.classList.add("task-item");
+  
+    // Couleur et style selon type de devoir
+    if (taskData.type === "Devoir") {
+      taskItem.classList.add("devoir");
+    } else if (taskData.type === "TA") {
+      taskItem.classList.add("ta");
+    } else if (taskData.type === "TS") {
+      taskItem.classList.add("ts");
+    }
+  
+    // Couleur par branche (class .all, .fra, .math, etc.)
+    taskItem.classList.add(taskData.branch.toLowerCase());
+  
+    taskItem.textContent = `${taskData.branch} : ${taskData.title}`;
+    taskItem.addEventListener("click", () => {
+      openTaskDetailsScreen(taskId, taskData);
+    });
+  
+    tasksList.appendChild(taskItem);
   }
-
-  // Créer un ID unique
-  const hwId = Date.now().toString();
-
-  // Gestion des pièces jointes
-  const files = attachmentInput.files;
-  const attachmentsArray = [];
-  if (files.length > 0) {
-    // Pour simplifier, on ne fait pas de conversion, juste on enregistre les noms
-    for (let i = 0; i < files.length; i++) {
-      attachmentsArray.push(files[i].name);
+  
+  /*****************************************************
+   * Ouverture de l'écran d'ajout de devoir
+   *****************************************************/
+  function openAddTaskScreen() {
+    addTaskScreen.classList.remove("hidden");
+  
+    // Réinitialise les sélections
+    clearAddTaskForm();
+  }
+  
+  function clearAddTaskForm() {
+    selectedTaskBranch = null;
+    selectedTaskType = null;
+    taskTitleInput.value = "";
+    attachmentInput.value = "";
+    // Retire la sélection visuelle sur les branch-button
+    document.querySelectorAll(".branch-button").forEach(btn => {
+      btn.classList.remove("selected-branch");
+    });
+    // Retire la sélection visuelle sur type de devoir
+    [typeDevoirBtn, typeTaBtn, typeTsBtn].forEach(btn => {
+      btn.classList.remove("selected-type");
+    });
+  }
+  
+  /*****************************************************
+   * Fermeture de l'écran d'ajout de devoir
+   *****************************************************/
+  cancelAddTaskBtn.addEventListener("click", () => {
+    addTaskScreen.classList.add("hidden");
+  });
+  
+  /*****************************************************
+   * Génération de la liste de branches dans l'écran d'ajout
+   *****************************************************/
+  function generateBranchSelection() {
+    branches.forEach((branch) => {
+      const btn = document.createElement("button");
+      btn.classList.add("branch-button");
+      btn.style.backgroundColor = branch.color;
+      btn.textContent = branch.code;
+  
+      btn.addEventListener("click", () => {
+        // Retire la sélection visuelle sur tous
+        document.querySelectorAll(".branch-button").forEach(b => {
+          b.classList.remove("selected-branch");
+        });
+        // Applique sur celui qu'on vient de cliquer
+        btn.classList.add("selected-branch");
+        selectedTaskBranch = branch.code;
+      });
+  
+      branchSelectionContainer.appendChild(btn);
+    });
+  }
+  
+  /*****************************************************
+   * Sélection du type de devoir
+   *****************************************************/
+  [typeDevoirBtn, typeTaBtn, typeTsBtn].forEach(button => {
+    button.addEventListener("click", () => {
+      [typeDevoirBtn, typeTaBtn, typeTsBtn].forEach(b => {
+        b.classList.remove("selected-type");
+      });
+      button.classList.add("selected-type");
+      selectedTaskType = button.dataset.type;
+    });
+  });
+  
+  /*****************************************************
+   * Ajout du devoir en base
+   *****************************************************/
+  confirmAddTaskBtn.addEventListener("click", () => {
+    if (!selectedTaskBranch || !selectedTaskType) {
+      alert("Merci de sélectionner une branche et un type de devoir (Devoir, TA ou TS).");
+      return;
+    }
+    const title = taskTitleInput.value.trim();
+    if (!title) {
+      alert("Merci d'indiquer un titre de devoir.");
+      return;
+    }
+  
+    const attachments = attachmentInput.files; // FileList
+  
+    // On va stocker d'abord le devoir, puis on upload éventuellement les fichiers
+    db.collection("tasks")
+      .add({
+        branch: selectedTaskBranch,
+        type: selectedTaskType,
+        title: title,
+        day: currentDayClicked,
+        week: currentWeek,
+        attachments: [] // on mettra les URLs après upload
+      })
+      .then(async (docRef) => {
+        // Upload des pièces jointes si besoin
+        const attachmentURLs = [];
+  
+        for (let i = 0; i < attachments.length; i++) {
+          const file = attachments[i];
+          const storageRef = storage.ref(`attachments/${docRef.id}/${file.name}`);
+          const snapshot = await storageRef.put(file);
+          const url = await snapshot.ref.getDownloadURL();
+          attachmentURLs.push({ name: file.name, url });
+        }
+  
+        // Mise à jour du document avec les URLs
+        if (attachmentURLs.length > 0) {
+          await db.collection("tasks").doc(docRef.id).update({
+            attachments: attachmentURLs
+          });
+        }
+  
+        // Recharge l'affichage
+        loadTasksForWeek(currentWeek);
+  
+        addTaskScreen.classList.add("hidden");
+      })
+      .catch(err => {
+        console.error("Erreur lors de l'ajout de devoir:", err);
+      });
+  });
+  
+  /*****************************************************
+   * Affichage des détails d'un devoir
+   *****************************************************/
+  function openTaskDetailsScreen(taskId, taskData) {
+    selectedTaskId = taskId;
+    selectedTaskData = taskData;
+    taskDetailsScreen.classList.remove("hidden");
+  
+    // Remplit le contenu
+    detailsTaskTitle.textContent = `${taskData.branch} : ${taskData.title}`;
+    attachmentsList.innerHTML = "";
+  
+    if (taskData.attachments && taskData.attachments.length > 0) {
+      taskData.attachments.forEach((att) => {
+        const attItem = document.createElement("div");
+        attItem.classList.add("attachment-item");
+        attItem.textContent = att.name;
+        attItem.addEventListener("click", () => {
+          window.open(att.url, "_blank");
+        });
+        attachmentsList.appendChild(attItem);
+      });
     }
   }
-
-  const newHomework = {
-    id: hwId,
-    week: currentWeek,
-    day: currentDayForAdd,
-    branch: selectedBranch,
-    type: selectedType,
-    title: homeworkTitleInput.value.trim(),
-    attachments: attachmentsArray
-  };
-
-  homeworkData.push(newHomework);
-
-  // Remise à zéro de l'input file
-  attachmentInput.value = "";
-  // Réinitialiser la sélection
-  selectedBranch = null;
-  highlightSelectedBranchButton(null);
-  selectedType = null;
-  resetTypeButtons();
-  homeworkTitleInput.value = "";
-
-  // Mettre à jour l’affichage
-  renderDays();
-  closeAddHomeworkScreen();
-
-  // Sauvegarder
-  saveDataToLocalStorage();
-}
-
-function resetTypeButtons() {
-  const typeButtons = document.querySelectorAll(".type-btn");
-  typeButtons.forEach(btn => {
-    btn.style.outline = "none";
+  
+  /*****************************************************
+   * Retour à l'écran principal sans modifier
+   *****************************************************/
+  backToMainBtn.addEventListener("click", () => {
+    taskDetailsScreen.classList.add("hidden");
+    // Réinitialise le mode édition
+    disableEditMode();
   });
-}
-
-/*******************************************************
- * Sélection du type de devoir
- *******************************************************/
-const typeBtns = document.querySelectorAll(".type-btn");
-typeBtns.forEach(btn => {
-  btn.addEventListener("click", () => {
-    selectedType = btn.getAttribute("data-type");
-    resetTypeButtons();
-    btn.style.outline = "2px solid #fff";
+  
+  /*****************************************************
+   * Mode édition : modifier le nom du devoir, etc.
+   *****************************************************/
+  toggleEditBtn.addEventListener("click", () => {
+    const editModeContainer = document.getElementById("edit-mode");
+    editModeContainer.classList.toggle("hidden");
+    validateChangesBtn.classList.toggle("hidden");
+  
+    if (!editModeContainer.classList.contains("hidden")) {
+      // On active l'édition
+      toggleEditBtn.textContent = "Annuler";
+      // Pré-remplir
+      editTaskTitleInput.value = selectedTaskData.title;
+    } else {
+      // On annule
+      toggleEditBtn.textContent = "Modifier";
+    }
   });
-});
-
-/*******************************************************
- * Voir les détails d'un devoir
- *******************************************************/
-function openHomeworkDetails(hwId) {
-  currentHomeworkId = hwId;
-  const hw = homeworkData.find(item => item.id === hwId);
-  if (!hw) return;
-
-  detailsTitle.textContent = `${hw.branch} : ${hw.title}`;
-  renderAttachments(hw.attachments);
-
-  // Mode lecture seule par défaut
-  homeworkTitleInput.disabled = true;
-
-  detailsScreen.classList.remove("hidden");
-}
-
-function renderAttachments(attachmentsArr) {
-  detailsAttachments.innerHTML = "";
-  attachmentsArr.forEach(att => {
-    const li = document.createElement("li");
-    li.textContent = att;
-    detailsAttachments.appendChild(li);
+  
+  function disableEditMode() {
+    document.getElementById("edit-mode").classList.add("hidden");
+    validateChangesBtn.classList.add("hidden");
+    toggleEditBtn.textContent = "Modifier";
+  }
+  
+  /*****************************************************
+   * Validation des modifications
+   *****************************************************/
+  validateChangesBtn.addEventListener("click", async () => {
+    const newTitle = editTaskTitleInput.value.trim();
+    const newAttachments = editAttachmentInput.files;
+    const updates = {};
+  
+    if (newTitle && newTitle !== selectedTaskData.title) {
+      updates.title = newTitle;
+    }
+  
+    // Upload des nouvelles pièces jointes si besoin
+    if (newAttachments.length > 0) {
+      const newAttURLs = selectedTaskData.attachments ? [...selectedTaskData.attachments] : [];
+      for (let i = 0; i < newAttachments.length; i++) {
+        const file = newAttachments[i];
+        const storageRef = storage.ref(`attachments/${selectedTaskId}/${file.name}`);
+        const snapshot = await storageRef.put(file);
+        const url = await snapshot.ref.getDownloadURL();
+        newAttURLs.push({ name: file.name, url });
+      }
+      updates.attachments = newAttURLs;
+    }
+  
+    try {
+      if (Object.keys(updates).length > 0) {
+        await db.collection("tasks").doc(selectedTaskId).update(updates);
+      }
+      // Recharge
+      db.collection("tasks").doc(selectedTaskId).get().then(doc => {
+        if (doc.exists) {
+          selectedTaskData = doc.data();
+          detailsTaskTitle.textContent = `${selectedTaskData.branch} : ${selectedTaskData.title}`;
+          // Réaffiche les attachments
+          attachmentsList.innerHTML = "";
+          if (selectedTaskData.attachments) {
+            selectedTaskData.attachments.forEach(att => {
+              const attItem = document.createElement("div");
+              attItem.classList.add("attachment-item");
+              attItem.textContent = att.name;
+              attItem.addEventListener("click", () => {
+                window.open(att.url, "_blank");
+              });
+              attachmentsList.appendChild(attItem);
+            });
+          }
+        }
+      });
+  
+      disableEditMode();
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du devoir:", error);
+    }
   });
-}
-
-/*******************************************************
- * Modifier un devoir
- *******************************************************/
-function enableHomeworkEditing() {
-  const hw = homeworkData.find(item => item.id === currentHomeworkId);
-  if (!hw) return;
-
-  // Permettre de changer le titre
-  const newTitle = prompt("Modifiez le titre du devoir :", hw.title);
-  if (newTitle !== null) {
-    hw.title = newTitle.trim() || hw.title;
-  }
-
-  // Permettre d’ajouter de nouvelles pièces jointes
-  const newFiles = prompt("Ajouter des noms de fichiers séparés par des virgules (ou laisser vide) :");
-  if (newFiles && newFiles.trim().length > 0) {
-    hw.attachments = hw.attachments.concat(newFiles.split(",").map(f => f.trim()));
-  }
-
-  detailsTitle.textContent = `${hw.branch} : ${hw.title}`;
-  renderAttachments(hw.attachments);
-}
-
-/*******************************************************
- * Valider la modification
- *******************************************************/
-function validateHomeworkEditing() {
-  detailsScreen.classList.add("hidden");
-  saveDataToLocalStorage();
-  renderDays();
-}
-
-/*******************************************************
- * Suppression du devoir
- *******************************************************/
-function confirmDelete() {
-  if (deletePasswordInput.value !== DELETE_PASSWORD) {
-    alert("Mot de passe incorrect.");
-    return;
-  }
-
-  homeworkData = homeworkData.filter(item => item.id !== currentHomeworkId);
-  deleteModal.classList.add("hidden");
-  detailsScreen.classList.add("hidden");
-  saveDataToLocalStorage();
-  renderDays();
-}
-
-/*******************************************************
- * Bibliothèque
- *******************************************************/
-function renderLibraryMain() {
-  libraryMain.innerHTML = "";
-  BRANCHES.forEach(branch => {
-    const btn = document.createElement("button");
-    btn.classList.add("library-btn");
-    btn.style.backgroundColor = getBranchColor(branch);
-    btn.textContent = branch;
-    btn.addEventListener("click", () => openBranchLibrary(branch));
-    libraryMain.appendChild(btn);
+  
+  /*****************************************************
+   * Suppression du devoir (demande mot de passe)
+   *****************************************************/
+  deleteTaskBtn.addEventListener("click", () => {
+    passwordModal.classList.remove("hidden");
+    deletePasswordInput.value = "";
   });
-}
-
-function openBranchLibrary(branch) {
-  branchLibraryTitle.textContent = "Manuels " + branch;
-  renderBranchManuals(branch);
-  branchLibraryScreen.classList.remove("hidden");
-}
-
-function renderBranchManuals(branch) {
-  manualsList.innerHTML = "";
-  manuels[branch].forEach((manual, idx) => {
-    const li = document.createElement("li");
-    li.innerHTML = `<a href="${manual.link}" target="_blank">${manual.title}</a>`;
-    manualsList.appendChild(li);
+  
+  cancelDeleteBtn.addEventListener("click", () => {
+    passwordModal.classList.add("hidden");
   });
-  // Retenir la branche en cours pour ajouter un manuel
-  branchLibraryScreen.dataset.currentBranch = branch;
-}
-
-function createManual() {
-  const branch = branchLibraryScreen.dataset.currentBranch;
-  const title = manualTitleInput.value.trim();
-  const link = manualLinkInput.value.trim();
-  if (!title || !link) {
-    alert("Veuillez renseigner un titre et un lien PDF.");
-    return;
+  
+  confirmDeleteBtn.addEventListener("click", () => {
+    const pwd = deletePasswordInput.value;
+    if (pwd !== "xxx") {
+      alert("Mot de passe incorrect.");
+      return;
+    }
+    // Supprimer
+    db.collection("tasks").doc(selectedTaskId).delete().then(() => {
+      passwordModal.classList.add("hidden");
+      taskDetailsScreen.classList.add("hidden");
+      loadTasksForWeek(currentWeek);
+    }).catch(err => {
+      console.error("Erreur lors de la suppression:", err);
+    });
+  });
+  
+  /*****************************************************
+   * Bibliothèque
+   *****************************************************/
+  libraryButton.addEventListener("click", () => {
+    libraryScreen.classList.remove("hidden");
+  });
+  closeLibraryBtn.addEventListener("click", () => {
+    libraryScreen.classList.add("hidden");
+    manualsListContainer.classList.add("hidden");
+  });
+  
+  /* Génération des boutons de branches pour la bibliothèque */
+  function generateLibraryBranches() {
+    branches.forEach((branch) => {
+      const btn = document.createElement("button");
+      btn.classList.add("library-branch-button");
+      btn.style.backgroundColor = branch.color;
+      btn.textContent = branch.code;
+  
+      btn.addEventListener("click", () => {
+        selectedBranch = branch.code;
+        selectedBranchTitle.textContent = `Manuels ${branch.code}`;
+        manualsList.innerHTML = "";
+        manualsListContainer.classList.remove("hidden");
+        loadManualsForBranch(branch.code);
+      });
+  
+      libraryBranchesContainer.appendChild(btn);
+    });
   }
-  manuels[branch].push({ title, link });
-  manualTitleInput.value = "";
-  manualLinkInput.value = "";
-  renderBranchManuals(branch);
-  saveDataToLocalStorage();
-  addManualScreen.classList.add("hidden");
-}
-
-/*******************************************************
- * Couleurs associées à chaque branche
- *******************************************************/
-function getBranchColor(branch) {
-  switch(branch) {
-    case "All":    return "#8e44ad";
-    case "Fra":    return "#2c3e50";
-    case "Math":   return "#e67e22";
-    case "His":    return "#b71c1c";
-    case "Géo":    return "#00695c";
-    case "Ang":    return "#1e88e5";
-    case "Scn":    return "#43a047";
-    case "Mus":    return "#e91e63";
-    case "AVI":    return "#9c27b0";
-    case "Forgen": return "#37474f";
-    case "Autre":  return "#757575";
-    default:       return "#ccc";
+  
+  /* Charger la liste des manuels pour une branche */
+  function loadManualsForBranch(branchCode) {
+    db.collection("manuals")
+      .where("branch", "==", branchCode)
+      .get()
+      .then((snapshot) => {
+        manualsList.innerHTML = "";
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const li = document.createElement("li");
+          const spanTitle = document.createElement("span");
+          spanTitle.textContent = data.title;
+          spanTitle.classList.add("manual-title");
+          spanTitle.addEventListener("click", () => {
+            // Ouvre le PDF dans un nouvel onglet
+            window.open(data.pdfUrl, "_blank");
+          });
+          li.appendChild(spanTitle);
+  
+          // Bouton de suppression
+          const deleteBtn = document.createElement("button");
+          deleteBtn.textContent = "X";
+          deleteBtn.style.marginLeft = "1rem";
+          deleteBtn.addEventListener("click", () => {
+            askDeleteManual(doc.id);
+          });
+          li.appendChild(deleteBtn);
+  
+          manualsList.appendChild(li);
+        });
+      })
+      .catch(err => console.error("Erreur lors du chargement des manuels:", err));
   }
-}
-
-/*******************************************************
- * Sauvegarde / Chargement (LocalStorage)
- * Remarque : cette approche ne permet pas le partage
- *            entre plusieurs utilisateurs en ligne.
- *******************************************************/
-function saveDataToLocalStorage() {
-  localStorage.setItem("homeworkData", JSON.stringify(homeworkData));
-  localStorage.setItem("manuels", JSON.stringify(manuels));
-}
-
-function loadDataFromLocalStorage() {
-  const hwData = localStorage.getItem("homeworkData");
-  if (hwData) {
-    homeworkData = JSON.parse(hwData);
+  
+  /* Ajouter un manuel */
+  addManualButton.addEventListener("click", () => {
+    if (!selectedBranch) return;
+    addManualModal.classList.remove("hidden");
+  });
+  
+  cancelAddManualBtn.addEventListener("click", () => {
+    addManualModal.classList.add("hidden");
+    manualTitleInput.value = "";
+    manualUrlInput.value = "";
+  });
+  
+  confirmAddManualBtn.addEventListener("click", async () => {
+    const title = manualTitleInput.value.trim();
+    const pdfUrl = manualUrlInput.value.trim();
+    if (!title || !pdfUrl || !selectedBranch) {
+      alert("Veuillez remplir toutes les informations.");
+      return;
+    }
+    try {
+      await db.collection("manuals").add({
+        branch: selectedBranch,
+        title,
+        pdfUrl
+      });
+      addManualModal.classList.add("hidden");
+      manualTitleInput.value = "";
+      manualUrlInput.value = "";
+      loadManualsForBranch(selectedBranch);
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du manuel:", error);
+    }
+  });
+  
+  /* Demander un mot de passe pour supprimer un manuel */
+  function askDeleteManual(manualId) {
+    passwordModal.classList.remove("hidden");
+    deletePasswordInput.value = "";
+    confirmDeleteBtn.onclick = () => {
+      const pwd = deletePasswordInput.value;
+      if (pwd !== "xxx") {
+        alert("Mot de passe incorrect.");
+        return;
+      }
+      db.collection("manuals").doc(manualId).delete()
+        .then(() => {
+          passwordModal.classList.add("hidden");
+          loadManualsForBranch(selectedBranch);
+        })
+        .catch(err => console.error("Erreur lors de la suppression du manuel:", err));
+    };
   }
-
-  const manualsData = localStorage.getItem("manuels");
-  if (manualsData) {
-    manuels = JSON.parse(manualsData);
-  }
-}
