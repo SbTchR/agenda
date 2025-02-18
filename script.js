@@ -7,7 +7,7 @@ const firebaseConfig = {
     projectId: "agenda-bed4f",
     storageBucket: "agenda-bed4f.appspot.com",
     messagingSenderId: "993980335293",
-    appId: "G-99GFMTCCCG"
+    appId: "1:993980335293:web:90aa697c134c89e8b5e3d4"
   };
   
 // Initialisation de Firebase
