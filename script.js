@@ -217,34 +217,40 @@ function loadTasksForWeek(week) {
  * Affichage d'un devoir dans la liste
  *****************************************************/
 function displayTask(taskId, taskData) {
-  const tasksList = document.getElementById(`tasks-${taskData.day}`);
-  if (!tasksList) return; // Si "day" n'est pas un des 5 jours, on ignore
-
-  const taskItem = document.createElement("div");
-  taskItem.classList.add("task-item");
-
-  // Couleur et style selon le type
-  if (taskData.type === "Devoir") {
-    taskItem.classList.add("devoir");
-  } else if (taskData.type === "TA") {
-    taskItem.classList.add("ta");
-  } else if (taskData.type === "TS") {
-    taskItem.classList.add("ts");
+    const tasksList = document.getElementById(`tasks-${taskData.day}`);
+    if (!tasksList) return; // Si "day" n'est pas un des 5 jours, on ignore
+  
+    // Vérifier si la tâche est déjà affichée
+    if (tasksList.querySelector(`[data-task-id="${taskId}"]`)) {
+      return; // Si oui, ne pas ajouter une nouvelle instance
+    }
+  
+    const taskItem = document.createElement("div");
+    taskItem.setAttribute("data-task-id", taskId);
+    taskItem.classList.add("task-item");
+  
+    // Appliquer le style selon le type de devoir
+    if (taskData.type === "Devoir") {
+      taskItem.classList.add("devoir");
+    } else if (taskData.type === "TA") {
+      taskItem.classList.add("ta");
+    } else if (taskData.type === "TS") {
+      taskItem.classList.add("ts");
+    }
+  
+    // Appliquer le style selon la branche
+    if (taskData.branch) {
+      taskItem.classList.add(taskData.branch.toLowerCase());
+    }
+  
+    taskItem.textContent = `${taskData.branch} : ${taskData.title}`;
+  
+    taskItem.addEventListener("click", () => {
+      openTaskDetailsScreen(taskId, taskData);
+    });
+  
+    tasksList.appendChild(taskItem);
   }
-
-  // Couleur par branche (ex: .all, .fra, etc.)
-  if (taskData.branch) {
-    taskItem.classList.add(taskData.branch.toLowerCase());
-  }
-
-  taskItem.textContent = `${taskData.branch} : ${taskData.title}`;
-
-  taskItem.addEventListener("click", () => {
-    openTaskDetailsScreen(taskId, taskData);
-  });
-
-  tasksList.appendChild(taskItem);
-}
 
 /*****************************************************
  * Ouverture de l'écran d'ajout de devoir
@@ -414,13 +420,53 @@ function openTaskDetailsScreen(taskId, taskData) {
   attachmentsList.innerHTML = "";
 
   if (taskData.attachments && taskData.attachments.length > 0) {
-    taskData.attachments.forEach((att) => {
+    taskData.attachments.forEach((att, index) => {
       const attItem = document.createElement("div");
       attItem.classList.add("attachment-item");
-      attItem.textContent = att.name;
-      attItem.addEventListener("click", () => {
+      attItem.style.display = "flex";
+      attItem.style.alignItems = "center";
+  
+      const attText = document.createElement("span");
+      attText.textContent = att.name;
+      attText.style.flexGrow = "1";
+      attText.style.cursor = "pointer";
+      attText.addEventListener("click", () => {
         window.open(att.url, "_blank");
       });
+      attItem.appendChild(attText);
+  
+      // Ajout de la petite croix pour supprimer l'attachement
+      const deleteIcon = document.createElement("span");
+      deleteIcon.textContent = "✖";
+      deleteIcon.style.cursor = "pointer";
+      deleteIcon.style.marginLeft = "10px";
+      deleteIcon.style.color = "#f44336";
+      deleteIcon.addEventListener("click", () => {
+        const code = prompt("Entrez le code pour supprimer cette pièce jointe:");
+        if (code !== "xxx") {
+          alert("Code incorrect.");
+          return;
+        }
+        // Mise à jour du tableau des pièces jointes : retirer l'élément cliqué
+        const updatedAttachments = taskData.attachments.filter((_, i) => i !== index);
+        db.collection("tasks").doc(taskId).update({
+          attachments: updatedAttachments
+        })
+        .then(() => {
+          // Optionnel : supprimer le fichier de Storage si nécessaire.
+          // Par exemple, pour supprimer : 
+          // const fileRef = storage.refFromURL(att.url);
+          // fileRef.delete().catch(err => console.error("Erreur lors de la suppression du fichier :", err));
+          
+          // Actualiser l'affichage des détails du devoir
+          openTaskDetailsScreen(taskId, { ...taskData, attachments: updatedAttachments });
+        })
+        .catch(err => {
+          console.error("Erreur lors de la suppression de la pièce jointe:", err);
+        });
+      });
+      attItem.appendChild(deleteIcon);
+      
       attachmentsList.appendChild(attItem);
     });
   }
