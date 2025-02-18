@@ -435,28 +435,30 @@ function openTaskDetailsScreen(taskId, taskData) {
         });
         attItem.appendChild(attText);
   
-        // Création de l'icône de suppression (croix)
+        // Création de la petite croix pour supprimer
         const deleteIcon = document.createElement("span");
         deleteIcon.textContent = "✖";
         deleteIcon.style.cursor = "pointer";
         deleteIcon.style.marginLeft = "10px";
         deleteIcon.style.color = "#f44336";
-        
-        // Ajout d'un console.log pour vérifier le clic
-        deleteIcon.addEventListener("click", () => {
+        // Optionnel : ajouter une bordure temporaire pour le debug
+        // deleteIcon.style.border = "1px solid red";
+  
+        deleteIcon.addEventListener("click", (event) => {
+          event.stopPropagation();
           console.log("Delete icon clicked for attachment:", att.name);
           const code = prompt("Entrez le code pour supprimer cette pièce jointe:");
           if (code !== "xxx") {
             alert("Code incorrect.");
             return;
           }
-          // Mise à jour du tableau des pièces jointes : retirer l'élément cliqué
+          // Retirer l'attachement de la liste
           const updatedAttachments = taskData.attachments.filter((_, i) => i !== index);
           db.collection("tasks").doc(taskId).update({
             attachments: updatedAttachments
           })
           .then(() => {
-            // Actualiser l'affichage des détails du devoir
+            // Rafraîchir l'affichage en rappelant openTaskDetailsScreen
             openTaskDetailsScreen(taskId, { ...taskData, attachments: updatedAttachments });
           })
           .catch(err => {
@@ -464,7 +466,7 @@ function openTaskDetailsScreen(taskId, taskData) {
           });
         });
         attItem.appendChild(deleteIcon);
-        
+  
         attachmentsList.appendChild(attItem);
       });
     }
