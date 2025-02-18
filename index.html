@@ -1,35 +1,172 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agenda</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agenda Scolaire</title>
+  <!-- Import de la police Nunito -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap"
+    rel="stylesheet">
+  <!-- Feuille de style -->
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-gray-100 font-nunito">
-    <header class="bg-white shadow p-4 flex justify-between items-center">
-        <div class="relative">
-            <button id="week-selector" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all">
-                S. 1
-            </button>
-            <div id="week-dropdown" class="hidden absolute bg-white shadow-lg rounded-lg mt-2 max-h-64 overflow-y-auto">
-                <!-- Liste des semaines (générée dynamiquement) -->
-            </div>
-        </div>
-        <span id="week-dates" class="text-gray-700">4 - 8 octobre</span>
-        <a href="library.html">
-            <img src="assets/icons/book.svg" alt="Bibliothèque" class="w-8 h-8 hover:scale-110 transition-transform">
-        </a>
-    </header>
+<body>
+  <!-- Barre de navigation en haut (bouton semaine, dates, bouton bibliothèque) -->
+  <header id="header">
+    <div class="header-left">
+      <button id="weekSelectorBtn" class="glassmorph">
+        <span id="currentWeekDisplay">S. 1</span>
+      </button>
+      <ul id="weekList" class="glassmorph hidden"></ul>
+    </div>
+    <div id="weekDates" class="header-dates">4 - 8 octobre</div>
+    <div class="header-right">
+      <button id="openLibraryBtn" class="glassmorph" title="Bibliothèque">
+        <!-- Icône livre (exemple simple) -->
+        📚
+      </button>
+    </div>
+  </header>
 
-    <main class="p-4 space-y-4">
-        <div id="days-container">
-            <!-- Les jours et devoirs seront générés dynamiquement -->
-        </div>
-    </main>
+  <!-- Section principale : jours de la semaine + devoirs -->
+  <main id="mainContent">
+    <div id="daysContainer">
+      <!-- Les 5 jours seront gérés dynamiquement par script.js -->
+    </div>
+  </main>
 
-    <script src="js/main.js"></script>
+  <!-- Ecran : Ajout d’un devoir -->
+  <div id="addHomeworkScreen" class="overlay hidden">
+    <div class="overlay-content glassmorph">
+      <div class="overlay-header">
+        <h2>Ajouter un devoir</h2>
+        <button id="closeAddBtn" class="close-btn" title="Annuler">✕</button>
+      </div>
+
+      <!-- Sélection de la branche -->
+      <div class="branch-container">
+        <!-- Branches gérées par script.js -->
+      </div>
+
+      <!-- Sélection du type de devoir -->
+      <div class="type-container">
+        <button class="type-btn devoir" data-type="devoir">Devoir</button>
+        <button class="type-btn ta" data-type="ta">TA</button>
+        <button class="type-btn ts" data-type="ts">TS</button>
+      </div>
+
+      <!-- Nom du devoir -->
+      <input
+        type="text"
+        id="homeworkTitle"
+        class="input-title"
+        placeholder="Titre du devoir..."
+      />
+
+      <!-- Ajout de pièces jointes (fichier / photo) -->
+      <button id="addAttachmentBtn" class="attach-btn">
+        Ajouter un document/photo
+      </button>
+      <input type="file" id="attachmentInput" class="hidden" multiple />
+
+      <!-- Bouton pour créer le devoir -->
+      <button id="createHomeworkBtn" class="create-btn">
+        Ajouter
+      </button>
+    </div>
+  </div>
+
+  <!-- Ecran : Détails d’un devoir -->
+  <div id="detailsScreen" class="overlay hidden">
+    <div class="overlay-content glassmorph">
+      <div class="overlay-header">
+        <button id="detailsBackBtn" class="back-btn" title="Retour">
+          ←
+        </button>
+      </div>
+      <div id="detailsTitle" class="details-title"></div>
+      <ul id="detailsAttachments" class="attachments-list"></ul>
+      <div class="details-buttons">
+        <button id="modifyBtn" class="modify-btn">Modifier</button>
+        <button id="validateBtn" class="validate-btn">Valider</button>
+      </div>
+      <div class="delete-container">
+        <button id="deleteBtn" class="delete-btn">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boîte de dialogue pour supprimer un devoir (mot de passe) -->
+  <div id="deleteModal" class="overlay hidden">
+    <div class="overlay-content glassmorph">
+      <h3>Mot de passe requis</h3>
+      <input
+        type="password"
+        id="deletePassword"
+        placeholder="Entrez le mot de passe"
+        class="input-title"
+      />
+      <div class="delete-modal-buttons">
+        <button id="confirmDeleteBtn">Confirmer</button>
+        <button id="cancelDeleteBtn">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ecran : Bibliothèque de manuels (page principale) -->
+  <div id="libraryScreen" class="overlay hidden">
+    <div class="overlay-content glassmorph">
+      <div class="overlay-header">
+        <h2>Bibliothèque</h2>
+        <button id="closeLibraryBtn" class="close-btn" title="Fermer">✕</button>
+      </div>
+      <div id="libraryMain" class="library-main">
+        <!-- Boutons de branches (gérés dynamiquement) -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Ecran : Liste des manuels d’une branche -->
+  <div id="branchLibraryScreen" class="overlay hidden">
+    <div class="overlay-content glassmorph">
+      <div class="overlay-header">
+        <button id="backToLibraryBtn" class="back-btn" title="Retour">←</button>
+        <h2 id="branchLibraryTitle">Manuels</h2>
+        <button id="addManualBtn" class="close-btn" title="Ajouter un manuel">+</button>
+      </div>
+      <ul id="manualsList" class="manuals-list"></ul>
+    </div>
+  </div>
+
+  <!-- Ecran : Ajout d’un manuel -->
+  <div id="addManualScreen" class="overlay hidden">
+    <div class="overlay-content glassmorph">
+      <div class="overlay-header">
+        <h2>Ajouter un manuel</h2>
+        <button id="closeAddManualBtn" class="close-btn" title="Annuler">✕</button>
+      </div>
+      <input
+        type="text"
+        id="manualTitleInput"
+        class="input-title"
+        placeholder="Titre du manuel..."
+      />
+      <input
+        type="text"
+        id="manualLinkInput"
+        class="input-title"
+        placeholder="Lien PDF..."
+      />
+      <button id="createManualBtn" class="create-btn">
+        Ajouter
+      </button>
+    </div>
+  </div>
+
+  <!-- Script principal -->
+  <script src="script.js"></script>
 </body>
 </html>

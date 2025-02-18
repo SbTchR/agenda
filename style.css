@@ -1,0 +1,347 @@
+/* Réinitialisation simple */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Police Nunito */
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #f0f4f8, #dae0e6);
+    color: #333;
+    min-height: 100vh;
+  }
+  
+  /* Header (barre du haut) */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    position: relative;
+  }
+  
+  .header-left,
+  .header-right {
+    display: flex;
+    align-items: center;
+  }
+  
+  .header-dates {
+    font-weight: 600;
+    margin: 0 1rem;
+  }
+  
+  /* Bouton de sélection de semaine + liste */
+  #weekSelectorBtn {
+    cursor: pointer;
+    margin-right: 1rem;
+  }
+  #weekList {
+    position: absolute;
+    top: 3.5rem;
+    left: 1rem;
+    list-style: none;
+    border-radius: 1rem;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease-in-out;
+    z-index: 10;
+  }
+  
+  #weekList li {
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(8px);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+  }
+  
+  #weekList li:hover {
+    background: rgba(255,255,255,0.4);
+  }
+  
+  /* Apparence 'glassmorph' */
+  .glassmorph {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    transition: background 0.2s ease;
+  }
+  
+  .glassmorph:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  /* Contenu principal */
+  #mainContent {
+    padding: 1rem;
+  }
+  
+  #daysContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .day-block {
+    padding: 1rem;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  .day-block:hover {
+    background: rgba(255,255,255,0.25);
+  }
+  
+  .day-block h3 {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  
+  .homework-item {
+    margin: 0.3rem 0;
+    padding: 0.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  /* Couleurs par type de devoir */
+  .hw-devoir {
+    color: #0f4c75; /* bleu */
+  }
+  .hw-devoir:hover {
+    background: rgba(15,76,117,0.1);
+  }
+  
+  .hw-ta {
+    font-weight: 700;
+    color: #2e7d32; /* vert foncé */
+    background: rgba(46,125,50,0.2);
+  }
+  .hw-ta:hover {
+    background: rgba(46,125,50,0.3);
+  }
+  
+  .hw-ts {
+    font-weight: 700;
+    color: #c62828; /* rouge foncé */
+    background: rgba(198,40,40,0.2);
+  }
+  .hw-ts:hover {
+    background: rgba(198,40,40,0.3);
+  }
+  
+  /* Couleurs par branche (texte ou badge) */
+  .branch-all { color: #8e44ad; }  /* violet */
+  .branch-fra { color: #2c3e50; }  /* bleu-gris */
+  .branch-math { color: #e67e22; } /* orange */
+  .branch-his { color: #b71c1c; }  /* rouge foncé */
+  .branch-géo { color: #00695c; }  /* teal foncé */
+  .branch-ang { color: #1e88e5; }  /* bleu clair */
+  .branch-scn { color: #43a047; }  /* vert moyen */
+  .branch-mus { color: #e91e63; }  /* rose */
+  .branch-avi { color: #9c27b0; }  /* violet moyen */
+  .branch-forgen { color: #37474f; } /* gris foncé */
+  .branch-autre { color: #757575; } /* gris */
+  
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+  }
+  
+  .overlay-content {
+    width: 90%;
+    max-width: 500px;
+    padding: 1rem;
+    border-radius: 10px;
+    position: relative;
+  }
+  
+  .overlay-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .hidden {
+    display: none !important;
+  }
+  
+  .close-btn,
+  .back-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #333;
+  }
+  
+  .close-btn:hover,
+  .back-btn:hover {
+    color: #000;
+  }
+  
+  #deleteModal .overlay-content {
+    max-width: 300px;
+    text-align: center;
+  }
+  
+  .input-title {
+    width: 100%;
+    padding: 0.5rem;
+    margin: 0.7rem 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .attach-btn, .create-btn, .modify-btn, .validate-btn, .delete-btn {
+    margin-top: 0.7rem;
+    width: 100%;
+    padding: 0.7rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .attach-btn { background-color: #f0f0f0; }
+  .create-btn { background-color: #2196f3; color: #fff; }
+  .modify-btn { background-color: #ffa000; color: #fff; }
+  .validate-btn { background-color: #43a047; color: #fff; }
+  .delete-btn { background-color: #e53935; color: #fff; }
+  
+  .type-container {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+  }
+  
+  .type-btn {
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s ease;
+  }
+  
+  /* Couleurs pour les 3 types (boutons dans l'écran d'ajout) */
+  .type-btn.devoir {
+    background: rgba(15,76,117,0.2);
+  }
+  .type-btn.devoir:hover {
+    background: rgba(15,76,117,0.3);
+  }
+  .type-btn.ta {
+    background: rgba(46,125,50,0.2);
+  }
+  .type-btn.ta:hover {
+    background: rgba(46,125,50,0.3);
+  }
+  .type-btn.ts {
+    background: rgba(198,40,40,0.2);
+  }
+  .type-btn.ts:hover {
+    background: rgba(198,40,40,0.3);
+  }
+  
+  /* Branch selection container */
+  .branch-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin: 0.7rem 0;
+  }
+  
+  .branch-btn {
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: #fff;
+    text-align: center;
+    font-weight: 600;
+    transition: transform 0.2s ease;
+  }
+  
+  .branch-btn:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Couleurs associées aux branches (boutons de sélection) */
+  .branch-btn[data-branch="All"]   { background-color: #8e44ad; }
+  .branch-btn[data-branch="Fra"]   { background-color: #2c3e50; }
+  .branch-btn[data-branch="Math"]  { background-color: #e67e22; }
+  .branch-btn[data-branch="His"]   { background-color: #b71c1c; }
+  .branch-btn[data-branch="Géo"]   { background-color: #00695c; }
+  .branch-btn[data-branch="Ang"]   { background-color: #1e88e5; }
+  .branch-btn[data-branch="Scn"]   { background-color: #43a047; }
+  .branch-btn[data-branch="Mus"]   { background-color: #e91e63; }
+  .branch-btn[data-branch="AVI"]   { background-color: #9c27b0; }
+  .branch-btn[data-branch="Forgen"]{ background-color: #37474f; }
+  .branch-btn[data-branch="Autre"] { background-color: #757575; }
+  
+  .delete-modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  /* Bibliothèque principale */
+  .library-main {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .library-btn {
+    padding: 1rem;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    font-weight: 600;
+    transition: transform 0.2s ease;
+    text-align: center;
+  }
+  
+  .library-btn:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Liste des manuels */
+  .manuals-list {
+    list-style: none;
+    margin-top: 1rem;
+  }
+  
+  .manuals-list li {
+    padding: 0.5rem;
+    margin: 0.3rem 0;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(8px);
+    border-radius: 5px;
+  }
+  
+  .hidden {
+    display: none;
+  }
