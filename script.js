@@ -484,7 +484,11 @@ function openTaskDetailsScreen(taskId, taskData) {
             })
             .then(() => {
               // Rafraîchir l'affichage en rappelant openTaskDetailsScreen
-              openTaskDetailsScreen(taskId, { ...taskData, attachments: updatedAttachments });
+              db.collection("tasks").doc(taskId).get().then(doc => {
+                if (doc.exists) {
+                  openTaskDetailsScreen(taskId, doc.data());
+                }
+              });
             })
             .catch(err => {
               console.error("Erreur lors de la suppression de la pièce jointe:", err);
