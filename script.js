@@ -420,56 +420,86 @@ function openTaskDetailsScreen(taskId, taskData) {
     attachmentsList.innerHTML = "";
   
     if (taskData.attachments && taskData.attachments.length > 0) {
-      taskData.attachments.forEach((att, index) => {
-        const attItem = document.createElement("div");
-        attItem.classList.add("attachment-item");
-        attItem.style.display = "flex";
-        attItem.style.alignItems = "center";
-  
-        const attText = document.createElement("span");
-        attText.textContent = att.name;
-        attText.style.flexGrow = "1";
-        attText.style.cursor = "pointer";
-        attText.addEventListener("click", () => {
-          window.open(att.url, "_blank");
-        });
-        attItem.appendChild(attText);
-  
-        // Création de la petite croix pour supprimer
-        const deleteIcon = document.createElement("span");
-        deleteIcon.textContent = "✖";
-        deleteIcon.style.cursor = "pointer";
-        deleteIcon.style.marginLeft = "10px";
-        deleteIcon.style.color = "#f44336";
-        // Optionnel : ajouter une bordure temporaire pour le debug
-        // deleteIcon.style.border = "1px solid red";
-  
-        deleteIcon.addEventListener("click", (event) => {
-          event.stopPropagation();
-          console.log("Delete icon clicked for attachment:", att.name);
-          const code = prompt("Entrez le code pour supprimer cette pièce jointe:");
-          if (code !== "xxx") {
-            alert("Code incorrect.");
-            return;
+        taskData.attachments.forEach((att, index) => {
+          // Créer un conteneur pour le preview
+          const previewContainer = document.createElement("div");
+          previewContainer.classList.add("attachment-preview");
+          // On peut lui donner un style inline ou via CSS (voir plus bas)
+          previewContainer.style.display = "inline-block";
+          previewContainer.style.margin = "5px";
+          previewContainer.style.textAlign = "center";
+          previewContainer.style.position = "relative"; // pour positionner la croix
+      
+          // Créer l'élément d'image ou d'icône PDF
+          const previewImg = document.createElement("img");
+          // Si le fichier est un PDF, utilisez une icône (assurez-vous d'avoir l'image pdf-icon.png dans votre projet)
+          if (att.name.toLowerCase().endsWith(".pdf")) {
+            previewImg.src = "pdf-icon.png";
+          } else {
+            // Pour les images, on affiche le fichier lui-même
+            previewImg.src = att.url;
           }
-          // Retirer l'attachement de la liste
-          const updatedAttachments = taskData.attachments.filter((_, i) => i !== index);
-          db.collection("tasks").doc(taskId).update({
-            attachments: updatedAttachments
-          })
-          .then(() => {
-            // Rafraîchir l'affichage en rappelant openTaskDetailsScreen
-            openTaskDetailsScreen(taskId, { ...taskData, attachments: updatedAttachments });
-          })
-          .catch(err => {
-            console.error("Erreur lors de la suppression de la pièce jointe:", err);
+          previewImg.alt = att.name;
+          previewImg.style.maxWidth = "100px";
+          previewImg.style.display = "block";
+          previewImg.style.margin = "0 auto";
+          previewContainer.appendChild(previewImg);
+      
+          // Créer la légende avec le nom du fichier
+          const caption = document.createElement("div");
+          caption.textContent = att.name;
+          caption.classList.add("attachment-caption");
+          caption.style.fontSize = "12px";
+          caption.style.marginTop = "5px";
+          previewContainer.appendChild(caption);
+      
+          // Créer la petite croix pour supprimer
+          const deleteIcon = document.createElement("span");
+          deleteIcon.textContent = "✖";
+          deleteIcon.classList.add("delete-icon");
+          // Style de base pour la croix
+          deleteIcon.style.position = "absolute";
+          deleteIcon.style.top = "0px";
+          deleteIcon.style.right = "0px";
+          deleteIcon.style.background = "rgba(255,255,255,0.8)";
+          deleteIcon.style.borderRadius = "50%";
+          deleteIcon.style.padding = "2px 5px";
+          deleteIcon.style.cursor = "pointer";
+          deleteIcon.style.fontSize = "14px";
+          deleteIcon.style.color = "#f44336";
+      
+          // Ajout de l'événement pour supprimer l'élément
+          deleteIcon.addEventListener("click", (event) => {
+            event.stopPropagation(); // éviter d'ouvrir le document en cliquant sur la croix
+            console.log("Delete icon clicked for attachment:", att.name);
+            const code = prompt("Entrez le code pour supprimer cette pièce jointe:");
+            if (code !== "xxx") {
+              alert("Code incorrect.");
+              return;
+            }
+            // Mettre à jour le tableau en retirant l'élément cliqué
+            const updatedAttachments = taskData.attachments.filter((_, i) => i !== index);
+            db.collection("tasks").doc(taskId).update({
+              attachments: updatedAttachments
+            })
+            .then(() => {
+              // Rafraîchir l'affichage en rappelant openTaskDetailsScreen
+              openTaskDetailsScreen(taskId, { ...taskData, attachments: updatedAttachments });
+            })
+            .catch(err => {
+              console.error("Erreur lors de la suppression de la pièce jointe:", err);
+            });
           });
+          previewContainer.appendChild(deleteIcon);
+      
+          // Pour ouvrir l'aperçu en cliquant sur l'image ou le conteneur
+          previewContainer.addEventListener("click", () => {
+            window.open(att.url, "_blank");
+          });
+          
+          attachmentsList.appendChild(previewContainer);
         });
-        attItem.appendChild(deleteIcon);
-  
-        attachmentsList.appendChild(attItem);
-      });
-    }
+      }
   }
 
 /*****************************************************
@@ -668,40 +698,74 @@ function generateLibraryBranches() {
 
 /* Charger la liste des manuels pour une branche */
 function loadManualsForBranch(branchCode) {
-  db.collection("manuals")
-    .where("branch", "==", branchCode)
-    .get()
-    .then((snapshot) => {
-      manualsList.innerHTML = "";
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const li = document.createElement("li");
-        // Le titre est tiré du champ "title"
-        // Ici on suppose qu'on met le nom du PDF comme "title", si on veut
-        // un champ "title" plus humain, on peut parse le nom du fichier
-        // ou demander un input. A toi de voir. 
-        const spanTitle = document.createElement("span");
-        spanTitle.textContent = data.title || "Manuel PDF";
-        spanTitle.classList.add("manual-title");
-        spanTitle.addEventListener("click", () => {
-          window.open(data.pdfUrl, "_blank");
+    db.collection("manuals")
+      .where("branch", "==", branchCode)
+      .get()
+      .then((snapshot) => {
+        manualsList.innerHTML = "";
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          // Créer un conteneur pour l'aperçu du manuel
+          const previewContainer = document.createElement("div");
+          previewContainer.classList.add("manual-preview");
+          previewContainer.style.display = "inline-block";
+          previewContainer.style.margin = "5px";
+          previewContainer.style.textAlign = "center";
+          previewContainer.style.position = "relative";
+    
+          // Pour les manuels, on suppose qu'il s'agit de PDF, donc on affiche une icône PDF
+          const previewImg = document.createElement("img");
+          previewImg.src = "pdf-icon.png";  // Assurez-vous d'avoir un fichier pdf-icon.png dans votre projet
+          previewImg.alt = data.title;
+          previewImg.style.maxWidth = "100px";
+          previewImg.style.display = "block";
+          previewImg.style.margin = "0 auto";
+          previewContainer.appendChild(previewImg);
+    
+          // Ajouter le nom du manuel en dessous
+          const caption = document.createElement("div");
+          caption.textContent = data.title || "Manuel PDF";
+          caption.style.fontSize = "12px";
+          caption.style.marginTop = "5px";
+          previewContainer.appendChild(caption);
+    
+          // Permettre d'ouvrir le PDF en cliquant sur l'aperçu
+          previewContainer.addEventListener("click", () => {
+            window.open(data.pdfUrl, "_blank");
+          });
+    
+          // Bouton de suppression pour le manuel
+          const deleteBtn = document.createElement("span");
+          deleteBtn.textContent = "✖";
+          deleteBtn.style.position = "absolute";
+          deleteBtn.style.top = "0px";
+          deleteBtn.style.right = "0px";
+          deleteBtn.style.background = "rgba(255,255,255,0.8)";
+          deleteBtn.style.borderRadius = "50%";
+          deleteBtn.style.padding = "2px 5px";
+          deleteBtn.style.cursor = "pointer";
+          deleteBtn.style.fontSize = "14px";
+          deleteBtn.style.color = "#f44336";
+          deleteBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const code = prompt("Entrez le code pour supprimer ce manuel:");
+            if (code !== "xxx") {
+              alert("Code incorrect.");
+              return;
+            }
+            db.collection("manuals").doc(doc.id).delete()
+              .then(() => {
+                loadManualsForBranch(selectedBranch);
+              })
+              .catch(err => console.error("Erreur lors de la suppression du manuel:", err));
+          });
+          previewContainer.appendChild(deleteBtn);
+    
+          manualsList.appendChild(previewContainer);
         });
-        li.appendChild(spanTitle);
-
-        // Bouton de suppression du manuel
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "X";
-        deleteBtn.style.marginLeft = "1rem";
-        deleteBtn.addEventListener("click", () => {
-          askDeleteManual(doc.id);
-        });
-        li.appendChild(deleteBtn);
-
-        manualsList.appendChild(li);
-      });
-    })
-    .catch(err => console.error("Erreur lors du chargement des manuels:", err));
-}
+      })
+      .catch(err => console.error("Erreur lors du chargement des manuels:", err));
+  }
 
 /*****************************************************
  * Ajouter un manuel (upload PDF)
