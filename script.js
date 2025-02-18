@@ -11,7 +11,7 @@ const BRANCHES = [
 ];
 
 // Mot de passe pour supprimer un devoir
-const DELETE_PASSWORD = "XXX";
+const DELETE_PASSWORD = "xxx";
 
 /*******************************************************
  * Éléments du DOM
