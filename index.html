@@ -70,6 +70,14 @@
         <input type="file" id="attachment-input" accept="image/*,.pdf" multiple />
       </div>
 
+      <!-- Conteneur pour afficher un aperçu des pièces jointes -->
+<div id="attachment-preview"></div>
+
+<!-- Conteneur pour la barre de progression (masqué par défaut) -->
+<div id="upload-progress-container" class="hidden">
+  <div id="upload-progress-bar" style="width:0%; height:5px; background-color:#4caf50;"></div>
+</div>
+
       <!-- Bouton valider l'ajout -->
       <button id="confirm-add-task" class="confirm-button">Ajouter</button>
     </div>
@@ -155,31 +163,6 @@
         <button id="confirm-delete" class="delete-button">Supprimer</button>
       </div>
     </div>
-   <!-- Fenêtre modale pour mot de passe d'ajout de devoir -->
-<div id="password-modal-add-task" class="modal hidden">
-    <div class="modal-content">
-      <h3>Mot de passe pour ajouter un devoir</h3>
-      <p>Entrez le mot de passe :</p>
-      <input type="password" id="add-task-password-input" placeholder="Mot de passe" />
-      <div class="buttons-row">
-        <button id="cancel-add-task-pwd" class="secondary-button">Annuler</button>
-        <button id="confirm-add-task-pwd" class="confirm-button">Confirmer</button>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Fenêtre modale pour mot de passe d'ajout de manuel -->
-  <div id="password-modal-add-manual" class="modal hidden">
-    <div class="modal-content">
-      <h3>Mot de passe pour ajouter un manuel</h3>
-      <p>Entrez le mot de passe :</p>
-      <input type="password" id="add-manual-password-input" placeholder="Mot de passe" />
-      <div class="buttons-row">
-        <button id="cancel-add-manual-pwd" class="secondary-button">Annuler</button>
-        <button id="confirm-add-manual-pwd" class="confirm-button">Confirmer</button>
-      </div>
-    </div>
-  </div>
 
   <!-- Scripts Firebase (ex: version 8.10.0) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
