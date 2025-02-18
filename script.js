@@ -205,6 +205,7 @@ function loadTasksForWeek(week) {
     .then((snapshot) => {
       snapshot.forEach((doc) => {
         const taskData = doc.data();
+        displayTask(doc.id, taskData);
       });
     })
     .catch((error) => {
@@ -317,96 +318,55 @@ function generateBranchSelection() {
  * Ajout du devoir en base + upload pièces jointes
  *****************************************************/
 confirmAddTaskBtn.addEventListener("click", () => {
-    // Demande de mot de passe
-    const userInput = prompt("Mot de passe pour ajouter un devoir ?");
-    if (userInput !== "9vg1") {
-      alert("Mot de passe incorrect.");
-      return; // On arrête l'exécution
-    }
-  
-    if (!selectedTaskBranch || !selectedTaskType) {
-      alert("Merci de sélectionner une branche et un type de devoir.");
-      return;
-    }
-  
-    const title = taskTitleInput.value.trim();
-    if (!title) {
-      alert("Merci d'indiquer un titre de devoir.");
-      return;
-    }
-  
-    // Création du document Firestore avec un tableau d'attachements vide
-    db.collection("tasks")
-      .add({
-        branch: selectedTaskBranch,
-        type: selectedTaskType,
-        title: title,
-        day: currentDayClicked,
-        week: currentWeek,
-        attachments: []
-      })
-      .then(async (docRef) => {
-        // On gère l'upload des pièces jointes s'il y en a
-        const files = attachmentInput.files;
-        let attachmentURLs = [];
-  
-        if (files.length > 0) {
-          // On rend visible la barre de progression
-          const progressContainer = document.getElementById("upload-progress-container");
-          const progressBar = document.getElementById("upload-progress-bar");
-          progressContainer.classList.remove("hidden");
-  
-          // On va uploader chaque fichier en série
-          for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const storageRef = storage.ref(`attachments/${docRef.id}/${file.name}`);
-            const uploadTask = storageRef.put(file);
-  
-            // On attend la fin de l'upload pour passer au suivant
-            await new Promise((resolve, reject) => {
-              uploadTask.on(
-                'state_changed',
-                (snapshot) => {
-                  // Progression
-                  const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                  progressBar.style.width = progress + "%";
-                },
-                (error) => {
-                  console.error("Erreur upload:", error);
-                  reject(error);
-                },
-                async () => {
-                  // Upload terminé
-                  const url = await uploadTask.snapshot.ref.getDownloadURL();
-                  attachmentURLs.push({ name: file.name, url });
-                  resolve();
-                }
-              );
-            });
-          }
-  
-          // On masque la barre de progression
-          progressContainer.classList.add("hidden");
-          progressBar.style.width = "0%";
-        }
-  
-        // Mise à jour du doc Firestore avec les URLs si on a des fichiers
-        if (attachmentURLs.length > 0) {
-          await db.collection("tasks").doc(docRef.id).update({
-            attachments: attachmentURLs
-          });
-        }
-  
-        // On recharge la liste (une seule fois)
-        loadTasksForWeek(currentWeek);
-  
-        // On ferme l'écran d'ajout
-        addTaskScreen.classList.add("hidden");
-      })
-      .catch(err => {
-        console.error("Erreur lors de l'ajout de devoir:", err);
-      });
-  });
+  if (!selectedTaskBranch || !selectedTaskType) {
+    alert("Merci de sélectionner une branche et un type de devoir (Devoir, TA ou TS).");
+    return;
+  }
+  const title = taskTitleInput.value.trim();
+  if (!title) {
+    alert("Merci d'indiquer un titre de devoir.");
+    return;
+  }
+
+  const attachments = attachmentInput.files; // FileList
+
+  // Crée d'abord le document Firestore
+  db.collection("tasks")
+    .add({
+      branch: selectedTaskBranch,
+      type: selectedTaskType,
+      title: title,
+      day: currentDayClicked,
+      week: currentWeek,
+      attachments: [] // URL qu'on mettra après upload
+    })
+    .then(async (docRef) => {
+      // Upload des pièces jointes
+      const attachmentURLs = [];
+
+      for (let i = 0; i < attachments.length; i++) {
+        const file = attachments[i];
+        // On enregistre dans Storage => "attachments/{idDoc}/{nomFichier}"
+        const storageRef = storage.ref(`attachments/${docRef.id}/${file.name}`);
+        const snapshot = await storageRef.put(file);
+        const url = await snapshot.ref.getDownloadURL();
+        attachmentURLs.push({ name: file.name, url });
+      }
+
+      // Mise à jour du doc Firestore avec la liste d'URL
+      if (attachmentURLs.length > 0) {
+        await db.collection("tasks").doc(docRef.id).update({
+          attachments: attachmentURLs
+        });
+      }
+
+      loadTasksForWeek(currentWeek);
+      addTaskScreen.classList.add("hidden");
+    })
+    .catch(err => {
+      console.error("Erreur lors de l'ajout de devoir:", err);
+    });
+});
 
 /*****************************************************
  * Affichage des détails d'un devoir
@@ -642,81 +602,36 @@ cancelAddManualBtn.addEventListener("click", () => {
   manualFileInput.value = "";
 });
 
-/*****************************************************
- * Ajout d'un manuel (avec barre de progression)
- *****************************************************/
 confirmAddManualBtn.addEventListener("click", async () => {
-    const userInput = prompt("Mot de passe pour ajouter un manuel ?");
-    if (userInput !== "9vg1") {
-      alert("Mot de passe incorrect.");
-      return;
-    }
-  
-    if (!selectedBranch) {
-      alert("Aucune branche sélectionnée.");
-      return;
-    }
-  
-    const file = manualFileInput.files[0];
-    if (!file) {
-      alert("Veuillez sélectionner un fichier PDF à téléverser.");
-      return;
-    }
-  
-    try {
-      // Barre de progression
-      const progressContainer = document.getElementById("manual-progress-container");
-      const progressBar = document.getElementById("manual-progress-bar");
-      if (progressContainer && progressBar) {
-        progressContainer.classList.remove("hidden");
-      }
-  
-      const storageRef = storage.ref(`manuals/${selectedBranch}/${file.name}`);
-      const uploadTask = storageRef.put(file);
-  
-      await new Promise((resolve, reject) => {
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            // Progression
-            if (progressBar) {
-              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              progressBar.style.width = progress + "%";
-            }
-          },
-          (error) => {
-            console.error("Erreur lors de l'upload du manuel:", error);
-            reject(error);
-          },
-          async () => {
-            // Terminé
-            const url = await uploadTask.snapshot.ref.getDownloadURL();
-            // On enregistre ensuite dans Firestore
-            await db.collection("manuals").add({
-              branch: selectedBranch,
-              title: file.name,
-              pdfUrl: url
-            });
-            resolve();
-          }
-        );
-      });
-  
-      // Masquer la barre de progression
-      if (progressContainer && progressBar) {
-        progressContainer.classList.add("hidden");
-        progressBar.style.width = "0%";
-      }
-  
-      // On ferme la modale
-      addManualModal.classList.add("hidden");
-      // On recharge la liste pour voir le nouveau manuel
-      loadManualsForBranch(selectedBranch);
-    } catch (error) {
-      console.error("Erreur lors de l'ajout du manuel:", error);
-      alert("Une erreur est survenue lors de l'upload du PDF.");
-    }
-  });
+  const file = manualFileInput.files[0];
+  if (!file) {
+    alert("Veuillez sélectionner un fichier PDF à téléverser.");
+    return;
+  }
+  if (!selectedBranch) {
+    alert("Aucune branche sélectionnée.");
+    return;
+  }
+  try {
+    // On upload le PDF dans "manuals/{branch}/{nomFichier}"
+    const storageRef = storage.ref(`manuals/${selectedBranch}/${file.name}`);
+    await storageRef.put(file);
+    const url = await storageRef.getDownloadURL();
+
+    // On enregistre ensuite dans Firestore
+    await db.collection("manuals").add({
+      branch: selectedBranch,
+      title: file.name,     // on peut se baser sur le nom du fichier
+      pdfUrl: url
+    });
+
+    addManualModal.classList.add("hidden");
+    loadManualsForBranch(selectedBranch);
+  } catch (error) {
+    console.error("Erreur lors de l'ajout du manuel:", error);
+    alert("Une erreur est survenue lors de l'upload du PDF.");
+  }
+});
 
 /*****************************************************
  * Suppression d'un manuel (demande mot de passe)
@@ -740,31 +655,3 @@ function askDeleteManual(manualId) {
       .catch(err => console.error("Erreur lors de la suppression du manuel:", err));
   };
 }
-
-/*****************************************************
- * Prévisualisation du fichier avant de valider
- *****************************************************/
-attachmentInput.addEventListener("change", () => {
-    const previewContainer = document.getElementById("attachment-preview");
-    if (!previewContainer) return; // au cas où tu n'as pas créé la div
-  
-    // On vide l'aperçu précédent
-    previewContainer.innerHTML = "";
-  
-    // Pour chaque fichier sélectionné :
-    for (let file of attachmentInput.files) {
-      if (file.type.startsWith("image/")) {
-        // On crée un <img>
-        const img = document.createElement("img");
-        img.src = URL.createObjectURL(file);
-        img.style.width = "100px";
-        img.style.marginRight = "10px";
-        previewContainer.appendChild(img);
-      } else {
-        // Pour un PDF ou autre type
-        const div = document.createElement("div");
-        div.textContent = `Fichier : ${file.name}`;
-        previewContainer.appendChild(div);
-      }
-    }
-  });
