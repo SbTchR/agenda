@@ -147,13 +147,23 @@ function toggleWeekList(forceHide = null) {
 }
 
 function selectWeek(week) {
-  currentWeek = week;
-  currentWeekSpan.textContent = week;
-  // Juste un affichage simplifié, dans la réalité on calculerait la vraie date
-  weekDates.textContent = `Semaine ${week}`;
-
-  loadTasksForWeek(week);
-}
+    currentWeek = week;
+    currentWeekSpan.textContent = week;
+    // Ici, nous définissons un affichage personnalisé des dates pour la semaine.
+    // Vous pouvez remplacer les dates par un calcul réel selon votre calendrier.
+    // Par exemple, pour la semaine 1, afficher "04 - 08 octobre"
+    let datesAffichage = "";
+    if (week === 1) {
+      datesAffichage = "04 - 08 octobre";
+    } else if (week === 2) {
+      datesAffichage = "11 - 15 octobre";
+    } else {
+      // Vous pouvez ajouter d'autres cas ou calculer dynamiquement.
+      datesAffichage = `Semaine ${week}`;
+    }
+    weekDates.textContent = datesAffichage;
+    loadTasksForWeek(week);
+  }
 
 /*****************************************************
  * Génération de l'affichage des jours (lundi->vendredi)
