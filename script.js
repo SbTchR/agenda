@@ -83,12 +83,6 @@ let selectedTaskData = null;      // Données de la tâche
 let selectedTaskType = null;      // "Devoir", "TA", "TS"
 let selectedTaskBranch = null;    // "All", "Fra", etc.
 
-// Modale de mot de passe pour ajout
-const passwordModalAdd = document.getElementById("password-modal-add");
-const addPasswordInput = document.getElementById("add-password-input");
-const cancelAddPwdBtn = document.getElementById("cancel-add-pwd");
-const confirmAddPwdBtn = document.getElementById("confirm-add-pwd");
-
 /*****************************************************
  * Liste des branches et leurs codes/couleurs
  *****************************************************/
@@ -211,6 +205,7 @@ function loadTasksForWeek(week) {
     .then((snapshot) => {
       snapshot.forEach((doc) => {
         const taskData = doc.data();
+        displayTask(doc.id, taskData)
       });
     })
     .catch((error) => {
@@ -320,82 +315,58 @@ function generateBranchSelection() {
 });
 
 /*****************************************************
- * Ajout d'un devoir (avec mot de passe via modale)
+ * Ajout du devoir en base + upload pièces jointes
  *****************************************************/
-// 1) Quand on clique sur “Ajouter” dans le formulaire
 confirmAddTaskBtn.addEventListener("click", () => {
-    // Ouvrir la modale “password-modal-add”
-    passwordModalAdd.classList.remove("hidden");
-    addPasswordInput.value = ""; // on vide le champ
-  });
-  
-  // 2) Bouton “Annuler” dans la modale
-  cancelAddPwdBtn.addEventListener("click", () => {
-    passwordModalAdd.classList.add("hidden");
-  });
-  
-  // 3) Bouton “Confirmer” dans la modale
-  confirmAddPwdBtn.addEventListener("click", async () => {
-    // Vérifier le mot de passe
-    const pwd = addPasswordInput.value;
-    if (pwd !== "9vg1") {
-      alert("Mot de passe incorrect.");
-      return;
-    }
-  
-    // Si c'est correct, on ferme la modale
-    passwordModalAdd.classList.add("hidden");
-  
-    // Maintenant on exécute le code d’ajout
-    if (!selectedTaskBranch || !selectedTaskType) {
-      alert("Merci de sélectionner une branche et un type de devoir (Devoir, TA ou TS).");
-      return;
-    }
-    const title = taskTitleInput.value.trim();
-    if (!title) {
-      alert("Merci d'indiquer un titre de devoir.");
-      return;
-    }
-  
-    const attachments = attachmentInput.files; // FileList
-  
-    try {
-      // Crée d'abord le document Firestore
-      const docRef = await db.collection("tasks").add({
-        branch: selectedTaskBranch,
-        type: selectedTaskType,
-        title: title,
-        day: currentDayClicked,
-        week: currentWeek,
-        attachments: []
-      });
-  
-      // Upload des pièces jointes (simplifié, pas de barre de progression)
+  if (!selectedTaskBranch || !selectedTaskType) {
+    alert("Merci de sélectionner une branche et un type de devoir (Devoir, TA ou TS).");
+    return;
+  }
+  const title = taskTitleInput.value.trim();
+  if (!title) {
+    alert("Merci d'indiquer un titre de devoir.");
+    return;
+  }
+
+  const attachments = attachmentInput.files; // FileList
+
+  // Crée d'abord le document Firestore
+  db.collection("tasks")
+    .add({
+      branch: selectedTaskBranch,
+      type: selectedTaskType,
+      title: title,
+      day: currentDayClicked,
+      week: currentWeek,
+      attachments: [] // URL qu'on mettra après upload
+    })
+    .then(async (docRef) => {
+      // Upload des pièces jointes
       const attachmentURLs = [];
+
       for (let i = 0; i < attachments.length; i++) {
         const file = attachments[i];
+        // On enregistre dans Storage => "attachments/{idDoc}/{nomFichier}"
         const storageRef = storage.ref(`attachments/${docRef.id}/${file.name}`);
         const snapshot = await storageRef.put(file);
         const url = await snapshot.ref.getDownloadURL();
         attachmentURLs.push({ name: file.name, url });
       }
-  
-      // Mise à jour Firestore si on a des pièces jointes
+
+      // Mise à jour du doc Firestore avec la liste d'URL
       if (attachmentURLs.length > 0) {
         await db.collection("tasks").doc(docRef.id).update({
           attachments: attachmentURLs
         });
       }
-  
-      // Recharge l’affichage
+
       loadTasksForWeek(currentWeek);
-      // Ferme l’écran principal d’ajout
       addTaskScreen.classList.add("hidden");
-    } catch (err) {
+    })
+    .catch(err => {
       console.error("Erreur lors de l'ajout de devoir:", err);
-      alert("Une erreur s'est produite lors de l'ajout du devoir.");
-    }
-  });
+    });
+});
 
 /*****************************************************
  * Affichage des détails d'un devoir
@@ -631,56 +602,37 @@ cancelAddManualBtn.addEventListener("click", () => {
   manualFileInput.value = "";
 });
 
-/*****************************************************
- * Ajout d'un manuel (avec mot de passe via modale)
- *****************************************************/
-confirmAddManualBtn.addEventListener("click", () => {
-    // On affiche la même modale “password-modal-add”
-    passwordModalAdd.classList.remove("hidden");
-    addPasswordInput.value = "";
-  });
-  
-  // On peut réutiliser le même bouton “ConfirmAddPwdBtn”, 
-  // mais l'opération (ajout de devoir ou manuel) dépend 
-  // d’une variable ou d’un flag. 
-  // => Pour faire simple, on fait une solution distincte :
-  
-  confirmAddPwdBtn.onclick = async () => {
-    const pwd = addPasswordInput.value;
-    if (pwd !== "9vg1") {
-      alert("Mot de passe incorrect.");
-      return;
-    }
-    passwordModalAdd.classList.add("hidden");
-  
-    // Ici on fait l'ajout du manuel
-    if (!selectedBranch) {
-      alert("Aucune branche sélectionnée.");
-      return;
-    }
-    const file = manualFileInput.files[0];
-    if (!file) {
-      alert("Veuillez sélectionner un fichier PDF à téléverser.");
-      return;
-    }
-  
-    try {
-      const storageRef = storage.ref(`manuals/${selectedBranch}/${file.name}`);
-      await storageRef.put(file);
-      const url = await storageRef.getDownloadURL();
-  
-      await db.collection("manuals").add({
-        branch: selectedBranch,
-        title: file.name,
-        pdfUrl: url
-      });
-      addManualModal.classList.add("hidden");
-      loadManualsForBranch(selectedBranch);
-    } catch (error) {
-      console.error("Erreur lors de l'ajout du manuel:", error);
-      alert("Une erreur est survenue lors de l'upload du PDF.");
-    }
-  };
+confirmAddManualBtn.addEventListener("click", async () => {
+  const file = manualFileInput.files[0];
+  if (!file) {
+    alert("Veuillez sélectionner un fichier PDF à téléverser.");
+    return;
+  }
+  if (!selectedBranch) {
+    alert("Aucune branche sélectionnée.");
+    return;
+  }
+  try {
+    // On upload le PDF dans "manuals/{branch}/{nomFichier}"
+    const storageRef = storage.ref(`manuals/${selectedBranch}/${file.name}`);
+    await storageRef.put(file);
+    const url = await storageRef.getDownloadURL();
+
+    // On enregistre ensuite dans Firestore
+    await db.collection("manuals").add({
+      branch: selectedBranch,
+      title: file.name,     // on peut se baser sur le nom du fichier
+      pdfUrl: url
+    });
+
+    addManualModal.classList.add("hidden");
+    loadManualsForBranch(selectedBranch);
+  } catch (error) {
+    console.error("Erreur lors de l'ajout du manuel:", error);
+    alert("Une erreur est survenue lors de l'upload du PDF.");
+  }
+});
+
 /*****************************************************
  * Suppression d'un manuel (demande mot de passe)
  *****************************************************/
