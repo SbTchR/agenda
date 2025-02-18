@@ -5,7 +5,7 @@ const firebaseConfig = {
     apiKey: "AIzaSyAmVSJwvMama0h79rPHiUvPKRgZnfjymXA",
     authDomain: "agenda-bed4f.firebaseapp.com",
     projectId: "agenda-bed4f",
-    storageBucket: "agenda-bed4f.firebasestorage.app",
+    storageBucket: "agenda-bed4f.appspot.com",
     messagingSenderId: "993980335293",
     appId: "G-99GFMTCCCG"
   };
