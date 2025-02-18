@@ -412,65 +412,63 @@ confirmAddTaskBtn.addEventListener("click", async () => {
  * Affichage des détails d'un devoir
  *****************************************************/
 function openTaskDetailsScreen(taskId, taskData) {
-  selectedTaskId = taskId;
-  selectedTaskData = taskData;
-  taskDetailsScreen.classList.remove("hidden");
-
-  detailsTaskTitle.textContent = `${taskData.branch} : ${taskData.title}`;
-  attachmentsList.innerHTML = "";
-
-  if (taskData.attachments && taskData.attachments.length > 0) {
-    taskData.attachments.forEach((att, index) => {
-      const attItem = document.createElement("div");
-      attItem.classList.add("attachment-item");
-      attItem.style.display = "flex";
-      attItem.style.alignItems = "center";
+    selectedTaskId = taskId;
+    selectedTaskData = taskData;
+    taskDetailsScreen.classList.remove("hidden");
   
-      const attText = document.createElement("span");
-      attText.textContent = att.name;
-      attText.style.flexGrow = "1";
-      attText.style.cursor = "pointer";
-      attText.addEventListener("click", () => {
-        window.open(att.url, "_blank");
-      });
-      attItem.appendChild(attText);
+    detailsTaskTitle.textContent = `${taskData.branch} : ${taskData.title}`;
+    attachmentsList.innerHTML = "";
   
-      // Ajout de la petite croix pour supprimer l'attachement
-      const deleteIcon = document.createElement("span");
-      deleteIcon.textContent = "✖";
-      deleteIcon.style.cursor = "pointer";
-      deleteIcon.style.marginLeft = "10px";
-      deleteIcon.style.color = "#f44336";
-      deleteIcon.addEventListener("click", () => {
-        const code = prompt("Entrez le code pour supprimer cette pièce jointe:");
-        if (code !== "xxx") {
-          alert("Code incorrect.");
-          return;
-        }
-        // Mise à jour du tableau des pièces jointes : retirer l'élément cliqué
-        const updatedAttachments = taskData.attachments.filter((_, i) => i !== index);
-        db.collection("tasks").doc(taskId).update({
-          attachments: updatedAttachments
-        })
-        .then(() => {
-          // Optionnel : supprimer le fichier de Storage si nécessaire.
-          // Par exemple, pour supprimer : 
-          // const fileRef = storage.refFromURL(att.url);
-          // fileRef.delete().catch(err => console.error("Erreur lors de la suppression du fichier :", err));
-          
-          // Actualiser l'affichage des détails du devoir
-          openTaskDetailsScreen(taskId, { ...taskData, attachments: updatedAttachments });
-        })
-        .catch(err => {
-          console.error("Erreur lors de la suppression de la pièce jointe:", err);
+    if (taskData.attachments && taskData.attachments.length > 0) {
+      taskData.attachments.forEach((att, index) => {
+        const attItem = document.createElement("div");
+        attItem.classList.add("attachment-item");
+        attItem.style.display = "flex";
+        attItem.style.alignItems = "center";
+  
+        const attText = document.createElement("span");
+        attText.textContent = att.name;
+        attText.style.flexGrow = "1";
+        attText.style.cursor = "pointer";
+        attText.addEventListener("click", () => {
+          window.open(att.url, "_blank");
         });
+        attItem.appendChild(attText);
+  
+        // Création de l'icône de suppression (croix)
+        const deleteIcon = document.createElement("span");
+        deleteIcon.textContent = "✖";
+        deleteIcon.style.cursor = "pointer";
+        deleteIcon.style.marginLeft = "10px";
+        deleteIcon.style.color = "#f44336";
+        
+        // Ajout d'un console.log pour vérifier le clic
+        deleteIcon.addEventListener("click", () => {
+          console.log("Delete icon clicked for attachment:", att.name);
+          const code = prompt("Entrez le code pour supprimer cette pièce jointe:");
+          if (code !== "xxx") {
+            alert("Code incorrect.");
+            return;
+          }
+          // Mise à jour du tableau des pièces jointes : retirer l'élément cliqué
+          const updatedAttachments = taskData.attachments.filter((_, i) => i !== index);
+          db.collection("tasks").doc(taskId).update({
+            attachments: updatedAttachments
+          })
+          .then(() => {
+            // Actualiser l'affichage des détails du devoir
+            openTaskDetailsScreen(taskId, { ...taskData, attachments: updatedAttachments });
+          })
+          .catch(err => {
+            console.error("Erreur lors de la suppression de la pièce jointe:", err);
+          });
+        });
+        attItem.appendChild(deleteIcon);
+        
+        attachmentsList.appendChild(attItem);
       });
-      attItem.appendChild(deleteIcon);
-      
-      attachmentsList.appendChild(attItem);
-    });
+    }
   }
-}
 
 /*****************************************************
  * Retour à l'écran principal sans modifier
