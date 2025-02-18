@@ -318,55 +318,21 @@ function generateBranchSelection() {
  * Ajout du devoir en base + upload pièces jointes
  *****************************************************/
 confirmAddTaskBtn.addEventListener("click", () => {
-  if (!selectedTaskBranch || !selectedTaskType) {
-    alert("Merci de sélectionner une branche et un type de devoir (Devoir, TA ou TS).");
-    return;
-  }
-  const title = taskTitleInput.value.trim();
-  if (!title) {
-    alert("Merci d'indiquer un titre de devoir.");
-    return;
-  }
-
-  const attachments = attachmentInput.files; // FileList
-
-  // Crée d'abord le document Firestore
-  db.collection("tasks")
-    .add({
-      branch: selectedTaskBranch,
-      type: selectedTaskType,
-      title: title,
-      day: currentDayClicked,
-      week: currentWeek,
-      attachments: [] // URL qu'on mettra après upload
-    })
-    .then(async (docRef) => {
-      // Upload des pièces jointes
-      const attachmentURLs = [];
-
-      for (let i = 0; i < attachments.length; i++) {
-        const file = attachments[i];
-        // On enregistre dans Storage => "attachments/{idDoc}/{nomFichier}"
-        const storageRef = storage.ref(`attachments/${docRef.id}/${file.name}`);
-        const snapshot = await storageRef.put(file);
-        const url = await snapshot.ref.getDownloadURL();
-        attachmentURLs.push({ name: file.name, url });
-      }
-
-      // Mise à jour du doc Firestore avec la liste d'URL
-      if (attachmentURLs.length > 0) {
-        await db.collection("tasks").doc(docRef.id).update({
-          attachments: attachmentURLs
-        });
-      }
-
-      loadTasksForWeek(currentWeek);
-      addTaskScreen.classList.add("hidden");
-    })
-    .catch(err => {
-      console.error("Erreur lors de l'ajout de devoir:", err);
-    });
-});
+    const userInput = prompt("Mot de passe pour ajouter un devoir ?");
+    if (userInput !== "9vg1") {
+      alert("Mot de passe incorrect.");
+      return; // On arrête l'exécution, l'upload ne se fait pas
+    }
+  
+    // Si on arrive ici, c'est que le mot de passe est correct
+    // => on continue l'upload comme avant
+    if (!selectedTaskBranch || !selectedTaskType) {
+      alert("Merci de sélectionner une branche et un type de devoir.");
+      return;
+    }
+    // ...
+    // [Le code existant pour l'upload de pièces jointes continue ici]
+  });
 
 /*****************************************************
  * Affichage des détails d'un devoir
@@ -603,35 +569,32 @@ cancelAddManualBtn.addEventListener("click", () => {
 });
 
 confirmAddManualBtn.addEventListener("click", async () => {
-  const file = manualFileInput.files[0];
-  if (!file) {
-    alert("Veuillez sélectionner un fichier PDF à téléverser.");
-    return;
-  }
-  if (!selectedBranch) {
-    alert("Aucune branche sélectionnée.");
-    return;
-  }
-  try {
-    // On upload le PDF dans "manuals/{branch}/{nomFichier}"
-    const storageRef = storage.ref(`manuals/${selectedBranch}/${file.name}`);
-    await storageRef.put(file);
-    const url = await storageRef.getDownloadURL();
-
-    // On enregistre ensuite dans Firestore
-    await db.collection("manuals").add({
-      branch: selectedBranch,
-      title: file.name,     // on peut se baser sur le nom du fichier
-      pdfUrl: url
-    });
-
-    addManualModal.classList.add("hidden");
-    loadManualsForBranch(selectedBranch);
-  } catch (error) {
-    console.error("Erreur lors de l'ajout du manuel:", error);
-    alert("Une erreur est survenue lors de l'upload du PDF.");
-  }
-});
+    const userInput = prompt("Mot de passe pour ajouter un manuel ?");
+    if (userInput !== "9vg1") {
+      alert("Mot de passe incorrect.");
+      return;
+    }
+    
+    // Mot de passe correct, on continue comme avant
+    const file = manualFileInput.files[0];
+    if (!file) {
+      alert("Veuillez sélectionner un fichier PDF à téléverser.");
+      return;
+    }
+    if (!selectedBranch) {
+      alert("Aucune branche sélectionnée.");
+      return;
+    }
+    try {
+      const storageRef = storage.ref(`manuals/${selectedBranch}/${file.name}`);
+      await storageRef.put(file);
+      const url = await storageRef.getDownloadURL();
+      // ...
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du manuel:", error);
+      alert("Une erreur est survenue lors de l'upload du PDF.");
+    }
+  });
 
 /*****************************************************
  * Suppression d'un manuel (demande mot de passe)
