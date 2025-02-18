@@ -543,6 +543,8 @@ validateChangesBtn.addEventListener("click", async () => {
         }
       }
       disableEditMode();
+      taskDetailsScreen.classList.add("hidden");
+      loadTasksForWeek(currentWeek);
     } catch (error) {
       console.error("Erreur lors de la mise à jour du devoir:", error);
     }
