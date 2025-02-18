@@ -10,343 +10,344 @@ const firebaseConfig = {
     appId: "1:993980335293:web:90aa697c134c89e8b5e3d4"
   };
   
-// Initialisation de Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const storage = firebase.storage();
-
-/*****************************************************
- * Variables et sélecteurs HTML
- *****************************************************/
-const weekButton = document.getElementById("week-button");
-const weekList = document.getElementById("week-list");
-const currentWeekSpan = document.getElementById("current-week");
-const weekDates = document.getElementById("week-dates");
-
-const mainContent = document.getElementById("main-content");
-
-// Écrans
-const addTaskScreen = document.getElementById("add-task-screen");
-const taskDetailsScreen = document.getElementById("task-details-screen");
-const libraryScreen = document.getElementById("library-screen");
-
-// Boutons / Inputs (ajout d'un devoir)
-const cancelAddTaskBtn = document.getElementById("cancel-add-task");
-const confirmAddTaskBtn = document.getElementById("confirm-add-task");
-const taskTitleInput = document.getElementById("task-title-input");
-const attachmentInput = document.getElementById("attachment-input");
-
-// Sélection de branche (container)
-const branchSelectionContainer = document.querySelector(".branch-selection");
-// Boutons du type de devoir
-const typeDevoirBtn = document.getElementById("type-devoir");
-const typeTaBtn = document.getElementById("type-ta");
-const typeTsBtn = document.getElementById("type-ts");
-
-// Détails devoir
-const backToMainBtn = document.getElementById("back-to-main");
-const detailsTaskTitle = document.getElementById("details-task-title");
-const attachmentsList = document.getElementById("attachments-list");
-const toggleEditBtn = document.getElementById("toggle-edit");
-const validateChangesBtn = document.getElementById("validate-changes");
-const editTaskTitleInput = document.getElementById("edit-task-title");
-const editAttachmentInput = document.getElementById("edit-attachment-input");
-const deleteTaskBtn = document.getElementById("delete-task");
-
-// Modale de mot de passe pour suppression
-const passwordModal = document.getElementById("password-modal");
-const deletePasswordInput = document.getElementById("delete-password");
-const cancelDeleteBtn = document.getElementById("cancel-delete");
-const confirmDeleteBtn = document.getElementById("confirm-delete");
-
-// Bibliothèque
-const libraryButton = document.getElementById("library-button");
-const closeLibraryBtn = document.getElementById("close-library");
-const libraryBranchesContainer = document.getElementById("library-branches");
-const manualsListContainer = document.getElementById("manuals-list-container");
-const manualsList = document.getElementById("manuals-list");
-const selectedBranchTitle = document.getElementById("selected-branch-title");
-const addManualButton = document.getElementById("add-manual-button");
-
-// Modale pour ajouter un manuel
-const addManualModal = document.getElementById("add-manual-modal");
-const manualFileInput = document.getElementById("manual-file-input");
-const cancelAddManualBtn = document.getElementById("cancel-add-manual");
-const confirmAddManualBtn = document.getElementById("confirm-add-manual");
-
-// Variables en mémoire
-let selectedBranch = null;        // Pour la bibliothèque
-let currentWeek = 1;
-let currentDayClicked = null;     // Jour cliqué pour ajouter un devoir
-let selectedTaskId = null;        // ID de la tâche sélectionnée pour détails
-let selectedTaskData = null;      // Données de la tâche
-let selectedTaskType = null;      // "Devoir", "TA", "TS"
-let selectedTaskBranch = null;    // "All", "Fra", etc.
-
-// Modale de mot de passe pour ajout
-const passwordModalAdd = document.getElementById("password-modal-add");
-const addPasswordInput = document.getElementById("add-password-input");
-const cancelAddPwdBtn = document.getElementById("cancel-add-pwd");
-const confirmAddPwdBtn = document.getElementById("confirm-add-pwd");
-
-/*****************************************************
- * Liste des branches et leurs codes/couleurs
- *****************************************************/
-const branches = [
-  { code: "All", color: "#ffc107" },
-  { code: "Fra", color: "#e91e63" },
-  { code: "Math", color: "#ff9800" },
-  { code: "His", color: "#9c27b0" },
-  { code: "Géo", color: "#4caf50" },
-  { code: "Ang", color: "#00bcd4" },
-  { code: "Scn", color: "#9e9d24" },
-  { code: "Mus", color: "#f44336" },
-  { code: "AVI", color: "#795548" },
-  { code: "Forgen", color: "#009688" },
-  { code: "Autre", color: "#ffffff" }
-];
-
-/*****************************************************
- * Initialisation
- *****************************************************/
-document.addEventListener("DOMContentLoaded", () => {
-  // Crée la liste des semaines 1 à 39
-  for (let i = 1; i <= 39; i++) {
-    const div = document.createElement("div");
-    div.textContent = "S. " + i;
-    div.addEventListener("click", () => {
-      selectWeek(i);
-      toggleWeekList(false);
-    });
-    weekList.appendChild(div);
-  }
-
-  // Sélection de la semaine initiale
-  selectWeek(1);
-
-  // Génère les 5 jours à l'écran principal
-  generateDays();
-
-  // Génère les boutons de branches pour l'ajout d'un devoir
-  generateBranchSelection();
-
-  // Génère les boutons de branches pour la bibliothèque
-  generateLibraryBranches();
-
-  // Chargement initial des tâches
-  loadTasksForWeek(currentWeek);
-});
-
-/*****************************************************
- * Fonctions de gestion de la semaine
- *****************************************************/
-weekButton.addEventListener("click", () => {
-  toggleWeekList();
-});
-
-function toggleWeekList(forceHide = null) {
-  if (forceHide === true) {
-    weekList.classList.add("hidden");
-    return;
-  }
-  weekList.classList.toggle("hidden");
-}
-
-function selectWeek(week) {
-  currentWeek = week;
-  currentWeekSpan.textContent = week;
-  // Juste un affichage simplifié, dans la réalité on calculerait la vraie date
-  weekDates.textContent = `Semaine ${week}`;
-
-  loadTasksForWeek(week);
-}
-
-/*****************************************************
- * Génération de l'affichage des jours (lundi->vendredi)
- *****************************************************/
-function generateDays() {
-  const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
-  mainContent.innerHTML = "";
-  days.forEach((day) => {
-    const dayContainer = document.createElement("div");
-    dayContainer.classList.add("day-container");
-
-    // Exemple date fictive
-    const randomDate = "04.10";
-
-    const dayTitle = document.createElement("h3");
-    dayTitle.textContent = `${day} ${randomDate}`;
-    dayTitle.addEventListener("click", () => {
-      // Ouvrir l'écran d'ajout de devoir pour ce jour
-      currentDayClicked = day;
-      openAddTaskScreen();
-    });
-
-    dayContainer.appendChild(dayTitle);
-
-    // Liste de tâches
-    const tasksList = document.createElement("div");
-    tasksList.classList.add("tasks-list");
-    tasksList.id = `tasks-${day}`;
-    dayContainer.appendChild(tasksList);
-
-    mainContent.appendChild(dayContainer);
-  });
-}
-
-/*****************************************************
- * Chargement des devoirs depuis Firestore
- *****************************************************/
-function loadTasksForWeek(week) {
-  // On vide l'affichage
-  const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
-  days.forEach(day => {
-    const tasksList = document.getElementById(`tasks-${day}`);
-    if (tasksList) tasksList.innerHTML = "";
-  });
-
-  db.collection("tasks")
-    .where("week", "==", week)
-    .get()
-    .then((snapshot) => {
-      snapshot.forEach((doc) => {
-        const taskData = doc.data();
+  // Initialisation de Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const storage = firebase.storage();
+  
+  /*****************************************************
+   * Variables et sélecteurs HTML
+   *****************************************************/
+  // Semaine
+  const weekButton = document.getElementById("week-button");
+  const weekList = document.getElementById("week-list");
+  const currentWeekSpan = document.getElementById("current-week");
+  const weekDates = document.getElementById("week-dates");
+  
+  // Contenu principal (jours & devoirs)
+  const mainContent = document.getElementById("main-content");
+  
+  // Écrans
+  const addTaskScreen = document.getElementById("add-task-screen");
+  const taskDetailsScreen = document.getElementById("task-details-screen");
+  const libraryScreen = document.getElementById("library-screen");
+  
+  // Boutons / Inputs (ajout d'un devoir)
+  const cancelAddTaskBtn = document.getElementById("cancel-add-task");
+  const confirmAddTaskBtn = document.getElementById("confirm-add-task");
+  const taskTitleInput = document.getElementById("task-title-input");
+  const attachmentInput = document.getElementById("attachment-input");
+  
+  // Sélection de branche (container)
+  const branchSelectionContainer = document.querySelector(".branch-selection");
+  // Boutons du type de devoir
+  const typeDevoirBtn = document.getElementById("type-devoir");
+  const typeTaBtn = document.getElementById("type-ta");
+  const typeTsBtn = document.getElementById("type-ts");
+  
+  // Détails devoir
+  const backToMainBtn = document.getElementById("back-to-main");
+  const detailsTaskTitle = document.getElementById("details-task-title");
+  const attachmentsList = document.getElementById("attachments-list");
+  const toggleEditBtn = document.getElementById("toggle-edit");
+  const validateChangesBtn = document.getElementById("validate-changes");
+  const editTaskTitleInput = document.getElementById("edit-task-title");
+  const editAttachmentInput = document.getElementById("edit-attachment-input");
+  const deleteTaskBtn = document.getElementById("delete-task");
+  
+  // Modale de mot de passe pour suppression
+  const passwordModal = document.getElementById("password-modal");
+  const deletePasswordInput = document.getElementById("delete-password");
+  const cancelDeleteBtn = document.getElementById("cancel-delete");
+  const confirmDeleteBtn = document.getElementById("confirm-delete");
+  
+  // Bibliothèque
+  const libraryButton = document.getElementById("library-button");
+  const closeLibraryBtn = document.getElementById("close-library");
+  const libraryBranchesContainer = document.getElementById("library-branches");
+  const manualsListContainer = document.getElementById("manuals-list-container");
+  const manualsList = document.getElementById("manuals-list");
+  const selectedBranchTitle = document.getElementById("selected-branch-title");
+  const addManualButton = document.getElementById("add-manual-button");
+  
+  // Modale pour ajouter un manuel
+  const addManualModal = document.getElementById("add-manual-modal");
+  const manualFileInput = document.getElementById("manual-file-input");
+  const cancelAddManualBtn = document.getElementById("cancel-add-manual");
+  const confirmAddManualBtn = document.getElementById("confirm-add-manual");
+  
+  // Variables en mémoire
+  let selectedBranch = null;        // Pour la bibliothèque
+  let currentWeek = 1;
+  let currentDayClicked = null;     // Jour cliqué pour ajouter un devoir
+  let selectedTaskId = null;        // ID de la tâche sélectionnée pour détails
+  let selectedTaskData = null;      // Données de la tâche
+  let selectedTaskType = null;      // "Devoir", "TA", "TS"
+  let selectedTaskBranch = null;    // "All", "Fra", etc.
+  
+  // Modales de mot de passe pour ajout (devoir & manuel)
+  const passwordModalAddTask = document.getElementById("password-modal-add-task");
+  const addTaskPasswordInput = document.getElementById("add-task-password-input");
+  const cancelAddTaskPwdBtn = document.getElementById("cancel-add-task-pwd");
+  const confirmAddTaskPwdBtn = document.getElementById("confirm-add-task-pwd");
+  
+  const passwordModalAddManual = document.getElementById("password-modal-add-manual");
+  const addManualPasswordInput = document.getElementById("add-manual-password-input");
+  const cancelAddManualPwdBtn = document.getElementById("cancel-add-manual-pwd");
+  const confirmAddManualPwdBtn = document.getElementById("confirm-add-manual-pwd");
+  
+  /*****************************************************
+   * Liste des branches et leurs codes/couleurs
+   *****************************************************/
+  const branches = [
+    { code: "All", color: "#ffc107" },
+    { code: "Fra", color: "#e91e63" },
+    { code: "Math", color: "#ff9800" },
+    { code: "His", color: "#9c27b0" },
+    { code: "Géo", color: "#4caf50" },
+    { code: "Ang", color: "#00bcd4" },
+    { code: "Scn", color: "#9e9d24" },
+    { code: "Mus", color: "#f44336" },
+    { code: "AVI", color: "#795548" },
+    { code: "Forgen", color: "#009688" },
+    { code: "Autre", color: "#ffffff" }
+  ];
+  
+  /*****************************************************
+   * Initialisation
+   *****************************************************/
+  document.addEventListener("DOMContentLoaded", () => {
+    // Crée la liste des semaines 1 à 39
+    for (let i = 1; i <= 39; i++) {
+      const div = document.createElement("div");
+      div.textContent = "S. " + i;
+      div.addEventListener("click", () => {
+        selectWeek(i);
+        toggleWeekList(false);
       });
-    })
-    .catch((error) => {
-      console.error("Erreur lors du chargement des tâches:", error);
-    });
-}
-
-/*****************************************************
- * Affichage d'un devoir dans la liste
- *****************************************************/
-function displayTask(taskId, taskData) {
-  const tasksList = document.getElementById(`tasks-${taskData.day}`);
-  if (!tasksList) return; // Si "day" n'est pas un des 5 jours, on ignore
-
-  const taskItem = document.createElement("div");
-  taskItem.classList.add("task-item");
-
-  // Couleur et style selon le type
-  if (taskData.type === "Devoir") {
-    taskItem.classList.add("devoir");
-  } else if (taskData.type === "TA") {
-    taskItem.classList.add("ta");
-  } else if (taskData.type === "TS") {
-    taskItem.classList.add("ts");
-  }
-
-  // Couleur par branche (ex: .all, .fra, etc.)
-  if (taskData.branch) {
-    taskItem.classList.add(taskData.branch.toLowerCase());
-  }
-
-  taskItem.textContent = `${taskData.branch} : ${taskData.title}`;
-
-  taskItem.addEventListener("click", () => {
-    openTaskDetailsScreen(taskId, taskData);
-  });
-
-  tasksList.appendChild(taskItem);
-}
-
-/*****************************************************
- * Ouverture de l'écran d'ajout de devoir
- *****************************************************/
-function openAddTaskScreen() {
-  addTaskScreen.classList.remove("hidden");
-  clearAddTaskForm();
-}
-
-function clearAddTaskForm() {
-  selectedTaskBranch = null;
-  selectedTaskType = null;
-  taskTitleInput.value = "";
-  attachmentInput.value = "";
-
-  // Retire la sélection visuelle sur les branch-button
-  document.querySelectorAll(".branch-button").forEach(btn => {
-    btn.classList.remove("selected-branch");
-  });
-  // Retire la sélection visuelle sur type de devoir
-  [typeDevoirBtn, typeTaBtn, typeTsBtn].forEach(btn => {
-    btn.classList.remove("selected-type");
-  });
-}
-
-/*****************************************************
- * Fermeture de l'écran d'ajout de devoir
- *****************************************************/
-cancelAddTaskBtn.addEventListener("click", () => {
-  addTaskScreen.classList.add("hidden");
-});
-
-/*****************************************************
- * Génération de la liste de branches (ajout de devoir)
- *****************************************************/
-function generateBranchSelection() {
-  branches.forEach((branch) => {
-    const btn = document.createElement("button");
-    btn.classList.add("branch-button");
-    btn.style.backgroundColor = branch.color;
-    btn.textContent = branch.code;
-
-    btn.addEventListener("click", () => {
-      // Retire la sélection sur tous
-      document.querySelectorAll(".branch-button").forEach(b => {
-        b.classList.remove("selected-branch");
-      });
-      // Applique sur celui cliqué
-      btn.classList.add("selected-branch");
-      selectedTaskBranch = branch.code;
-    });
-
-    branchSelectionContainer.appendChild(btn);
-  });
-}
-
-/*****************************************************
- * Sélection du type de devoir
- *****************************************************/
-[typeDevoirBtn, typeTaBtn, typeTsBtn].forEach(button => {
-  button.addEventListener("click", () => {
-    [typeDevoirBtn, typeTaBtn, typeTsBtn].forEach(b => {
-      b.classList.remove("selected-type");
-    });
-    button.classList.add("selected-type");
-    selectedTaskType = button.dataset.type;
-  });
-});
-
-/*****************************************************
- * Ajout d'un devoir (avec mot de passe via modale)
- *****************************************************/
-// 1) Quand on clique sur “Ajouter” dans le formulaire
-confirmAddTaskBtn.addEventListener("click", () => {
-    // Ouvrir la modale “password-modal-add”
-    passwordModalAdd.classList.remove("hidden");
-    addPasswordInput.value = ""; // on vide le champ
+      weekList.appendChild(div);
+    }
+  
+    // Semaine initiale
+    selectWeek(1);
+  
+    // Génère les 5 jours à l'écran principal
+    generateDays();
+  
+    // Génère les boutons de branches pour l'ajout d’un devoir
+    generateBranchSelection();
+  
+    // Génère les boutons de branches pour la bibliothèque
+    generateLibraryBranches();
+  
+    // Charge les tâches initiales
+    loadTasksForWeek(currentWeek);
   });
   
-  // 2) Bouton “Annuler” dans la modale
-  cancelAddPwdBtn.addEventListener("click", () => {
-    passwordModalAdd.classList.add("hidden");
+  /*****************************************************
+   * Gestion de la semaine
+   *****************************************************/
+  weekButton.addEventListener("click", () => {
+    toggleWeekList();
   });
   
-  // 3) Bouton “Confirmer” dans la modale
-  confirmAddPwdBtn.addEventListener("click", async () => {
-    // Vérifier le mot de passe
-    const pwd = addPasswordInput.value;
+  function toggleWeekList(forceHide = null) {
+    if (forceHide === true) {
+      weekList.classList.add("hidden");
+      return;
+    }
+    weekList.classList.toggle("hidden");
+  }
+  
+  function selectWeek(week) {
+    currentWeek = week;
+    currentWeekSpan.textContent = week;
+    weekDates.textContent = `Semaine ${week}`; // affichage simplifié
+    loadTasksForWeek(week);
+  }
+  
+  /*****************************************************
+   * Génération de l'affichage des jours (lundi->vendredi)
+   *****************************************************/
+  function generateDays() {
+    const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
+    mainContent.innerHTML = "";
+    days.forEach((day) => {
+      const dayContainer = document.createElement("div");
+      dayContainer.classList.add("day-container");
+  
+      const randomDate = "04.10"; // fictif
+      const dayTitle = document.createElement("h3");
+      dayTitle.textContent = `${day} ${randomDate}`;
+      dayTitle.addEventListener("click", () => {
+        currentDayClicked = day;
+        openAddTaskScreen();
+      });
+  
+      dayContainer.appendChild(dayTitle);
+  
+      // Liste de tâches
+      const tasksList = document.createElement("div");
+      tasksList.classList.add("tasks-list");
+      tasksList.id = `tasks-${day}`;
+      dayContainer.appendChild(tasksList);
+  
+      mainContent.appendChild(dayContainer);
+    });
+  }
+  
+  /*****************************************************
+   * Charger les devoirs depuis Firestore
+   *****************************************************/
+  function loadTasksForWeek(week) {
+    const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
+    // Vider l'affichage
+    days.forEach(day => {
+      const tasksList = document.getElementById(`tasks-${day}`);
+      if (tasksList) tasksList.innerHTML = "";
+    });
+  
+    db.collection("tasks")
+      .where("week", "==", week)
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const taskData = doc.data();
+          displayTask(doc.id, taskData); // <-- On ré-affiche via displayTask
+        });
+      })
+      .catch((error) => {
+        console.error("Erreur lors du chargement des tâches:", error);
+      });
+  }
+  
+  /*****************************************************
+   * Affichage d'un devoir
+   *****************************************************/
+  function displayTask(taskId, taskData) {
+    const tasksList = document.getElementById(`tasks-${taskData.day}`);
+    if (!tasksList) return; // Si le day n'est pas Lundi->Vendredi
+  
+    const taskItem = document.createElement("div");
+    taskItem.classList.add("task-item");
+  
+    // Couleur/style selon type
+    if (taskData.type === "Devoir") {
+      taskItem.classList.add("devoir");
+    } else if (taskData.type === "TA") {
+      taskItem.classList.add("ta");
+    } else if (taskData.type === "TS") {
+      taskItem.classList.add("ts");
+    }
+  
+    // Couleur par branche
+    if (taskData.branch) {
+      taskItem.classList.add(taskData.branch.toLowerCase());
+    }
+  
+    taskItem.textContent = `${taskData.branch} : ${taskData.title}`;
+  
+    // Ouvrir détails
+    taskItem.addEventListener("click", () => {
+      openTaskDetailsScreen(taskId, taskData);
+    });
+  
+    tasksList.appendChild(taskItem);
+  }
+  
+  /*****************************************************
+   * Ouvrir l'écran d'ajout de devoir
+   *****************************************************/
+  function openAddTaskScreen() {
+    addTaskScreen.classList.remove("hidden");
+    clearAddTaskForm();
+  }
+  
+  /*****************************************************
+   * Nettoyer le formulaire d'ajout
+   *****************************************************/
+  function clearAddTaskForm() {
+    selectedTaskBranch = null;
+    selectedTaskType = null;
+    taskTitleInput.value = "";
+    attachmentInput.value = "";
+  
+    document.querySelectorAll(".branch-button").forEach(btn => {
+      btn.classList.remove("selected-branch");
+    });
+    [typeDevoirBtn, typeTaBtn, typeTsBtn].forEach(btn => {
+      btn.classList.remove("selected-type");
+    });
+  }
+  
+  /*****************************************************
+   * Bouton Annuler l'ajout de devoir
+   *****************************************************/
+  cancelAddTaskBtn.addEventListener("click", () => {
+    addTaskScreen.classList.add("hidden");
+  });
+  
+  /*****************************************************
+   * Générer la liste de branches pour l'ajout de devoir
+   *****************************************************/
+  function generateBranchSelection() {
+    branches.forEach((branch) => {
+      const btn = document.createElement("button");
+      btn.classList.add("branch-button");
+      btn.style.backgroundColor = branch.color;
+      btn.textContent = branch.code;
+  
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".branch-button").forEach(b => {
+          b.classList.remove("selected-branch");
+        });
+        btn.classList.add("selected-branch");
+        selectedTaskBranch = branch.code;
+      });
+  
+      branchSelectionContainer.appendChild(btn);
+    });
+  }
+  
+  /*****************************************************
+   * Sélection du type de devoir
+   *****************************************************/
+  [typeDevoirBtn, typeTaBtn, typeTsBtn].forEach(button => {
+    button.addEventListener("click", () => {
+      [typeDevoirBtn, typeTaBtn, typeTsBtn].forEach(b => {
+        b.classList.remove("selected-type");
+      });
+      button.classList.add("selected-type");
+      selectedTaskType = button.dataset.type;
+    });
+  });
+  
+  /*****************************************************
+   * Clique sur “Ajouter” (devoir) => Demande le mdp
+   *****************************************************/
+  confirmAddTaskBtn.addEventListener("click", () => {
+    // On ouvre la modale password-modal-add-task
+    passwordModalAddTask.classList.remove("hidden");
+    addTaskPasswordInput.value = "";
+  });
+  
+  /*****************************************************
+   * Boutons de la modale (mdp) pour ajouter un devoir
+   *****************************************************/
+  cancelAddTaskPwdBtn.addEventListener("click", () => {
+    passwordModalAddTask.classList.add("hidden");
+  });
+  
+  confirmAddTaskPwdBtn.addEventListener("click", async () => {
+    const pwd = addTaskPasswordInput.value;
     if (pwd !== "9vg1") {
       alert("Mot de passe incorrect.");
       return;
     }
+    // OK => on ferme la modale
+    passwordModalAddTask.classList.add("hidden");
   
-    // Si c'est correct, on ferme la modale
-    passwordModalAdd.classList.add("hidden");
-  
-    // Maintenant on exécute le code d’ajout
+    // Vérif du formulaire
     if (!selectedTaskBranch || !selectedTaskType) {
       alert("Merci de sélectionner une branche et un type de devoir (Devoir, TA ou TS).");
       return;
@@ -357,303 +358,297 @@ confirmAddTaskBtn.addEventListener("click", () => {
       return;
     }
   
-    const attachments = attachmentInput.files; // FileList
-  
+    // Création doc Firestore
     try {
-      // Crée d'abord le document Firestore
       const docRef = await db.collection("tasks").add({
         branch: selectedTaskBranch,
         type: selectedTaskType,
-        title: title,
+        title,
         day: currentDayClicked,
         week: currentWeek,
         attachments: []
       });
   
-      // Upload des pièces jointes (simplifié, pas de barre de progression)
+      // Upload des pièces jointes (pas de barre de progression simplifiée)
+      const files = attachmentInput.files;
       const attachmentURLs = [];
-      for (let i = 0; i < attachments.length; i++) {
-        const file = attachments[i];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         const storageRef = storage.ref(`attachments/${docRef.id}/${file.name}`);
         const snapshot = await storageRef.put(file);
         const url = await snapshot.ref.getDownloadURL();
         attachmentURLs.push({ name: file.name, url });
       }
   
-      // Mise à jour Firestore si on a des pièces jointes
       if (attachmentURLs.length > 0) {
         await db.collection("tasks").doc(docRef.id).update({
           attachments: attachmentURLs
         });
       }
   
-      // Recharge l’affichage
       loadTasksForWeek(currentWeek);
-      // Ferme l’écran principal d’ajout
       addTaskScreen.classList.add("hidden");
     } catch (err) {
-      console.error("Erreur lors de l'ajout de devoir:", err);
+      console.error("Erreur ajout devoir:", err);
       alert("Une erreur s'est produite lors de l'ajout du devoir.");
     }
   });
-
-/*****************************************************
- * Affichage des détails d'un devoir
- *****************************************************/
-function openTaskDetailsScreen(taskId, taskData) {
-  selectedTaskId = taskId;
-  selectedTaskData = taskData;
-  taskDetailsScreen.classList.remove("hidden");
-
-  detailsTaskTitle.textContent = `${taskData.branch} : ${taskData.title}`;
-  attachmentsList.innerHTML = "";
-
-  if (taskData.attachments && taskData.attachments.length > 0) {
-    taskData.attachments.forEach((att) => {
-      const attItem = document.createElement("div");
-      attItem.classList.add("attachment-item");
-      attItem.textContent = att.name;
-      attItem.addEventListener("click", () => {
-        window.open(att.url, "_blank");
+  
+  /*****************************************************
+   * Affichage des détails d'un devoir
+   *****************************************************/
+  function openTaskDetailsScreen(taskId, taskData) {
+    selectedTaskId = taskId;
+    selectedTaskData = taskData;
+    taskDetailsScreen.classList.remove("hidden");
+  
+    detailsTaskTitle.textContent = `${taskData.branch} : ${taskData.title}`;
+    attachmentsList.innerHTML = "";
+  
+    if (taskData.attachments && taskData.attachments.length > 0) {
+      taskData.attachments.forEach((att) => {
+        const attItem = document.createElement("div");
+        attItem.classList.add("attachment-item");
+        attItem.textContent = att.name;
+        attItem.addEventListener("click", () => {
+          window.open(att.url, "_blank");
+        });
+        attachmentsList.appendChild(attItem);
       });
-      attachmentsList.appendChild(attItem);
-    });
+    }
   }
-}
-
-/*****************************************************
- * Retour à l'écran principal sans modifier
- *****************************************************/
-backToMainBtn.addEventListener("click", () => {
-  taskDetailsScreen.classList.add("hidden");
-  disableEditMode();
-});
-
-/*****************************************************
- * Basculer en mode édition
- *****************************************************/
-toggleEditBtn.addEventListener("click", () => {
-  const editModeContainer = document.getElementById("edit-mode");
-  editModeContainer.classList.toggle("hidden");
-  validateChangesBtn.classList.toggle("hidden");
-
-  if (!editModeContainer.classList.contains("hidden")) {
-    // On active l'édition
-    toggleEditBtn.textContent = "Annuler";
-    // Pré-remplit le champ
-    editTaskTitleInput.value = selectedTaskData.title;
-  } else {
-    // On annule
+  
+  /*****************************************************
+   * Bouton retour détails devoir
+   *****************************************************/
+  backToMainBtn.addEventListener("click", () => {
+    taskDetailsScreen.classList.add("hidden");
+    disableEditMode();
+  });
+  
+  /*****************************************************
+   * Mode édition d'un devoir
+   *****************************************************/
+  toggleEditBtn.addEventListener("click", () => {
+    const editModeContainer = document.getElementById("edit-mode");
+    editModeContainer.classList.toggle("hidden");
+    validateChangesBtn.classList.toggle("hidden");
+  
+    if (!editModeContainer.classList.contains("hidden")) {
+      // on active
+      toggleEditBtn.textContent = "Annuler";
+      editTaskTitleInput.value = selectedTaskData.title;
+    } else {
+      // on annule
+      toggleEditBtn.textContent = "Modifier";
+    }
+  });
+  
+  function disableEditMode() {
+    document.getElementById("edit-mode").classList.add("hidden");
+    validateChangesBtn.classList.add("hidden");
     toggleEditBtn.textContent = "Modifier";
   }
-});
-
-function disableEditMode() {
-  document.getElementById("edit-mode").classList.add("hidden");
-  validateChangesBtn.classList.add("hidden");
-  toggleEditBtn.textContent = "Modifier";
-}
-
-/*****************************************************
- * Validation des modifications du devoir
- *****************************************************/
-validateChangesBtn.addEventListener("click", async () => {
-  const newTitle = editTaskTitleInput.value.trim();
-  const newAttachments = editAttachmentInput.files; // Pièces jointes supplémentaires
-  const updates = {};
-
-  if (newTitle && newTitle !== selectedTaskData.title) {
-    updates.title = newTitle;
-  }
-
-  if (newAttachments.length > 0) {
-    // On part de l'existant, ou []
-    const existingAtt = selectedTaskData.attachments ? [...selectedTaskData.attachments] : [];
-    for (let i = 0; i < newAttachments.length; i++) {
-      const file = newAttachments[i];
-      const storageRef = storage.ref(`attachments/${selectedTaskId}/${file.name}`);
-      const snapshot = await storageRef.put(file);
-      const url = await snapshot.ref.getDownloadURL();
-      existingAtt.push({ name: file.name, url });
+  
+  /*****************************************************
+   * Valider modifications devoir
+   *****************************************************/
+  validateChangesBtn.addEventListener("click", async () => {
+    const newTitle = editTaskTitleInput.value.trim();
+    const newAttachments = editAttachmentInput.files;
+    const updates = {};
+  
+    if (newTitle && newTitle !== selectedTaskData.title) {
+      updates.title = newTitle;
     }
-    updates.attachments = existingAtt;
-  }
-
-  try {
-    if (Object.keys(updates).length > 0) {
-      await db.collection("tasks").doc(selectedTaskId).update(updates);
-    }
-    // Recharge le doc
-    const docSnap = await db.collection("tasks").doc(selectedTaskId).get();
-    if (docSnap.exists) {
-      selectedTaskData = docSnap.data();
-      detailsTaskTitle.textContent = `${selectedTaskData.branch} : ${selectedTaskData.title}`;
-      attachmentsList.innerHTML = "";
-      if (selectedTaskData.attachments) {
-        selectedTaskData.attachments.forEach(att => {
-          const attItem = document.createElement("div");
-          attItem.classList.add("attachment-item");
-          attItem.textContent = att.name;
-          attItem.addEventListener("click", () => {
-            window.open(att.url, "_blank");
-          });
-          attachmentsList.appendChild(attItem);
-        });
+  
+    if (newAttachments.length > 0) {
+      const existingAtt = selectedTaskData.attachments ? [...selectedTaskData.attachments] : [];
+      for (let i = 0; i < newAttachments.length; i++) {
+        const file = newAttachments[i];
+        const storageRef = storage.ref(`attachments/${selectedTaskId}/${file.name}`);
+        const snapshot = await storageRef.put(file);
+        const url = await snapshot.ref.getDownloadURL();
+        existingAtt.push({ name: file.name, url });
       }
+      updates.attachments = existingAtt;
     }
-    disableEditMode();
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour du devoir:", error);
-  }
-});
-
-/*****************************************************
- * Suppression du devoir (demande mot de passe)
- *****************************************************/
-deleteTaskBtn.addEventListener("click", () => {
-  passwordModal.classList.remove("hidden");
-  deletePasswordInput.value = "";
-});
-
-cancelDeleteBtn.addEventListener("click", () => {
-  passwordModal.classList.add("hidden");
-});
-
-confirmDeleteBtn.addEventListener("click", () => {
-  const pwd = deletePasswordInput.value;
-  if (pwd !== "xxx") {
-    alert("Mot de passe incorrect.");
-    return;
-  }
-  // Supprimer le document
-  db.collection("tasks").doc(selectedTaskId).delete().then(() => {
+  
+    try {
+      if (Object.keys(updates).length > 0) {
+        await db.collection("tasks").doc(selectedTaskId).update(updates);
+      }
+      const docSnap = await db.collection("tasks").doc(selectedTaskId).get();
+      if (docSnap.exists) {
+        selectedTaskData = docSnap.data();
+        detailsTaskTitle.textContent = `${selectedTaskData.branch} : ${selectedTaskData.title}`;
+        attachmentsList.innerHTML = "";
+        if (selectedTaskData.attachments) {
+          selectedTaskData.attachments.forEach(att => {
+            const attItem = document.createElement("div");
+            attItem.classList.add("attachment-item");
+            attItem.textContent = att.name;
+            attItem.addEventListener("click", () => {
+              window.open(att.url, "_blank");
+            });
+            attachmentsList.appendChild(attItem);
+          });
+        }
+      }
+      disableEditMode();
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du devoir:", error);
+    }
+  });
+  
+  /*****************************************************
+   * Suppression d'un devoir (mot de passe "xxx")
+   *****************************************************/
+  deleteTaskBtn.addEventListener("click", () => {
+    passwordModal.classList.remove("hidden");
+    deletePasswordInput.value = "";
+  });
+  
+  cancelDeleteBtn.addEventListener("click", () => {
     passwordModal.classList.add("hidden");
-    taskDetailsScreen.classList.add("hidden");
-    loadTasksForWeek(currentWeek);
-  }).catch(err => {
-    console.error("Erreur lors de la suppression:", err);
   });
-});
-
-/*****************************************************
- * Bibliothèque
- *****************************************************/
-libraryButton.addEventListener("click", () => {
-  libraryScreen.classList.remove("hidden");
-});
-closeLibraryBtn.addEventListener("click", () => {
-  libraryScreen.classList.add("hidden");
-  manualsListContainer.classList.add("hidden");
-  // Retire la sélection lib-branch
-  document.querySelectorAll(".library-branch-button").forEach(b => {
-    b.classList.remove("selected-lib-branch");
+  
+  confirmDeleteBtn.addEventListener("click", () => {
+    const pwd = deletePasswordInput.value;
+    if (pwd !== "xxx") {
+      alert("Mot de passe incorrect.");
+      return;
+    }
+    db.collection("tasks").doc(selectedTaskId).delete()
+      .then(() => {
+        passwordModal.classList.add("hidden");
+        taskDetailsScreen.classList.add("hidden");
+        loadTasksForWeek(currentWeek);
+      })
+      .catch(err => console.error("Erreur lors de la suppression:", err));
   });
-});
-
-/* Génère les boutons de branches pour la bibliothèque */
-function generateLibraryBranches() {
-  branches.forEach((branch) => {
-    const btn = document.createElement("button");
-    btn.classList.add("library-branch-button");
-    btn.style.backgroundColor = branch.color;
-    btn.textContent = branch.code;
-
-    btn.addEventListener("click", () => {
-      // Retire la sélection sur toutes
-      document.querySelectorAll(".library-branch-button").forEach(b => {
-        b.classList.remove("selected-lib-branch");
-      });
-      btn.classList.add("selected-lib-branch");
-
-      selectedBranch = branch.code;
-      selectedBranchTitle.textContent = `Manuels pour ${branch.code}`;
-      manualsList.innerHTML = "";
-      manualsListContainer.classList.remove("hidden");
-
-      loadManualsForBranch(branch.code);
+  
+  /*****************************************************
+   * Bibliothèque
+   *****************************************************/
+  libraryButton.addEventListener("click", () => {
+    libraryScreen.classList.remove("hidden");
+  });
+  closeLibraryBtn.addEventListener("click", () => {
+    libraryScreen.classList.add("hidden");
+    manualsListContainer.classList.add("hidden");
+    document.querySelectorAll(".library-branch-button").forEach(b => {
+      b.classList.remove("selected-lib-branch");
     });
-
-    libraryBranchesContainer.appendChild(btn);
   });
-}
-
-/* Charger la liste des manuels pour une branche */
-function loadManualsForBranch(branchCode) {
-  db.collection("manuals")
-    .where("branch", "==", branchCode)
-    .get()
-    .then((snapshot) => {
-      manualsList.innerHTML = "";
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const li = document.createElement("li");
-        // Le titre est tiré du champ "title"
-        // Ici on suppose qu'on met le nom du PDF comme "title", si on veut
-        // un champ "title" plus humain, on peut parse le nom du fichier
-        // ou demander un input. A toi de voir. 
-        const spanTitle = document.createElement("span");
-        spanTitle.textContent = data.title || "Manuel PDF";
-        spanTitle.classList.add("manual-title");
-        spanTitle.addEventListener("click", () => {
-          window.open(data.pdfUrl, "_blank");
+  
+  /*****************************************************
+   * Générer boutons de branches pour la bibliothèque
+   *****************************************************/
+  function generateLibraryBranches() {
+    branches.forEach((branch) => {
+      const btn = document.createElement("button");
+      btn.classList.add("library-branch-button");
+      btn.style.backgroundColor = branch.color;
+      btn.textContent = branch.code;
+  
+      btn.addEventListener("click", () => {
+        // Sélection
+        document.querySelectorAll(".library-branch-button").forEach(b => {
+          b.classList.remove("selected-lib-branch");
         });
-        li.appendChild(spanTitle);
-
-        // Bouton de suppression du manuel
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "X";
-        deleteBtn.style.marginLeft = "1rem";
-        deleteBtn.addEventListener("click", () => {
-          askDeleteManual(doc.id);
-        });
-        li.appendChild(deleteBtn);
-
-        manualsList.appendChild(li);
+        btn.classList.add("selected-lib-branch");
+  
+        selectedBranch = branch.code;
+        selectedBranchTitle.textContent = `Manuels pour ${branch.code}`;
+        manualsList.innerHTML = "";
+        manualsListContainer.classList.remove("hidden");
+  
+        loadManualsForBranch(branch.code);
       });
-    })
-    .catch(err => console.error("Erreur lors du chargement des manuels:", err));
-}
-
-/*****************************************************
- * Ajouter un manuel (upload PDF)
- *****************************************************/
-addManualButton.addEventListener("click", () => {
-  if (!selectedBranch) {
-    alert("Veuillez d'abord sélectionner une branche.");
-    return;
+  
+      libraryBranchesContainer.appendChild(btn);
+    });
   }
-  addManualModal.classList.remove("hidden");
-  manualFileInput.value = "";
-});
-
-cancelAddManualBtn.addEventListener("click", () => {
-  addManualModal.classList.add("hidden");
-  manualFileInput.value = "";
-});
-
-/*****************************************************
- * Ajout d'un manuel (avec mot de passe via modale)
- *****************************************************/
-confirmAddManualBtn.addEventListener("click", () => {
-    // On affiche la même modale “password-modal-add”
-    passwordModalAdd.classList.remove("hidden");
-    addPasswordInput.value = "";
+  
+  /*****************************************************
+   * Charger la liste des manuels pour une branche
+   *****************************************************/
+  function loadManualsForBranch(branchCode) {
+    db.collection("manuals")
+      .where("branch", "==", branchCode)
+      .get()
+      .then((snapshot) => {
+        manualsList.innerHTML = "";
+        snapshot.forEach(doc => {
+          const data = doc.data();
+  
+          const li = document.createElement("li");
+          const spanTitle = document.createElement("span");
+          spanTitle.textContent = data.title || "Manuel PDF";
+          spanTitle.classList.add("manual-title");
+          spanTitle.addEventListener("click", () => {
+            window.open(data.pdfUrl, "_blank");
+          });
+          li.appendChild(spanTitle);
+  
+          // Bouton de suppression
+          const deleteBtn = document.createElement("button");
+          deleteBtn.textContent = "X";
+          deleteBtn.style.marginLeft = "1rem";
+          deleteBtn.addEventListener("click", () => {
+            askDeleteManual(doc.id);
+          });
+          li.appendChild(deleteBtn);
+  
+          manualsList.appendChild(li);
+        });
+      })
+      .catch(err => console.error("Erreur chargement manuels:", err));
+  }
+  
+  /*****************************************************
+   * Bouton + pour ajouter un manuel
+   *****************************************************/
+  addManualButton.addEventListener("click", () => {
+    if (!selectedBranch) {
+      alert("Veuillez d'abord sélectionner une branche.");
+      return;
+    }
+    addManualModal.classList.remove("hidden");
+    manualFileInput.value = "";
   });
   
-  // On peut réutiliser le même bouton “ConfirmAddPwdBtn”, 
-  // mais l'opération (ajout de devoir ou manuel) dépend 
-  // d’une variable ou d’un flag. 
-  // => Pour faire simple, on fait une solution distincte :
+  cancelAddManualBtn.addEventListener("click", () => {
+    addManualModal.classList.add("hidden");
+    manualFileInput.value = "";
+  });
   
-  confirmAddPwdBtn.onclick = async () => {
-    const pwd = addPasswordInput.value;
+  /*****************************************************
+   * Bouton de confirmation => Mot de passe avant l'upload
+   *****************************************************/
+  confirmAddManualBtn.addEventListener("click", () => {
+    // Ouvre la modale d'ajout manuel
+    passwordModalAddManual.classList.remove("hidden");
+    addManualPasswordInput.value = "";
+  });
+  
+  cancelAddManualPwdBtn.addEventListener("click", () => {
+    passwordModalAddManual.classList.add("hidden");
+  });
+  
+  /*****************************************************
+   * Confirmer le mdp => upload du manuel
+   *****************************************************/
+  confirmAddManualPwdBtn.addEventListener("click", async () => {
+    const pwd = addManualPasswordInput.value;
     if (pwd !== "9vg1") {
       alert("Mot de passe incorrect.");
       return;
     }
-    passwordModalAdd.classList.add("hidden");
+    passwordModalAddManual.classList.add("hidden");
   
-    // Ici on fait l'ajout du manuel
+    // Ajout effectif
     if (!selectedBranch) {
       alert("Aucune branche sélectionnée.");
       return;
@@ -680,26 +675,26 @@ confirmAddManualBtn.addEventListener("click", () => {
       console.error("Erreur lors de l'ajout du manuel:", error);
       alert("Une erreur est survenue lors de l'upload du PDF.");
     }
-  };
-/*****************************************************
- * Suppression d'un manuel (demande mot de passe)
- *****************************************************/
-function askDeleteManual(manualId) {
-  passwordModal.classList.remove("hidden");
-  deletePasswordInput.value = "";
-
-  confirmDeleteBtn.onclick = () => {
-    const pwd = deletePasswordInput.value;
-    if (pwd !== "xxx") {
-      alert("Mot de passe incorrect.");
-      return;
-    }
-    // Supprime le doc Firestore
-    db.collection("manuals").doc(manualId).delete()
-      .then(() => {
-        passwordModal.classList.add("hidden");
-        loadManualsForBranch(selectedBranch);
-      })
-      .catch(err => console.error("Erreur lors de la suppression du manuel:", err));
-  };
-}
+  });
+  
+  /*****************************************************
+   * Suppression d'un manuel (mot de passe “xxx”)
+   *****************************************************/
+  function askDeleteManual(manualId) {
+    passwordModal.classList.remove("hidden");
+    deletePasswordInput.value = "";
+  
+    confirmDeleteBtn.onclick = () => {
+      const pwd = deletePasswordInput.value;
+      if (pwd !== "xxx") {
+        alert("Mot de passe incorrect.");
+        return;
+      }
+      db.collection("manuals").doc(manualId).delete()
+        .then(() => {
+          passwordModal.classList.add("hidden");
+          loadManualsForBranch(selectedBranch);
+        })
+        .catch(err => console.error("Erreur lors de la suppression du manuel:", err));
+    };
+  }

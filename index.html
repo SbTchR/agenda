@@ -155,18 +155,30 @@
         <button id="confirm-delete" class="delete-button">Supprimer</button>
       </div>
     </div>
-    <!-- Fenêtre modale pour mot de passe d'ajout -->
-<div id="password-modal-add" class="modal hidden">
+   <!-- Fenêtre modale pour mot de passe d'ajout de devoir -->
+<div id="password-modal-add-task" class="modal hidden">
     <div class="modal-content">
-      <h3>Mot de passe pour ajouter</h3>
+      <h3>Mot de passe pour ajouter un devoir</h3>
       <p>Entrez le mot de passe :</p>
-      <input type="password" id="add-password-input" placeholder="Mot de passe" />
+      <input type="password" id="add-task-password-input" placeholder="Mot de passe" />
       <div class="buttons-row">
-        <button id="cancel-add-pwd" class="secondary-button">Annuler</button>
-        <button id="confirm-add-pwd" class="confirm-button">Confirmer</button>
+        <button id="cancel-add-task-pwd" class="secondary-button">Annuler</button>
+        <button id="confirm-add-task-pwd" class="confirm-button">Confirmer</button>
       </div>
     </div>
   </div>
+  
+  <!-- Fenêtre modale pour mot de passe d'ajout de manuel -->
+  <div id="password-modal-add-manual" class="modal hidden">
+    <div class="modal-content">
+      <h3>Mot de passe pour ajouter un manuel</h3>
+      <p>Entrez le mot de passe :</p>
+      <input type="password" id="add-manual-password-input" placeholder="Mot de passe" />
+      <div class="buttons-row">
+        <button id="cancel-add-manual-pwd" class="secondary-button">Annuler</button>
+        <button id="confirm-add-manual-pwd" class="confirm-button">Confirmer</button>
+      </div>
+    </div>
   </div>
 
   <!-- Scripts Firebase (ex: version 8.10.0) -->
