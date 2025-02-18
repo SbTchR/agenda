@@ -460,57 +460,93 @@ function disableEditMode() {
 }
 
 /*****************************************************
- * Validation des modifications du devoir
+ * Validation des modifications du devoir (mise à jour)
+ * avec barre de progression pour l'ajout de nouvelles pièces jointes
  *****************************************************/
 validateChangesBtn.addEventListener("click", async () => {
-  const newTitle = editTaskTitleInput.value.trim();
-  const newAttachments = editAttachmentInput.files; // Pièces jointes supplémentaires
-  const updates = {};
-
-  if (newTitle && newTitle !== selectedTaskData.title) {
-    updates.title = newTitle;
-  }
-
-  if (newAttachments.length > 0) {
-    // On part de l'existant, ou []
-    const existingAtt = selectedTaskData.attachments ? [...selectedTaskData.attachments] : [];
-    for (let i = 0; i < newAttachments.length; i++) {
-      const file = newAttachments[i];
-      const storageRef = storage.ref(`attachments/${selectedTaskId}/${file.name}`);
-      const snapshot = await storageRef.put(file);
-      const url = await snapshot.ref.getDownloadURL();
-      existingAtt.push({ name: file.name, url });
+    const newTitle = editTaskTitleInput.value.trim();
+    const newAttachments = editAttachmentInput.files; // Nouveaux fichiers à ajouter
+    const updates = {};
+  
+    // Mise à jour du titre si modifié
+    if (newTitle && newTitle !== selectedTaskData.title) {
+      updates.title = newTitle;
     }
-    updates.attachments = existingAtt;
-  }
-
-  try {
-    if (Object.keys(updates).length > 0) {
-      await db.collection("tasks").doc(selectedTaskId).update(updates);
-    }
-    // Recharge le doc
-    const docSnap = await db.collection("tasks").doc(selectedTaskId).get();
-    if (docSnap.exists) {
-      selectedTaskData = docSnap.data();
-      detailsTaskTitle.textContent = `${selectedTaskData.branch} : ${selectedTaskData.title}`;
-      attachmentsList.innerHTML = "";
-      if (selectedTaskData.attachments) {
-        selectedTaskData.attachments.forEach(att => {
-          const attItem = document.createElement("div");
-          attItem.classList.add("attachment-item");
-          attItem.textContent = att.name;
-          attItem.addEventListener("click", () => {
-            window.open(att.url, "_blank");
-          });
-          attachmentsList.appendChild(attItem);
+  
+    // S'il y a de nouveaux fichiers à uploader
+    if (newAttachments.length > 0) {
+      // Récupérer les éléments de la barre de progression pour la modification
+      const progressContainer = document.getElementById("edit-upload-progress-container");
+      const progressBar = document.getElementById("edit-upload-progress-bar");
+      progressContainer.classList.remove("hidden"); // Affiche la barre
+  
+      // Commencer avec les pièces jointes existantes (s'il y en a)
+      let updatedAttachments = selectedTaskData.attachments ? [...selectedTaskData.attachments] : [];
+  
+      // Pour chaque nouveau fichier, effectuer l'upload et suivre la progression
+      for (let i = 0; i < newAttachments.length; i++) {
+        const file = newAttachments[i];
+        const storageRef = storage.ref(`attachments/${selectedTaskId}/${file.name}`);
+        const uploadTask = storageRef.put(file);
+  
+        // Utiliser une Promise pour attendre la fin de l'upload
+        await new Promise((resolve, reject) => {
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              // Calcul de la progression pour ce fichier
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              progressBar.style.width = progress + "%";
+            },
+            (error) => {
+              console.error("Erreur d'upload du fichier lors de la modification :", error);
+              reject(error);
+            },
+            async () => {
+              // Une fois l'upload terminé, récupérer l'URL
+              const url = await uploadTask.snapshot.ref.getDownloadURL();
+              updatedAttachments.push({ name: file.name, url: url });
+              resolve();
+            }
+          );
         });
       }
+  
+      updates.attachments = updatedAttachments;
+      // Masquer la barre de progression et réinitialiser sa largeur
+      progressContainer.classList.add("hidden");
+      progressBar.style.width = "0%";
     }
-    disableEditMode();
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour du devoir:", error);
-  }
-});
+  
+    try {
+      // Appliquer les mises à jour dans Firestore
+      if (Object.keys(updates).length > 0) {
+        await db.collection("tasks").doc(selectedTaskId).update(updates);
+      }
+  
+      // Recharger le document pour rafraîchir l'affichage
+      const docSnap = await db.collection("tasks").doc(selectedTaskId).get();
+      if (docSnap.exists) {
+        selectedTaskData = docSnap.data();
+        detailsTaskTitle.textContent = `${selectedTaskData.branch} : ${selectedTaskData.title}`;
+        attachmentsList.innerHTML = "";
+        if (selectedTaskData.attachments) {
+          selectedTaskData.attachments.forEach(att => {
+            const attItem = document.createElement("div");
+            attItem.classList.add("attachment-item");
+            attItem.textContent = att.name;
+            attItem.addEventListener("click", () => {
+              window.open(att.url, "_blank");
+            });
+            attachmentsList.appendChild(attItem);
+          });
+        }
+      }
+      disableEditMode();
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du devoir:", error);
+    }
+  });
 
 /*****************************************************
  * Suppression du devoir (demande mot de passe)
