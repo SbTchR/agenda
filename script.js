@@ -93,10 +93,10 @@ const branches = [
   { code: "Fra", color: "#e91e63" },
   { code: "Math", color: "#ff9800" },
   { code: "His", color: "#9c27b0" },
-  { code: "Géo", color: "#4caf50" },
+  { code: "Géo", color: "#75e378" },
   { code: "Ang", color: "#00bcd4" },
   { code: "Scn", color: "#9e9d24" },
-  { code: "Mus", color: "#f44336" },
+  { code: "Mus", color: "#e164b1" },
   { code: "AVI", color: "#795548" },
   { code: "Forgen", color: "#009688" },
   { code: "Autre", color: "#ffffff" }
