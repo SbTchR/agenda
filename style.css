@@ -13,7 +13,7 @@ body {
   background-color: #e0f7fa; /* Bleu très clair */
   color: #000;             /* Texte en noir */
   min-height: 100vh;
-  overflow: hidden; /* On gère le scroll via sections internes */
+  overflow: auto; 
   display: flex;
   flex-direction: column;
 }
@@ -36,6 +36,14 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+#task-details-screen header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.9); /* ou une couleur de fond adaptée */
+  padding: 0.5rem;
 }
 
 /* Sélecteur de semaine : bouton avec police plus grande */
