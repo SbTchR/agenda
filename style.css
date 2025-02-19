@@ -137,7 +137,7 @@ main {
  * Encadrés pour chaque jour de la semaine
  **************************************/
 .day-container {
-  background: #e6f7ff; /* Bleu très clair */
+  background: #f5fbff; /* Bleu très clair */
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 10px;
@@ -169,6 +169,7 @@ main {
   border-radius: 3px;
   cursor: pointer;
   transition: background 0.2s;
+  font-weight: bold;
 }
 
 .task-item:hover {
@@ -182,14 +183,18 @@ main {
 
 .ta {
   font-weight: bold;
+  font-size: 1.1rem;
   color: #40c246;
-  background: rgba(53, 206, 58, 0.2);
+  background: rgba(148, 253, 152, 0.454);
+  border: 2px solid #02ff0b;
 }
 
 .ts {
   font-weight: bold;
-  color: #c62828;
-  background: rgba(244, 67, 54, 0.2);
+  font-size: 1.1rem;
+  color: #f11919;
+  background: rgba(255, 177, 171, 0.431);
+  border: 2px solid #ff0000;
 }
 
 /* Couleurs par branche */
