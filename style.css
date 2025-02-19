@@ -314,7 +314,12 @@ main {
 /**************************************
  * Pièces jointes et upload
  **************************************/
-.attachment-container {
+
+ .hidden {
+  display: none !important;
+}
+
+ .attachment-container {
   margin-bottom: 1rem;
 }
 
@@ -589,15 +594,4 @@ main {
   #week-list {
     max-height: 150px;
   }
-}
-.delete-preview-icon {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  padding: 2px 5px;
-  cursor: pointer;
-  font-size: 14px;
-  color: #f44336;
 }
