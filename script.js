@@ -83,6 +83,7 @@ let selectedTaskData = null;      // Données de la tâche
 let selectedTaskType = null;      // "Devoir", "TA", "TS"
 let selectedTaskBranch = null;    // "All", "Fra", etc.
 let selectedFiles = [];
+let editSelectedFiles = [];
 
 /*****************************************************
  * Liste des branches et leurs codes/couleurs
@@ -424,99 +425,88 @@ confirmAddTaskBtn.addEventListener("click", async () => {
  * Affichage des détails d'un devoir
  *****************************************************/
 function openTaskDetailsScreen(taskId, taskData) {
-    selectedTaskId = taskId;
-    selectedTaskData = taskData;
-    taskDetailsScreen.classList.remove("hidden");
-  
-    detailsTaskTitle.textContent = `${taskData.branch} : ${taskData.title}`;
-    attachmentsList.innerHTML = "";
-  
-    if (taskData.attachments && taskData.attachments.length > 0) {
-        taskData.attachments.forEach((att, index) => {
-          // Créer un conteneur pour le preview
-          const previewContainer = document.createElement("div");
-          previewContainer.classList.add("attachment-preview");
-          // On peut lui donner un style inline ou via CSS (voir plus bas)
-          previewContainer.style.display = "inline-block";
-          previewContainer.style.margin = "5px";
-          previewContainer.style.textAlign = "center";
-          previewContainer.style.position = "relative"; // pour positionner la croix
-      
-          // Créer l'élément d'image ou d'icône PDF
-          const previewImg = document.createElement("img");
-          // Si le fichier est un PDF, utilisez une icône (assurez-vous d'avoir l'image pdf-icon.png dans votre projet)
-          if (att.name.toLowerCase().endsWith(".pdf")) {
-            previewImg.src = "pdf-icon.png";
-          } else {
-            // Pour les images, on affiche le fichier lui-même
-            previewImg.src = att.url;
-          }
-          previewImg.alt = att.name;
-          previewImg.style.maxWidth = "100px";
-          previewImg.style.display = "block";
-          previewImg.style.margin = "0 auto";
-          previewContainer.appendChild(previewImg);
-      
-          // Créer la légende avec le nom du fichier
-          const caption = document.createElement("div");
-          caption.textContent = att.name;
-          caption.classList.add("attachment-caption");
-          caption.style.fontSize = "12px";
-          caption.style.marginTop = "5px";
-          previewContainer.appendChild(caption);
-      
-          // Créer la petite croix pour supprimer
-          const deleteIcon = document.createElement("span");
-          deleteIcon.textContent = "✖";
-          deleteIcon.classList.add("delete-icon");
-          // Style de base pour la croix
-          deleteIcon.style.position = "absolute";
-          deleteIcon.style.top = "0px";
-          deleteIcon.style.right = "0px";
-          deleteIcon.style.background = "rgba(255,255,255,0.8)";
-          deleteIcon.style.borderRadius = "50%";
-          deleteIcon.style.padding = "2px 5px";
-          deleteIcon.style.cursor = "pointer";
-          deleteIcon.style.fontSize = "14px";
-          deleteIcon.style.color = "#f44336";
-      
-          // Ajout de l'événement pour supprimer l'élément
-          deleteIcon.addEventListener("click", (event) => {
-            event.stopPropagation(); // éviter d'ouvrir le document en cliquant sur la croix
-            console.log("Delete icon clicked for attachment:", att.name);
-            const code = prompt("Entrez le code pour supprimer cette pièce jointe:");
-            if (code !== "xxx") {
-              alert("Code incorrect.");
-              return;
-            }
-            // Mettre à jour le tableau en retirant l'élément cliqué
-            const updatedAttachments = taskData.attachments.filter((_, i) => i !== index);
-            db.collection("tasks").doc(taskId).update({
-              attachments: updatedAttachments
-            })
-            .then(() => {
-              // Rafraîchir l'affichage en rappelant openTaskDetailsScreen
-              db.collection("tasks").doc(taskId).get().then(doc => {
-                if (doc.exists) {
-                  openTaskDetailsScreen(taskId, doc.data());
-                }
-              });
-            })
-            .catch(err => {
-              console.error("Erreur lors de la suppression de la pièce jointe:", err);
-            });
-          });
-          previewContainer.appendChild(deleteIcon);
-      
-          // Pour ouvrir l'aperçu en cliquant sur l'image ou le conteneur
-          previewContainer.addEventListener("click", () => {
-            window.open(att.url, "_blank");
-          });
-          
-          attachmentsList.appendChild(previewContainer);
-        });
+  selectedTaskId = taskId;
+  selectedTaskData = taskData;
+  taskDetailsScreen.classList.remove("hidden");
+
+  detailsTaskTitle.textContent = `${taskData.branch} : ${taskData.title}`;
+  attachmentsList.innerHTML = "";
+
+  // Déterminez si nous sommes en mode édition :
+  const isEditing = !document.getElementById("edit-mode").classList.contains("hidden");
+
+  if (taskData.attachments && taskData.attachments.length > 0) {
+    taskData.attachments.forEach((att, index) => {
+      const previewContainer = document.createElement("div");
+      previewContainer.classList.add("attachment-preview");
+      previewContainer.style.display = "inline-block";
+      previewContainer.style.margin = "5px";
+      previewContainer.style.textAlign = "center";
+      previewContainer.style.position = "relative";
+
+      const previewImg = document.createElement("img");
+      // Pour un PDF, utiliser une icône ; sinon afficher l'image
+      if (att.name.toLowerCase().endsWith(".pdf")) {
+        previewImg.src = "pdf-icon.png";
+      } else {
+        previewImg.src = att.url;
       }
+      previewImg.alt = att.name;
+      previewImg.style.maxWidth = "100px";
+      previewImg.style.display = "block";
+      previewImg.style.margin = "0 auto";
+      previewContainer.appendChild(previewImg);
+
+      const caption = document.createElement("div");
+      caption.textContent = att.name;
+      caption.classList.add("attachment-caption");
+      caption.style.fontSize = "12px";
+      caption.style.marginTop = "5px";
+      previewContainer.appendChild(caption);
+
+      // N'ajouter la croix que si nous sommes en mode édition
+      if (isEditing) {
+        const deleteIcon = document.createElement("span");
+        deleteIcon.textContent = "✖";
+        deleteIcon.classList.add("delete-icon");
+        deleteIcon.style.position = "absolute";
+        deleteIcon.style.top = "0px";
+        deleteIcon.style.right = "0px";
+        // Les styles de .delete-icon sont déjà définis dans votre CSS
+        deleteIcon.addEventListener("click", (event) => {
+          event.stopPropagation();
+          const code = prompt("Entrez le code pour supprimer cette pièce jointe:");
+          if (code !== "xxx") {
+            alert("Code incorrect.");
+            return;
+          }
+          // Mettez à jour Firestore en retirant cet attachement
+          const updatedAttachments = taskData.attachments.filter((_, i) => i !== index);
+          db.collection("tasks").doc(taskId).update({
+            attachments: updatedAttachments
+          }).then(() => {
+            // Recharger le document depuis Firestore pour obtenir la version à jour
+            db.collection("tasks").doc(taskId).get().then(doc => {
+              if (doc.exists) {
+                openTaskDetailsScreen(taskId, doc.data());
+              }
+            });
+          }).catch(err => {
+            console.error("Erreur lors de la suppression de la pièce jointe:", err);
+          });
+        });
+        previewContainer.appendChild(deleteIcon);
+      }
+      
+      // Permet d'ouvrir le fichier en cliquant sur l'image ou le conteneur
+      previewContainer.addEventListener("click", () => {
+        window.open(att.url, "_blank");
+      });
+      
+      attachmentsList.appendChild(previewContainer);
+    });
   }
+}
 
 /*****************************************************
  * Retour à l'écran principal sans modifier
