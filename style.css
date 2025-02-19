@@ -44,7 +44,7 @@ main {
 }
 
 #week-button {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(225, 9, 9, 0.7);
   border: none;
   padding: 0.5rem 1rem;
   color: #000;
@@ -56,7 +56,7 @@ main {
 }
 
 #week-button:hover {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(123, 6, 6, 0.9);
 }
 
 /* Liste des semaines en mode damier sur l'écran entier */
@@ -112,6 +112,7 @@ main {
   cursor: pointer;
   padding: 0.5rem;
   transition: transform 0.2s;
+  filter: invert(100%);
 }
 
 .icon-button:hover {
@@ -121,7 +122,6 @@ main {
 .icon {
   width: 24px;
   height: 24px;
-  filter: invert(0); /* icônes en noir */
 }
 
 /**************************************
@@ -168,13 +168,13 @@ main {
 
 /* Styles selon le type de devoir */
 .devoir {
-  color: #2196f3;
+  color: #3ea8ff;
 }
 
 .ta {
   font-weight: bold;
-  color: #2e7d32;
-  background: rgba(76, 175, 80, 0.2);
+  color: #40c246;
+  background: rgba(53, 206, 58, 0.2);
 }
 
 .ts {
@@ -321,7 +321,7 @@ main {
 .attachment-label {
   display: inline-block;
   background: #007bff; /* boutons "Ajouter un document/une photo" en bleu */
-  color: #000; /* texte en noir */
+  color: #ffffff; /* texte en noir */
   padding: 0.5rem;
   border-radius: 4px;
   cursor: pointer;
@@ -381,7 +381,7 @@ main {
 .confirm-button {
   background: #28a745; /* Bouton "Valider" en vert */
   border: none;
-  color: #000; /* texte en noir */
+  color: #ffffff; /* texte en noir */
   padding: 0.7rem 1rem;
   border-radius: 4px;
   cursor: pointer;
@@ -456,7 +456,7 @@ main {
 
 .library-branch-button {
   background: rgba(255,255,255,0.2);
-  color: #fff;
+  color: #000000;
   border: none;
   border-radius: 4px;
   padding: 0.7rem 0;
@@ -472,7 +472,7 @@ main {
 }
 
 .selected-lib-branch {
-  border: 3px solid #fff;
+  border: 3px solid #000000;
 }
 
 .manuals-list {
@@ -530,7 +530,7 @@ main {
 }
 
 .modal-content {
-  background: #243B55;
+  background: #aff1fb;
   padding: 2rem;
   border-radius: 8px;
   width: 300px;
@@ -538,7 +538,7 @@ main {
 }
 
 #add-manual-modal .modal-content {
-  background: #fff; /* Fenêtre pour ajouter un manuel avec fond blanc */
+  background: #aff1fb; /* Fenêtre pour ajouter un manuel avec fond blanc */
   color: #000; /* Texte en noir */
 }
 
@@ -589,4 +589,15 @@ main {
   #week-list {
     max-height: 150px;
   }
+}
+.delete-preview-icon {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  padding: 2px 5px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #f44336;
 }

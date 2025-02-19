@@ -82,6 +82,7 @@ let selectedTaskId = null;        // ID de la tâche sélectionnée pour détail
 let selectedTaskData = null;      // Données de la tâche
 let selectedTaskType = null;      // "Devoir", "TA", "TS"
 let selectedTaskBranch = null;    // "All", "Fra", etc.
+let selectedFiles = [];
 
 /*****************************************************
  * Liste des branches et leurs codes/couleurs
@@ -334,89 +335,90 @@ function generateBranchSelection() {
  * Ajout du devoir en base + upload pièces jointes
  *****************************************************/
 confirmAddTaskBtn.addEventListener("click", async () => {
-    // Vérifie que la branche et le type ont été sélectionnés
-    if (!selectedTaskBranch || !selectedTaskType) {
-      alert("Merci de sélectionner une branche et un type de devoir (Devoir, TA ou TS).");
-      return;
-    }
+  // Vérifie que la branche et le type ont été sélectionnés
+  if (!selectedTaskBranch || !selectedTaskType) {
+    alert("Merci de sélectionner une branche et un type de devoir (Devoir, TA ou TS).");
+    return;
+  }
+  
+  const title = taskTitleInput.value.trim();
+  if (!title) {
+    alert("Merci d'indiquer un titre de devoir.");
+    return;
+  }
+  
+  // Utilise le tableau selectedFiles au lieu de attachmentInput.files
+  const attachments = selectedFiles;
+  
+  try {
+    // Crée le document Firestore pour le devoir sans pièces jointes
+    const docRef = await db.collection("tasks").add({
+      branch: selectedTaskBranch,
+      type: selectedTaskType,
+      title: title,
+      day: currentDayClicked,
+      week: currentWeek,
+      attachments: []
+    });
     
-    const title = taskTitleInput.value.trim();
-    if (!title) {
-      alert("Merci d'indiquer un titre de devoir.");
-      return;
-    }
+    // Prépare le conteneur et la barre de progression (vous avez déjà du CSS pour #upload-progress-container et #upload-progress-bar)
+    const progressContainer = document.getElementById("upload-progress-container");
+    const progressBar = document.getElementById("upload-progress-bar");
     
-    // Récupère les fichiers sélectionnés
-    const attachments = attachmentInput.files; // FileList
+    // Affiche la barre de progression
+    progressContainer.classList.remove("hidden");
     
-    try {
-      // Crée d'abord le document Firestore pour le devoir sans les pièces jointes
-      const docRef = await db.collection("tasks").add({
-        branch: selectedTaskBranch,
-        type: selectedTaskType,
-        title: title,
-        day: currentDayClicked,
-        week: currentWeek,
-        attachments: []
+    const attachmentURLs = [];
+    
+    // Pour chaque fichier dans selectedFiles, effectue l'upload
+    for (let i = 0; i < attachments.length; i++) {
+      const file = attachments[i];
+      const storageRef = storage.ref(`attachments/${docRef.id}/${file.name}`);
+      const uploadTask = storageRef.put(file);
+      
+      await new Promise((resolve, reject) => {
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            progressBar.style.width = progress + "%";
+          },
+          (error) => {
+            console.error("Erreur d'upload :", error);
+            reject(error);
+          },
+          async () => {
+            const url = await uploadTask.snapshot.ref.getDownloadURL();
+            attachmentURLs.push({ name: file.name, url });
+            resolve();
+          }
+        );
       });
-      
-      // Prépare le conteneur et la barre de progression
-      const progressContainer = document.getElementById("upload-progress-container");
-      const progressBar = document.getElementById("upload-progress-bar");
-      
-      // Affiche la barre de progression
-      progressContainer.classList.remove("hidden");
-      
-      const attachmentURLs = [];
-      
-      // Pour chaque fichier, effectue l'upload avec suivi de progression
-      for (let i = 0; i < attachments.length; i++) {
-        const file = attachments[i];
-        const storageRef = storage.ref(`attachments/${docRef.id}/${file.name}`);
-        const uploadTask = storageRef.put(file);
-        
-        // Attendre la fin de l'upload pour ce fichier avec une Promise
-        await new Promise((resolve, reject) => {
-          uploadTask.on(
-            "state_changed",
-            (snapshot) => {
-              // Calcul de la progression pour ce fichier
-              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              progressBar.style.width = progress + "%";
-            },
-            (error) => {
-              console.error("Erreur d'upload :", error);
-              reject(error);
-            },
-            async () => {
-              // Une fois l'upload terminé, récupère l'URL du fichier
-              const url = await uploadTask.snapshot.ref.getDownloadURL();
-              attachmentURLs.push({ name: file.name, url });
-              resolve();
-            }
-          );
-        });
-      }
-      
-      // Cache la barre de progression et réinitialise sa largeur
-      progressContainer.classList.add("hidden");
-      progressBar.style.width = "0%";
-      
-      // Met à jour le document Firestore avec les URL des pièces jointes
-      if (attachmentURLs.length > 0) {
-        await db.collection("tasks").doc(docRef.id).update({
-          attachments: attachmentURLs
-        });
-      }
-      
-      // Recharge la liste des tâches et ferme l'écran d'ajout
-      loadTasksForWeek(currentWeek);
-      addTaskScreen.classList.add("hidden");
-    } catch (err) {
-      console.error("Erreur lors de l'ajout du devoir :", err);
-      alert("Une erreur s'est produite lors de l'ajout du devoir.");
     }
-  });
+    
+    // Cache la barre de progression
+    progressContainer.classList.add("hidden");
+    progressBar.style.width = "0%";
+    
+    // Met à jour le document Firestore avec les URL des pièces jointes
+    if (attachmentURLs.length > 0) {
+      await db.collection("tasks").doc(docRef.id).update({
+        attachments: attachmentURLs
+      });
+    }
+    
+    // Réinitialise le tableau selectedFiles
+    selectedFiles = [];
+    updateAttachmentPreview();
+    
+    // Recharge la liste des tâches et ferme l'écran d'ajout
+    loadTasksForWeek(currentWeek);
+    addTaskScreen.classList.add("hidden");
+  } catch (err) {
+    console.error("Erreur lors de l'ajout du devoir :", err);
+    alert("Une erreur s'est produite lors de l'ajout du devoir.");
+  }
+});
 
 /*****************************************************
  * Affichage des détails d'un devoir
@@ -883,25 +885,60 @@ function askDeleteManual(manualId) {
   };
 }
 
-// Afficher un aperçu des fichiers dès que l'utilisateur choisit une pièce jointe
+// Lorsque l'utilisateur sélectionne des fichiers dans l'input
 attachmentInput.addEventListener("change", () => {
-    const previewContainer = document.getElementById("attachment-preview");
-    previewContainer.innerHTML = ""; // Efface l'aperçu précédent
+  // Convertit le FileList en tableau et ajoute-le au tableau global
+  const filesArray = Array.from(attachmentInput.files);
+  selectedFiles = selectedFiles.concat(filesArray);
   
-    // Parcourt tous les fichiers sélectionnés
-    for (let file of attachmentInput.files) {
-      if (file.type.startsWith("image/")) {
-        // Pour les images, crée un élément <img> avec une URL temporaire
-        const img = document.createElement("img");
-        img.src = URL.createObjectURL(file);
-        img.style.maxWidth = "200px";
-        img.style.marginRight = "10px";
-        previewContainer.appendChild(img);
-      } else {
-        // Pour les autres types (ex. PDF), affiche simplement le nom du fichier
-        const p = document.createElement("p");
-        p.textContent = file.name;
-        previewContainer.appendChild(p);
-      }
+  // Met à jour l'aperçu des fichiers
+  updateAttachmentPreview();
+  
+  // Réinitialise l'input pour pouvoir sélectionner à nouveau les mêmes fichiers si besoin
+  attachmentInput.value = "";
+});
+
+function updateAttachmentPreview() {
+  const previewContainer = document.getElementById("attachment-preview");
+  previewContainer.innerHTML = ""; // Efface l'aperçu précédent
+  
+  // Pour chaque fichier dans selectedFiles, créez un aperçu
+  selectedFiles.forEach((file, index) => {
+    const previewDiv = document.createElement("div");
+    previewDiv.style.display = "inline-block";
+    previewDiv.style.position = "relative";
+    previewDiv.style.marginRight = "10px";
+    
+    if (file.type.startsWith("image/")) {
+      // Si c'est une image, afficher l'image
+      const img = document.createElement("img");
+      img.src = URL.createObjectURL(file);
+      img.style.maxWidth = "200px";
+      img.style.display = "block";
+      previewDiv.appendChild(img);
+    } else {
+      // Pour un PDF ou autre, afficher le nom du fichier
+      const p = document.createElement("p");
+      p.textContent = file.name;
+      previewDiv.appendChild(p);
     }
+    
+    // Ajouter la petite croix pour supprimer cette pièce jointe
+    const deleteIcon = document.createElement("span");
+    deleteIcon.textContent = "✖";
+    deleteIcon.classList.add("delete-icon"); // Votre CSS pour .delete-icon s'appliquera
+    // Positionnez-la en haut à droite
+    deleteIcon.style.position = "absolute";
+    deleteIcon.style.top = "0";
+    deleteIcon.style.right = "0";
+    deleteIcon.style.cursor = "pointer";
+    deleteIcon.addEventListener("click", () => {
+      // Supprime ce fichier du tableau selectedFiles
+      selectedFiles.splice(index, 1);
+      updateAttachmentPreview();
+    });
+    previewDiv.appendChild(deleteIcon);
+    
+    previewContainer.appendChild(previewDiv);
   });
+}
