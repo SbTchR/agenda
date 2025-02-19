@@ -907,124 +907,51 @@ function updateAttachmentPreview() {
   const previewContainer = document.getElementById("attachment-preview");
   previewContainer.innerHTML = ""; // Efface l'aperçu précédent
   
-  // Pour chaque fichier dans selectedFiles, créez un aperçu
   selectedFiles.forEach((file, index) => {
+    // Crée un conteneur pour l'aperçu
     const previewDiv = document.createElement("div");
     previewDiv.style.display = "inline-block";
     previewDiv.style.position = "relative";
     previewDiv.style.marginRight = "10px";
     
+    // Afficher l'aperçu selon le type de fichier
     if (file.type.startsWith("image/")) {
-      // Si c'est une image, afficher l'image
+      // Pour les images
       const img = document.createElement("img");
       img.src = URL.createObjectURL(file);
       img.style.maxWidth = "200px";
       img.style.display = "block";
       previewDiv.appendChild(img);
+    } else if (file.type === "application/pdf") {
+      // Pour les PDF, afficher un aperçu via PDF.js
+      const pdfContainer = document.createElement("div");
+      pdfContainer.style.position = "relative";
+      // Cette fonction charge le PDF et affiche la première page dans un canvas
+      renderPDFPreview(file, pdfContainer);
+      previewDiv.appendChild(pdfContainer);
     } else {
-      if (file.type === "application/pdf") {
-        // Pour les PDF, on affiche un aperçu via PDF.js
-        // Créez un conteneur pour l’aperçu du PDF
-        const pdfPreviewContainer = document.createElement("div");
-        pdfPreviewContainer.style.position = "relative";
-        pdfPreviewContainer.style.display = "inline-block";
-        pdfPreviewContainer.style.marginRight = "10px";
-      
-        // Appelle la fonction renderPDFPreview qui va créer le canvas et afficher l’aperçu
-        renderPDFPreview(file, pdfPreviewContainer);
-        
-        // Ajoutez aussi le nom du fichier en dessous
-        const caption = document.createElement("div");
-        caption.textContent = file.name;
-        caption.style.fontSize = "12px";
-        caption.style.marginTop = "5px";
-        pdfPreviewContainer.appendChild(caption);
-        
-        // Ajoutez la croix pour supprimer l'aperçu
-        const deleteIcon = document.createElement("span");
-        deleteIcon.textContent = "✖";
-        deleteIcon.classList.add("delete-icon");
-        deleteIcon.style.position = "absolute";
-        deleteIcon.style.top = "0";
-        deleteIcon.style.right = "0";
-        deleteIcon.style.cursor = "pointer";
-        deleteIcon.addEventListener("click", () => {
-          selectedFiles.splice(index, 1);
-          updateAttachmentPreview();
-        });
-        pdfPreviewContainer.appendChild(deleteIcon);
-        
-        previewContainer.appendChild(pdfPreviewContainer);
-      } else if (file.type.startsWith("image/")) {
-        // Pour les images, le comportement reste le même
-        const previewDiv = document.createElement("div");
-        previewDiv.style.display = "inline-block";
-        previewDiv.style.position = "relative";
-        previewDiv.style.marginRight = "10px";
-        
-        const img = document.createElement("img");
-        img.src = URL.createObjectURL(file);
-        img.style.maxWidth = "200px";
-        img.style.display = "block";
-        previewDiv.appendChild(img);
-        
-        const deleteIcon = document.createElement("span");
-        deleteIcon.textContent = "✖";
-        deleteIcon.classList.add("delete-icon");
-        deleteIcon.style.position = "absolute";
-        deleteIcon.style.top = "0";
-        deleteIcon.style.right = "0";
-        deleteIcon.style.cursor = "pointer";
-        deleteIcon.addEventListener("click", () => {
-          selectedFiles.splice(index, 1);
-          updateAttachmentPreview();
-        });
-        previewDiv.appendChild(deleteIcon);
-        
-        previewContainer.appendChild(previewDiv);
-      } else {
-        // Pour d'autres types de fichiers, afficher le nom
-        const previewDiv = document.createElement("div");
-        previewDiv.style.display = "inline-block";
-        previewDiv.style.position = "relative";
-        previewDiv.style.marginRight = "10px";
-        
-        const p = document.createElement("p");
-        p.textContent = file.name;
-        previewDiv.appendChild(p);
-        
-        const deleteIcon = document.createElement("span");
-        deleteIcon.textContent = "✖";
-        deleteIcon.classList.add("delete-icon");
-        deleteIcon.style.position = "absolute";
-        deleteIcon.style.top = "0";
-        deleteIcon.style.right = "0";
-        deleteIcon.style.cursor = "pointer";
-        deleteIcon.addEventListener("click", () => {
-          selectedFiles.splice(index, 1);
-          updateAttachmentPreview();
-        });
-        previewDiv.appendChild(deleteIcon);
-        
-        previewContainer.appendChild(previewDiv);
-      }
-      // Pour un PDF ou autre, afficher le nom du fichier
+      // Pour d'autres types, afficher le nom du fichier
       const p = document.createElement("p");
       p.textContent = file.name;
       previewDiv.appendChild(p);
     }
     
-    // Ajouter la petite croix pour supprimer cette pièce jointe
+    // Ajouter une légende (le nom du fichier)
+    const caption = document.createElement("div");
+    caption.textContent = file.name;
+    caption.style.fontSize = "12px";
+    caption.style.marginTop = "5px";
+    previewDiv.appendChild(caption);
+    
+    // Ajouter la petite croix pour supprimer ce fichier
     const deleteIcon = document.createElement("span");
     deleteIcon.textContent = "✖";
-    deleteIcon.classList.add("delete-icon"); // Votre CSS pour .delete-icon s'appliquera
-    // Positionnez-la en haut à droite
+    deleteIcon.classList.add("delete-icon");
     deleteIcon.style.position = "absolute";
     deleteIcon.style.top = "0";
     deleteIcon.style.right = "0";
     deleteIcon.style.cursor = "pointer";
     deleteIcon.addEventListener("click", () => {
-      // Supprime ce fichier du tableau selectedFiles
       selectedFiles.splice(index, 1);
       updateAttachmentPreview();
     });
@@ -1046,7 +973,8 @@ editAttachmentInput.addEventListener("change", () => {
 
 function updateEditAttachmentPreview() {
   const previewContainer = document.getElementById("edit-attachment-preview");
-  previewContainer.innerHTML = "";
+  previewContainer.innerHTML = ""; // Efface l'aperçu précédent
+  
   editSelectedFiles.forEach((file, index) => {
     const previewDiv = document.createElement("div");
     previewDiv.style.display = "inline-block";
@@ -1059,11 +987,22 @@ function updateEditAttachmentPreview() {
       img.style.maxWidth = "200px";
       img.style.display = "block";
       previewDiv.appendChild(img);
+    } else if (file.type === "application/pdf") {
+      const pdfContainer = document.createElement("div");
+      pdfContainer.style.position = "relative";
+      renderPDFPreview(file, pdfContainer);
+      previewDiv.appendChild(pdfContainer);
     } else {
       const p = document.createElement("p");
       p.textContent = file.name;
       previewDiv.appendChild(p);
     }
+    
+    const caption = document.createElement("div");
+    caption.textContent = file.name;
+    caption.style.fontSize = "12px";
+    caption.style.marginTop = "5px";
+    previewDiv.appendChild(caption);
     
     const deleteIcon = document.createElement("span");
     deleteIcon.textContent = "✖";
