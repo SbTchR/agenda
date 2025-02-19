@@ -436,9 +436,6 @@ function openTaskDetailsScreen(taskId, taskData) {
   const isEditing = !document.getElementById("edit-mode").classList.contains("hidden");
 
   if (taskData.attachments && taskData.attachments.length > 0) {
-    // Vérifie si "edit-mode" est visible ou non
-    const isEditing = !document.getElementById("edit-mode").classList.contains("hidden");
-  
     taskData.attachments.forEach((att, index) => {
       const previewContainer = document.createElement("div");
       previewContainer.classList.add("attachment-preview");
@@ -446,28 +443,34 @@ function openTaskDetailsScreen(taskId, taskData) {
       previewContainer.style.margin = "5px";
       previewContainer.style.textAlign = "center";
       previewContainer.style.position = "relative";
-  
-      const previewImg = document.createElement("img");
+
+      // Créez un conteneur pour l'aperçu
+      const contentContainer = document.createElement("div");
+
       if (att.name.toLowerCase().endsWith(".pdf")) {
-        previewImg.src = "pdf-icon.png";
+        // Pour un PDF, utilisez la fonction renderPDFPreviewFromURL pour afficher la première page
+        renderPDFPreviewFromURL(att.url, contentContainer);
       } else {
-        previewImg.src = att.url;
+        // Pour une image, affichez-la directement
+        const img = document.createElement("img");
+        img.src = att.url;
+        img.alt = att.name;
+        img.style.maxWidth = "100px";
+        img.style.display = "block";
+        img.style.margin = "0 auto";
+        contentContainer.appendChild(img);
       }
-      previewImg.alt = att.name;
-      previewImg.style.maxWidth = "100px";
-      previewImg.style.display = "block";
-      previewImg.style.margin = "0 auto";
-      previewContainer.appendChild(previewImg);
-  
-      // Nom du fichier en dessous
+      previewContainer.appendChild(contentContainer);
+
+      // Ajoute une légende avec le nom du fichier
       const caption = document.createElement("div");
       caption.textContent = att.name;
       caption.classList.add("attachment-caption");
       caption.style.fontSize = "12px";
       caption.style.marginTop = "5px";
       previewContainer.appendChild(caption);
-  
-      // N’ajouter la croix que si on est en mode édition
+
+      // N’ajoute la croix que si on est en mode édition
       if (isEditing) {
         const deleteIcon = document.createElement("span");
         deleteIcon.textContent = "✖";
@@ -497,12 +500,12 @@ function openTaskDetailsScreen(taskId, taskData) {
         });
         previewContainer.appendChild(deleteIcon);
       }
-  
-      // Clic pour ouvrir le fichier
+
+      // Clic pour ouvrir le fichier (peut être utile si on veut l'ouvrir dans un nouvel onglet)
       previewContainer.addEventListener("click", () => {
         window.open(att.url, "_blank");
       });
-  
+
       attachmentsList.appendChild(previewContainer);
     });
   }
@@ -719,74 +722,71 @@ function generateLibraryBranches() {
 
 /* Charger la liste des manuels pour une branche */
 function loadManualsForBranch(branchCode) {
-    db.collection("manuals")
-      .where("branch", "==", branchCode)
-      .get()
-      .then((snapshot) => {
-        manualsList.innerHTML = "";
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          // Créer un conteneur pour l'aperçu du manuel
-          const previewContainer = document.createElement("div");
-          previewContainer.classList.add("manual-preview");
-          previewContainer.style.display = "inline-block";
-          previewContainer.style.margin = "5px";
-          previewContainer.style.textAlign = "center";
-          previewContainer.style.position = "relative";
-    
-          // Pour les manuels, on suppose qu'il s'agit de PDF, donc on affiche une icône PDF
-          const previewImg = document.createElement("img");
-          previewImg.src = "pdf-icon.png";  // Assurez-vous d'avoir un fichier pdf-icon.png dans votre projet
-          previewImg.alt = data.title;
-          previewImg.style.maxWidth = "100px";
-          previewImg.style.display = "block";
-          previewImg.style.margin = "0 auto";
-          previewContainer.appendChild(previewImg);
-    
-          // Ajouter le nom du manuel en dessous
-          const caption = document.createElement("div");
-          caption.textContent = data.title || "Manuel PDF";
-          caption.style.fontSize = "12px";
-          caption.style.marginTop = "5px";
-          previewContainer.appendChild(caption);
-    
-          // Permettre d'ouvrir le PDF en cliquant sur l'aperçu
-          previewContainer.addEventListener("click", () => {
-            window.open(data.pdfUrl, "_blank");
-          });
-    
-          // Bouton de suppression pour le manuel
-          const deleteBtn = document.createElement("span");
-          deleteBtn.textContent = "✖";
-          deleteBtn.style.position = "absolute";
-          deleteBtn.style.top = "0px";
-          deleteBtn.style.right = "0px";
-          deleteBtn.style.background = "rgba(255,255,255,0.8)";
-          deleteBtn.style.borderRadius = "50%";
-          deleteBtn.style.padding = "2px 5px";
-          deleteBtn.style.cursor = "pointer";
-          deleteBtn.style.fontSize = "14px";
-          deleteBtn.style.color = "#f44336";
-          deleteBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            const code = prompt("Entrez le code pour supprimer ce manuel:");
-            if (code !== "xxx") {
-              alert("Code incorrect.");
-              return;
-            }
-            db.collection("manuals").doc(doc.id).delete()
-              .then(() => {
-                loadManualsForBranch(selectedBranch);
-              })
-              .catch(err => console.error("Erreur lors de la suppression du manuel:", err));
-          });
-          previewContainer.appendChild(deleteBtn);
-    
-          manualsList.appendChild(previewContainer);
+  db.collection("manuals")
+    .where("branch", "==", branchCode)
+    .get()
+    .then((snapshot) => {
+      manualsList.innerHTML = "";
+      snapshot.forEach(doc => {
+        const data = doc.data();
+
+        // Créer un conteneur pour l'aperçu du manuel
+        const previewContainer = document.createElement("div");
+        previewContainer.classList.add("manual-preview");
+        previewContainer.style.display = "inline-block";
+        previewContainer.style.margin = "5px";
+        previewContainer.style.textAlign = "center";
+        previewContainer.style.position = "relative";
+
+        // Pour un PDF, utilisez renderPDFPreviewFromURL pour afficher la première page
+        const contentContainer = document.createElement("div");
+        renderPDFPreviewFromURL(data.pdfUrl, contentContainer);
+        previewContainer.appendChild(contentContainer);
+
+        // Ajouter le nom du manuel en dessous
+        const caption = document.createElement("div");
+        caption.textContent = data.title || "Manuel PDF";
+        caption.style.fontSize = "12px";
+        caption.style.marginTop = "5px";
+        previewContainer.appendChild(caption);
+
+        // Clic pour ouvrir le PDF
+        previewContainer.addEventListener("click", () => {
+          window.open(data.pdfUrl, "_blank");
         });
-      })
-      .catch(err => console.error("Erreur lors du chargement des manuels:", err));
-  }
+
+        // Bouton de suppression
+        const deleteBtn = document.createElement("span");
+        deleteBtn.textContent = "✖";
+        deleteBtn.style.position = "absolute";
+        deleteBtn.style.top = "0px";
+        deleteBtn.style.right = "0px";
+        deleteBtn.style.background = "rgba(255,255,255,0.8)";
+        deleteBtn.style.borderRadius = "50%";
+        deleteBtn.style.padding = "2px 5px";
+        deleteBtn.style.cursor = "pointer";
+        deleteBtn.style.fontSize = "14px";
+        deleteBtn.style.color = "#f44336";
+        deleteBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const code = prompt("Entrez le code pour supprimer ce manuel:");
+          if (code !== "xxx") {
+            alert("Code incorrect.");
+            return;
+          }
+          db.collection("manuals").doc(doc.id).delete()
+            .then(() => {
+              loadManualsForBranch(selectedBranch);
+            })
+            .catch(err => console.error("Erreur lors de la suppression du manuel:", err));
+        });
+        previewContainer.appendChild(deleteBtn);
+
+        manualsList.appendChild(previewContainer);
+      });
+    })
+    .catch(err => console.error("Erreur lors du chargement des manuels:", err));
+}
 
 /*****************************************************
  * Ajouter un manuel (upload PDF)
@@ -904,52 +904,87 @@ attachmentInput.addEventListener("change", () => {
 });
 
 async function renderPDFPreview(file, container) {
-  // Crée un élément canvas pour afficher le PDF
+  // Crée un élément <canvas> pour afficher le PDF
   const canvas = document.createElement("canvas");
-  canvas.style.maxWidth = "200px";  // Ajustez selon vos besoins
+  canvas.style.maxWidth = "200px";  // Ajustez la taille selon vos besoins
   container.appendChild(canvas);
   
-  // Convertit le fichier en URL temporaire
+  // Crée une URL temporaire pour le fichier PDF
   const fileURL = URL.createObjectURL(file);
   
   // Charge le PDF avec PDF.js
   const loadingTask = pdfjsLib.getDocument(fileURL);
   try {
     const pdf = await loadingTask.promise;
-    // On affiche seulement la première page
+    // Récupère la première page du PDF
     const page = await pdf.getPage(1);
     
-    // Définir l'échelle (zoom)
+    // Définir une échelle pour le rendu (zoom)
     const scale = 1.5;
     const viewport = page.getViewport({ scale: scale });
     
-    // Configure le canvas pour la taille de la page
-    canvas.height = viewport.height;
+    // Configure le canvas selon la taille de la page
     canvas.width = viewport.width;
+    canvas.height = viewport.height;
     
-    // Prépare le contexte et les rendus
+    // Prépare le contexte du canvas pour le rendu
     const renderContext = {
       canvasContext: canvas.getContext("2d"),
       viewport: viewport,
     };
     
-    // Rendre la page dans le canvas
+    // Rendu de la première page dans le canvas
     await page.render(renderContext).promise;
     
-    // Libérer l'URL temporaire
+    // Libère l'URL temporaire
     URL.revokeObjectURL(fileURL);
   } catch (error) {
     console.error("Erreur lors du rendu du PDF :", error);
     container.innerHTML = "<p>Impossible d'afficher l'aperçu du PDF.</p>";
   }
 }
+async function renderPDFPreviewFromURL(pdfUrl, container) {
+  // Crée un canvas pour afficher le PDF
+  const canvas = document.createElement("canvas");
+  canvas.style.maxWidth = "100px"; // Vous pouvez ajuster la taille
+  container.appendChild(canvas);
+  
+  try {
+    // Charge le PDF depuis l'URL
+    const loadingTask = pdfjsLib.getDocument(pdfUrl);
+    const pdf = await loadingTask.promise;
+    // Récupère la première page
+    const page = await pdf.getPage(1);
+    
+    // Définir l'échelle (zoom)
+    const scale = 1.5;
+    const viewport = page.getViewport({ scale: scale });
+    
+    // Configure le canvas selon la taille de la page
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    
+    // Prépare le contexte pour le rendu
+    const renderContext = {
+      canvasContext: canvas.getContext("2d"),
+      viewport: viewport,
+    };
+    
+    // Rendu de la première page dans le canvas
+    await page.render(renderContext).promise;
+  } catch (error) {
+    console.error("Erreur lors du rendu du PDF depuis l'URL :", error);
+    container.innerHTML = "<p>Erreur aperçu PDF</p>";
+  }
+}
+
 
 function updateAttachmentPreview() {
   const previewContainer = document.getElementById("attachment-preview");
   previewContainer.innerHTML = ""; // Efface l'aperçu précédent
 
   selectedFiles.forEach((file, index) => {
-    // Crée un conteneur pour l'aperçu de ce fichier
+    // Crée un conteneur pour l'aperçu du fichier
     const previewDiv = document.createElement("div");
     previewDiv.style.display = "inline-block";
     previewDiv.style.position = "relative";
@@ -967,11 +1002,11 @@ function updateAttachmentPreview() {
       // Pour un PDF, utilise PDF.js pour afficher la première page
       const pdfContainer = document.createElement("div");
       pdfContainer.style.position = "relative";
-      // Appelle la fonction renderPDFPreview qui doit être définie
+      // Appelle la fonction renderPDFPreview qui ajoutera un canvas dans pdfContainer
       renderPDFPreview(file, pdfContainer);
       previewDiv.appendChild(pdfContainer);
     } else {
-      // Pour d'autres types, affiche simplement le nom du fichier
+      // Pour d'autres types de fichiers, affiche simplement le nom du fichier
       const p = document.createElement("p");
       p.textContent = file.name;
       previewDiv.appendChild(p);
@@ -984,10 +1019,10 @@ function updateAttachmentPreview() {
     caption.style.marginTop = "5px";
     previewDiv.appendChild(caption);
 
-    // Ajoute une petite croix pour supprimer ce fichier
+    // Ajoute la petite croix pour supprimer ce fichier
     const deleteIcon = document.createElement("span");
     deleteIcon.textContent = "✖";
-    deleteIcon.classList.add("delete-icon"); // Assurez-vous que cette classe est définie dans le CSS
+    deleteIcon.classList.add("delete-icon"); // Assurez-vous que cette classe est définie dans votre CSS
     deleteIcon.style.position = "absolute";
     deleteIcon.style.top = "0";
     deleteIcon.style.right = "0";
