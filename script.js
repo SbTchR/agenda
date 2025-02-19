@@ -149,23 +149,12 @@ function toggleWeekList(forceHide = null) {
 }
 
 function selectWeek(week) {
-    currentWeek = week;
-    currentWeekSpan.textContent = week;
-    // Ici, nous définissons un affichage personnalisé des dates pour la semaine.
-    // Vous pouvez remplacer les dates par un calcul réel selon votre calendrier.
-    // Par exemple, pour la semaine 1, afficher "04 - 08 octobre"
-    let datesAffichage = "";
-    if (week === 1) {
-      datesAffichage = "04 - 08 octobre";
-    } else if (week === 2) {
-      datesAffichage = "11 - 15 octobre";
-    } else {
-      // Vous pouvez ajouter d'autres cas ou calculer dynamiquement.
-      datesAffichage = `Semaine ${week}`;
-    }
-    weekDates.textContent = datesAffichage;
-    loadTasksForWeek(week);
-  }
+  currentWeek = week;
+  currentWeekSpan.textContent = week;
+  updateWeekDatesDisplay(week);
+  updateDayTitles(week);
+  loadTasksForWeek(week);
+}
 
 /*****************************************************
  * Génération de l'affichage des jours (lundi->vendredi)
@@ -1095,5 +1084,111 @@ function updateEditAttachmentPreview() {
     previewDiv.appendChild(deleteIcon);
 
     previewContainer.appendChild(previewDiv);
+  });
+}
+
+// Fonction qui retourne le lundi de la n-ième semaine scolaire
+function getSchoolWeekMonday(weekNumber) {
+  // Date de départ : lundi 18 août 2025
+  const baseMonday = new Date(2025, 7, 18); // août = 7 (les mois commencent à 0)
+  
+  // Définir les périodes de vacances (attention : les mois commencent à 0)
+  const vacations = [
+    { start: new Date(2025, 9, 11), end: new Date(2025, 9, 25) },  // 11 - 26 octobre 2025
+    { start: new Date(2025, 11, 20), end: new Date(2026, 0, 3) },   // 20 déc 2025 - 4 janv 2026
+    { start: new Date(2026, 1, 14), end: new Date(2026, 1, 21) },   // 14 - 22 fév 2026
+    { start: new Date(2026, 3, 4), end: new Date(2026, 3, 18) }      // 4 - 19 avr 2026
+  ];
+
+  let count = 1;
+  let currentMonday = new Date(baseMonday);
+  
+  while (count < weekNumber) {
+    // Candidate pour le prochain lundi
+    let candidate = new Date(currentMonday);
+    candidate.setDate(candidate.getDate() + 7);
+    
+    // Vérifier si candidate tombe dans une période de vacances
+    for (const vac of vacations) {
+      if (candidate >= vac.start && candidate <= vac.end) {
+        // Si candidate est dans les vacances, la remplacer par le lundi suivant la fin des vacances.
+        let nextMonday = new Date(vac.end);
+        // Calculer le nombre de jours à ajouter pour atteindre le lundi suivant.
+        // getDay() renvoie 0 pour dimanche, 1 pour lundi, etc.
+        let daysToAdd = (8 - nextMonday.getDay());
+        nextMonday.setDate(nextMonday.getDate() + daysToAdd);
+        candidate = nextMonday;
+        break; // On ne vérifie plus d'autres vacances pour ce candidat.
+      }
+    }
+    
+    currentMonday = candidate;
+    count++;
+  }
+  
+  return currentMonday;
+}
+
+// Fonction qui retourne les dates du lundi au vendredi de la semaine scolaire n° weekNumber
+function getWeekDates(weekNumber) {
+  const monday = getSchoolWeekMonday(weekNumber);
+  const tuesday = new Date(monday);
+  tuesday.setDate(monday.getDate() + 1);
+  const wednesday = new Date(monday);
+  wednesday.setDate(monday.getDate() + 2);
+  const thursday = new Date(monday);
+  thursday.setDate(monday.getDate() + 3);
+  const friday = new Date(monday);
+  friday.setDate(monday.getDate() + 4);
+  return { monday, tuesday, wednesday, thursday, friday };
+}
+
+// Fonction pour formater une date en "dd mois" (ex: "18 août")
+function formatDate(date) {
+  const options = { day: "2-digit", month: "long" };
+  return date.toLocaleDateString("fr-FR", options);
+}
+
+// Fonction pour mettre à jour l'affichage des dates de la semaine dans la zone prévue (par ex. dans le header)
+function updateWeekDatesDisplay(weekNumber) {
+  const dates = getWeekDates(weekNumber);
+  // On affiche par exemple "18 août - 22 août"
+  const formatted = `${formatDate(dates.monday)} - ${formatDate(dates.friday)}`;
+  const weekDatesElement = document.getElementById("week-dates");
+  if (weekDatesElement) {
+    weekDatesElement.textContent = formatted;
+  }
+}
+
+// Exemple d'appel : mettre à jour l'affichage pour la semaine 1
+updateWeekDatesDisplay(1);
+
+function updateDayTitles(weekNumber) {
+  // Récupère les dates pour la semaine sélectionnée
+  const weekDatesObj = getWeekDates(weekNumber);
+  // Tableau des jours (lundi à vendredi)
+  const dayDates = [
+    weekDatesObj.monday,
+    weekDatesObj.tuesday,
+    weekDatesObj.wednesday,
+    weekDatesObj.thursday,
+    weekDatesObj.friday
+  ];
+  // Noms des jours
+  const dayNames = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
+
+  // Récupère tous les conteneurs de jours
+  const dayContainers = document.querySelectorAll(".day-container");
+  dayContainers.forEach((container, index) => {
+    // On suppose que le titre (h3) est le premier enfant
+    const h3 = container.querySelector("h3");
+    if (h3 && dayDates[index]) {
+      // Formate la date en "dd.mm"
+      const date = dayDates[index];
+      const dd = date.getDate().toString().padStart(2, "0");
+      const mm = (date.getMonth() + 1).toString().padStart(2, "0");
+      // Met à jour le texte : "Lundi 18.08"
+      h3.textContent = `${dayNames[index]} ${dd}.${mm}`;
+    }
   });
 }
