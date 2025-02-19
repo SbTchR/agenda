@@ -436,6 +436,9 @@ function openTaskDetailsScreen(taskId, taskData) {
   const isEditing = !document.getElementById("edit-mode").classList.contains("hidden");
 
   if (taskData.attachments && taskData.attachments.length > 0) {
+    // Vérifie si "edit-mode" est visible ou non
+    const isEditing = !document.getElementById("edit-mode").classList.contains("hidden");
+  
     taskData.attachments.forEach((att, index) => {
       const previewContainer = document.createElement("div");
       previewContainer.classList.add("attachment-preview");
@@ -443,9 +446,8 @@ function openTaskDetailsScreen(taskId, taskData) {
       previewContainer.style.margin = "5px";
       previewContainer.style.textAlign = "center";
       previewContainer.style.position = "relative";
-
+  
       const previewImg = document.createElement("img");
-      // Pour un PDF, utiliser une icône ; sinon afficher l'image
       if (att.name.toLowerCase().endsWith(".pdf")) {
         previewImg.src = "pdf-icon.png";
       } else {
@@ -456,15 +458,16 @@ function openTaskDetailsScreen(taskId, taskData) {
       previewImg.style.display = "block";
       previewImg.style.margin = "0 auto";
       previewContainer.appendChild(previewImg);
-
+  
+      // Nom du fichier en dessous
       const caption = document.createElement("div");
       caption.textContent = att.name;
       caption.classList.add("attachment-caption");
       caption.style.fontSize = "12px";
       caption.style.marginTop = "5px";
       previewContainer.appendChild(caption);
-
-      // N'ajouter la croix que si nous sommes en mode édition
+  
+      // N’ajouter la croix que si on est en mode édition
       if (isEditing) {
         const deleteIcon = document.createElement("span");
         deleteIcon.textContent = "✖";
@@ -472,7 +475,6 @@ function openTaskDetailsScreen(taskId, taskData) {
         deleteIcon.style.position = "absolute";
         deleteIcon.style.top = "0px";
         deleteIcon.style.right = "0px";
-        // Les styles de .delete-icon sont déjà définis dans votre CSS
         deleteIcon.addEventListener("click", (event) => {
           event.stopPropagation();
           const code = prompt("Entrez le code pour supprimer cette pièce jointe:");
@@ -480,12 +482,10 @@ function openTaskDetailsScreen(taskId, taskData) {
             alert("Code incorrect.");
             return;
           }
-          // Mettez à jour Firestore en retirant cet attachement
           const updatedAttachments = taskData.attachments.filter((_, i) => i !== index);
           db.collection("tasks").doc(taskId).update({
             attachments: updatedAttachments
           }).then(() => {
-            // Recharger le document depuis Firestore pour obtenir la version à jour
             db.collection("tasks").doc(taskId).get().then(doc => {
               if (doc.exists) {
                 openTaskDetailsScreen(taskId, doc.data());
@@ -497,12 +497,12 @@ function openTaskDetailsScreen(taskId, taskData) {
         });
         previewContainer.appendChild(deleteIcon);
       }
-      
-      // Permet d'ouvrir le fichier en cliquant sur l'image ou le conteneur
+  
+      // Clic pour ouvrir le fichier
       previewContainer.addEventListener("click", () => {
         window.open(att.url, "_blank");
       });
-      
+  
       attachmentsList.appendChild(previewContainer);
     });
   }
@@ -547,7 +547,7 @@ function disableEditMode() {
  *****************************************************/
 validateChangesBtn.addEventListener("click", async () => {
     const newTitle = editTaskTitleInput.value.trim();
-    const newAttachments = editAttachmentInput.files; // Nouveaux fichiers à ajouter
+    const newAttachments = editSelectedFiles; // Remplace editAttachmentInput.files par editSelectedFiles
     const updates = {};
   
     // Mise à jour du titre si modifié
@@ -592,12 +592,12 @@ validateChangesBtn.addEventListener("click", async () => {
             }
           );
         });
-      }
-  
-      updates.attachments = updatedAttachments;
-      // Masquer la barre de progression et réinitialiser sa largeur
+      } 
+     
       progressContainer.classList.add("hidden");
       progressBar.style.width = "0%";
+      updates.attachments = updatedAttachments;
+      // Masquer la barre de progression et réinitialiser sa largeur
     }
   
     try {
@@ -631,6 +631,10 @@ validateChangesBtn.addEventListener("click", async () => {
       console.error("Erreur lors de la mise à jour du devoir:", error);
     }
   });
+
+  editSelectedFiles = [];
+const previewContainer = document.getElementById("edit-attachment-preview");
+if (previewContainer) previewContainer.innerHTML = "";
 
 /*****************************************************
  * Suppression du devoir (demande mot de passe)
@@ -926,6 +930,54 @@ function updateAttachmentPreview() {
       // Supprime ce fichier du tableau selectedFiles
       selectedFiles.splice(index, 1);
       updateAttachmentPreview();
+    });
+    previewDiv.appendChild(deleteIcon);
+    
+    previewContainer.appendChild(previewDiv);
+  });
+}
+
+editAttachmentInput.addEventListener("change", () => {
+  const previewContainer = document.getElementById("edit-attachment-preview");
+  if (!previewContainer) return;
+  const filesArray = Array.from(editAttachmentInput.files);
+  editSelectedFiles = editSelectedFiles.concat(filesArray);
+  updateEditAttachmentPreview();
+  // Réinitialiser l'input pour permettre de re-sélectionner
+  editAttachmentInput.value = "";
+});
+
+function updateEditAttachmentPreview() {
+  const previewContainer = document.getElementById("edit-attachment-preview");
+  previewContainer.innerHTML = "";
+  editSelectedFiles.forEach((file, index) => {
+    const previewDiv = document.createElement("div");
+    previewDiv.style.display = "inline-block";
+    previewDiv.style.position = "relative";
+    previewDiv.style.marginRight = "10px";
+    
+    if (file.type.startsWith("image/")) {
+      const img = document.createElement("img");
+      img.src = URL.createObjectURL(file);
+      img.style.maxWidth = "200px";
+      img.style.display = "block";
+      previewDiv.appendChild(img);
+    } else {
+      const p = document.createElement("p");
+      p.textContent = file.name;
+      previewDiv.appendChild(p);
+    }
+    
+    const deleteIcon = document.createElement("span");
+    deleteIcon.textContent = "✖";
+    deleteIcon.classList.add("delete-icon");
+    deleteIcon.style.position = "absolute";
+    deleteIcon.style.top = "0";
+    deleteIcon.style.right = "0";
+    deleteIcon.style.cursor = "pointer";
+    deleteIcon.addEventListener("click", () => {
+      editSelectedFiles.splice(index, 1);
+      updateEditAttachmentPreview();
     });
     previewDiv.appendChild(deleteIcon);
     
