@@ -1016,13 +1016,13 @@ editAttachmentInput.addEventListener("change", () => {
 function updateEditAttachmentPreview() {
   const previewContainer = document.getElementById("edit-attachment-preview");
   previewContainer.innerHTML = ""; // Efface l'aperçu précédent
-  
+
   editSelectedFiles.forEach((file, index) => {
     const previewDiv = document.createElement("div");
     previewDiv.style.display = "inline-block";
     previewDiv.style.position = "relative";
     previewDiv.style.marginRight = "10px";
-    
+
     if (file.type.startsWith("image/")) {
       const img = document.createElement("img");
       img.src = URL.createObjectURL(file);
@@ -1039,13 +1039,13 @@ function updateEditAttachmentPreview() {
       p.textContent = file.name;
       previewDiv.appendChild(p);
     }
-    
+
     const caption = document.createElement("div");
     caption.textContent = file.name;
     caption.style.fontSize = "12px";
     caption.style.marginTop = "5px";
     previewDiv.appendChild(caption);
-    
+
     const deleteIcon = document.createElement("span");
     deleteIcon.textContent = "✖";
     deleteIcon.classList.add("delete-icon");
@@ -1058,7 +1058,7 @@ function updateEditAttachmentPreview() {
       updateEditAttachmentPreview();
     });
     previewDiv.appendChild(deleteIcon);
-    
+
     previewContainer.appendChild(previewDiv);
   });
 }
