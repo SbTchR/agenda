@@ -949,57 +949,56 @@ function updateAttachmentPreview() {
   previewContainer.innerHTML = ""; // Efface l'aperçu précédent
 
   selectedFiles.forEach((file, index) => {
-    // Crée un conteneur pour l'aperçu
+    // Crée un conteneur pour l'aperçu de ce fichier
     const previewDiv = document.createElement("div");
     previewDiv.style.display = "inline-block";
     previewDiv.style.position = "relative";
     previewDiv.style.marginRight = "10px";
 
-    // Selon le type de fichier, affiche un aperçu différent
+    // Selon le type de fichier, affiche l'aperçu
     if (file.type.startsWith("image/")) {
-      // Pour les images, on affiche l'image
+      // Pour une image, affiche l'image directement
       const img = document.createElement("img");
       img.src = URL.createObjectURL(file);
       img.style.maxWidth = "200px";
       img.style.display = "block";
       previewDiv.appendChild(img);
     } else if (file.type.includes("pdf")) {
-      // Pour les PDF, on affiche un aperçu via PDF.js
+      // Pour un PDF, utilise PDF.js pour afficher la première page
       const pdfContainer = document.createElement("div");
       pdfContainer.style.position = "relative";
-      // La fonction renderPDFPreview doit être définie et chargée
+      // Appelle la fonction renderPDFPreview qui doit être définie
       renderPDFPreview(file, pdfContainer);
       previewDiv.appendChild(pdfContainer);
     } else {
-      // Pour d'autres types, on affiche le nom du fichier
+      // Pour d'autres types, affiche simplement le nom du fichier
       const p = document.createElement("p");
       p.textContent = file.name;
       previewDiv.appendChild(p);
     }
 
-    // Ajoute une légende (le nom du fichier)
+    // Ajoute une légende avec le nom du fichier
     const caption = document.createElement("div");
     caption.textContent = file.name;
     caption.style.fontSize = "12px";
     caption.style.marginTop = "5px";
     previewDiv.appendChild(caption);
 
-    // Ajoute la petite croix pour supprimer ce fichier
+    // Ajoute une petite croix pour supprimer ce fichier
     const deleteIcon = document.createElement("span");
     deleteIcon.textContent = "✖";
-    deleteIcon.classList.add("delete-icon");
+    deleteIcon.classList.add("delete-icon"); // Assurez-vous que cette classe est définie dans le CSS
     deleteIcon.style.position = "absolute";
     deleteIcon.style.top = "0";
     deleteIcon.style.right = "0";
     deleteIcon.style.cursor = "pointer";
     deleteIcon.addEventListener("click", () => {
-      // Supprime le fichier du tableau et met à jour l'aperçu
       selectedFiles.splice(index, 1);
       updateAttachmentPreview();
     });
     previewDiv.appendChild(deleteIcon);
 
-    // Ajoute ce conteneur au conteneur d'aperçu principal
+    // Ajoute le conteneur de cet aperçu à la zone principale
     previewContainer.appendChild(previewDiv);
   });
 }
