@@ -315,10 +315,6 @@ main {
  * Pièces jointes et upload
  **************************************/
 
- .hidden {
-  display: none !important;
-}
-
  .attachment-container {
   margin-bottom: 1rem;
 }

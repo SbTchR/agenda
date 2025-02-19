@@ -366,8 +366,7 @@ confirmAddTaskBtn.addEventListener("click", async () => {
     const progressContainer = document.getElementById("upload-progress-container");
     const progressBar = document.getElementById("upload-progress-bar");
     
-    // Affiche la barre de progression
-    progressContainer.classList.remove("hidden");
+
     
     const attachmentURLs = [];
     
@@ -396,10 +395,6 @@ confirmAddTaskBtn.addEventListener("click", async () => {
         );
       });
     }
-    
-    // Cache la barre de progression
-    progressContainer.classList.add("hidden");
-    progressBar.style.width = "0%";
     
     // Met à jour le document Firestore avec les URL des pièces jointes
     if (attachmentURLs.length > 0) {
@@ -560,7 +555,6 @@ validateChangesBtn.addEventListener("click", async () => {
   if (newAttachments.length > 0) {
     const progressContainer = document.getElementById("edit-upload-progress-container");
     const progressBar = document.getElementById("edit-upload-progress-bar");
-    progressContainer.classList.remove("hidden");
 
     let updatedAttachments = selectedTaskData.attachments ? [...selectedTaskData.attachments] : [];
 
@@ -589,9 +583,6 @@ validateChangesBtn.addEventListener("click", async () => {
       });
     }
 
-    // Cache la barre de progression
-    progressContainer.classList.add("hidden");
-    progressBar.style.width = "0%";
 
     // Met à jour la liste d'attachements
     updates.attachments = updatedAttachments;
@@ -819,7 +810,6 @@ confirmAddManualBtn.addEventListener("click", async () => {
       // Afficher la barre de progression pour le manuel
       const manualProgressContainer = document.getElementById("manual-progress-container");
       const manualProgressBar = document.getElementById("manual-progress-bar");
-      manualProgressContainer.classList.remove("hidden");
   
       // Créer une référence dans Storage pour le manuel
       const storageRef = storage.ref(`manuals/${selectedBranch}/${file.name}`);
@@ -853,10 +843,7 @@ confirmAddManualBtn.addEventListener("click", async () => {
         title: file.name,
         pdfUrl: url
       });
-  
-      // Cacher la barre de progression et réinitialiser sa largeur
-      manualProgressContainer.classList.add("hidden");
-      manualProgressBar.style.width = "0%";
+
   
       // Fermer la modale d'ajout et recharger la liste des manuels
       addManualModal.classList.add("hidden");
