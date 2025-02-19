@@ -903,123 +903,6 @@ attachmentInput.addEventListener("change", () => {
   attachmentInput.value = "";
 });
 
-function updateAttachmentPreview() {
-  const previewContainer = document.getElementById("attachment-preview");
-  previewContainer.innerHTML = ""; // Efface l'aperçu précédent
-  
-  selectedFiles.forEach((file, index) => {
-    // Crée un conteneur pour l'aperçu
-    const previewDiv = document.createElement("div");
-    previewDiv.style.display = "inline-block";
-    previewDiv.style.position = "relative";
-    previewDiv.style.marginRight = "10px";
-    
-    // Afficher l'aperçu selon le type de fichier
-    if (file.type.startsWith("image/")) {
-      // Pour les images
-      const img = document.createElement("img");
-      img.src = URL.createObjectURL(file);
-      img.style.maxWidth = "200px";
-      img.style.display = "block";
-      previewDiv.appendChild(img);
-    } else if (file.type === "application/pdf") {
-      // Pour les PDF, afficher un aperçu via PDF.js
-      const pdfContainer = document.createElement("div");
-      pdfContainer.style.position = "relative";
-      // Cette fonction charge le PDF et affiche la première page dans un canvas
-      renderPDFPreview(file, pdfContainer);
-      previewDiv.appendChild(pdfContainer);
-    } else {
-      // Pour d'autres types, afficher le nom du fichier
-      const p = document.createElement("p");
-      p.textContent = file.name;
-      previewDiv.appendChild(p);
-    }
-    
-    // Ajouter une légende (le nom du fichier)
-    const caption = document.createElement("div");
-    caption.textContent = file.name;
-    caption.style.fontSize = "12px";
-    caption.style.marginTop = "5px";
-    previewDiv.appendChild(caption);
-    
-    // Ajouter la petite croix pour supprimer ce fichier
-    const deleteIcon = document.createElement("span");
-    deleteIcon.textContent = "✖";
-    deleteIcon.classList.add("delete-icon");
-    deleteIcon.style.position = "absolute";
-    deleteIcon.style.top = "0";
-    deleteIcon.style.right = "0";
-    deleteIcon.style.cursor = "pointer";
-    deleteIcon.addEventListener("click", () => {
-      selectedFiles.splice(index, 1);
-      updateAttachmentPreview();
-    });
-    previewDiv.appendChild(deleteIcon);
-    
-    previewContainer.appendChild(previewDiv);
-  });
-}
-
-editAttachmentInput.addEventListener("change", () => {
-  const previewContainer = document.getElementById("edit-attachment-preview");
-  if (!previewContainer) return;
-  const filesArray = Array.from(editAttachmentInput.files);
-  editSelectedFiles = editSelectedFiles.concat(filesArray);
-  updateEditAttachmentPreview();
-  // Réinitialiser l'input pour permettre de re-sélectionner
-  editAttachmentInput.value = "";
-});
-
-function updateEditAttachmentPreview() {
-  const previewContainer = document.getElementById("edit-attachment-preview");
-  previewContainer.innerHTML = ""; // Efface l'aperçu précédent
-  
-  editSelectedFiles.forEach((file, index) => {
-    const previewDiv = document.createElement("div");
-    previewDiv.style.display = "inline-block";
-    previewDiv.style.position = "relative";
-    previewDiv.style.marginRight = "10px";
-    
-    if (file.type.startsWith("image/")) {
-      const img = document.createElement("img");
-      img.src = URL.createObjectURL(file);
-      img.style.maxWidth = "200px";
-      img.style.display = "block";
-      previewDiv.appendChild(img);
-    } else if (file.type === "application/pdf") {
-      const pdfContainer = document.createElement("div");
-      pdfContainer.style.position = "relative";
-      renderPDFPreview(file, pdfContainer);
-      previewDiv.appendChild(pdfContainer);
-    } else {
-      const p = document.createElement("p");
-      p.textContent = file.name;
-      previewDiv.appendChild(p);
-    }
-    
-    const caption = document.createElement("div");
-    caption.textContent = file.name;
-    caption.style.fontSize = "12px";
-    caption.style.marginTop = "5px";
-    previewDiv.appendChild(caption);
-    
-    const deleteIcon = document.createElement("span");
-    deleteIcon.textContent = "✖";
-    deleteIcon.classList.add("delete-icon");
-    deleteIcon.style.position = "absolute";
-    deleteIcon.style.top = "0";
-    deleteIcon.style.right = "0";
-    deleteIcon.style.cursor = "pointer";
-    deleteIcon.addEventListener("click", () => {
-      editSelectedFiles.splice(index, 1);
-      updateEditAttachmentPreview();
-    });
-    previewDiv.appendChild(deleteIcon);
-    
-    previewContainer.appendChild(previewDiv);
-  });
-}
 async function renderPDFPreview(file, container) {
   // Crée un élément canvas pour afficher le PDF
   const canvas = document.createElement("canvas");
@@ -1059,4 +942,124 @@ async function renderPDFPreview(file, container) {
     console.error("Erreur lors du rendu du PDF :", error);
     container.innerHTML = "<p>Impossible d'afficher l'aperçu du PDF.</p>";
   }
+}
+
+function updateAttachmentPreview() {
+  const previewContainer = document.getElementById("attachment-preview");
+  previewContainer.innerHTML = ""; // Efface l'aperçu précédent
+
+  selectedFiles.forEach((file, index) => {
+    // Crée un conteneur pour l'aperçu
+    const previewDiv = document.createElement("div");
+    previewDiv.style.display = "inline-block";
+    previewDiv.style.position = "relative";
+    previewDiv.style.marginRight = "10px";
+
+    // Selon le type de fichier, affiche un aperçu différent
+    if (file.type.startsWith("image/")) {
+      // Pour les images, on affiche l'image
+      const img = document.createElement("img");
+      img.src = URL.createObjectURL(file);
+      img.style.maxWidth = "200px";
+      img.style.display = "block";
+      previewDiv.appendChild(img);
+    } else if (file.type.includes("pdf")) {
+      // Pour les PDF, on affiche un aperçu via PDF.js
+      const pdfContainer = document.createElement("div");
+      pdfContainer.style.position = "relative";
+      // La fonction renderPDFPreview doit être définie et chargée
+      renderPDFPreview(file, pdfContainer);
+      previewDiv.appendChild(pdfContainer);
+    } else {
+      // Pour d'autres types, on affiche le nom du fichier
+      const p = document.createElement("p");
+      p.textContent = file.name;
+      previewDiv.appendChild(p);
+    }
+
+    // Ajoute une légende (le nom du fichier)
+    const caption = document.createElement("div");
+    caption.textContent = file.name;
+    caption.style.fontSize = "12px";
+    caption.style.marginTop = "5px";
+    previewDiv.appendChild(caption);
+
+    // Ajoute la petite croix pour supprimer ce fichier
+    const deleteIcon = document.createElement("span");
+    deleteIcon.textContent = "✖";
+    deleteIcon.classList.add("delete-icon");
+    deleteIcon.style.position = "absolute";
+    deleteIcon.style.top = "0";
+    deleteIcon.style.right = "0";
+    deleteIcon.style.cursor = "pointer";
+    deleteIcon.addEventListener("click", () => {
+      // Supprime le fichier du tableau et met à jour l'aperçu
+      selectedFiles.splice(index, 1);
+      updateAttachmentPreview();
+    });
+    previewDiv.appendChild(deleteIcon);
+
+    // Ajoute ce conteneur au conteneur d'aperçu principal
+    previewContainer.appendChild(previewDiv);
+  });
+}
+
+editAttachmentInput.addEventListener("change", () => {
+  const previewContainer = document.getElementById("edit-attachment-preview");
+  if (!previewContainer) return;
+  const filesArray = Array.from(editAttachmentInput.files);
+  editSelectedFiles = editSelectedFiles.concat(filesArray);
+  updateEditAttachmentPreview();
+  // Réinitialiser l'input pour permettre de re-sélectionner
+  editAttachmentInput.value = "";
+});
+
+function updateEditAttachmentPreview() {
+  const previewContainer = document.getElementById("edit-attachment-preview");
+  previewContainer.innerHTML = ""; // Efface l'aperçu précédent
+  
+  editSelectedFiles.forEach((file, index) => {
+    const previewDiv = document.createElement("div");
+    previewDiv.style.display = "inline-block";
+    previewDiv.style.position = "relative";
+    previewDiv.style.marginRight = "10px";
+    
+    if (file.type.startsWith("image/")) {
+      const img = document.createElement("img");
+      img.src = URL.createObjectURL(file);
+      img.style.maxWidth = "200px";
+      img.style.display = "block";
+      previewDiv.appendChild(img);
+    } else if (file.type.includes("pdf")) {
+      const pdfContainer = document.createElement("div");
+      pdfContainer.style.position = "relative";
+      renderPDFPreview(file, pdfContainer);
+      previewDiv.appendChild(pdfContainer);
+    } else {
+      const p = document.createElement("p");
+      p.textContent = file.name;
+      previewDiv.appendChild(p);
+    }
+    
+    const caption = document.createElement("div");
+    caption.textContent = file.name;
+    caption.style.fontSize = "12px";
+    caption.style.marginTop = "5px";
+    previewDiv.appendChild(caption);
+    
+    const deleteIcon = document.createElement("span");
+    deleteIcon.textContent = "✖";
+    deleteIcon.classList.add("delete-icon");
+    deleteIcon.style.position = "absolute";
+    deleteIcon.style.top = "0";
+    deleteIcon.style.right = "0";
+    deleteIcon.style.cursor = "pointer";
+    deleteIcon.addEventListener("click", () => {
+      editSelectedFiles.splice(index, 1);
+      updateEditAttachmentPreview();
+    });
+    previewDiv.appendChild(deleteIcon);
+    
+    previewContainer.appendChild(previewDiv);
+  });
 }
