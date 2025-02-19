@@ -246,7 +246,7 @@ main {
 
 .branch-button {
   background: rgba(255,255,255,0.1);
-  color: #fff;
+  color: #000000;
   border: none;
   border-radius: 4px;
   padding: 0.5rem;
@@ -267,18 +267,19 @@ main {
 
 .task-type-container {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 3rem;
+  margin: 2rem; 
 }
 
 .task-type {
   flex: 1;
   padding: 0.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 20px;
   cursor: pointer;
-  font-weight: bold;
-  color: #fff;
+  font-weight: bolder;
+  font-size: 1rem;
+  color: #000000;
   transition: transform 0.2s, background 0.2s;
 }
 
@@ -592,6 +593,6 @@ main {
     grid-template-columns: repeat(3, 1fr);
   }
   #week-list {
-    max-height: 150px;
+    max-height: 500px;
   }
 }
