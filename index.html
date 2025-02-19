@@ -15,6 +15,9 @@
 
   <!-- Feuille de style -->
   <link rel="stylesheet" href="style.css" />
+  <!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js"></script>
 </head>
 <body>
   <!-- Barre supérieure : Semaine, Dates, Bouton Bibliothèque -->
@@ -67,7 +70,7 @@
       <!-- Ajout de pièces jointes (image ou PDF) -->
       <div class="attachment-container">
         <label for="attachment-input" class="attachment-label">Ajouter un document/photo</label>
-        <input type="file" id="attachment-input" accept="image/*,.pdf" multiple />
+        <input type="file" id="attachment-input" multiple />
       </div>
 
       <!-- Conteneur pour afficher un aperçu des pièces jointes -->
@@ -99,7 +102,7 @@
       <div id="edit-mode" class="hidden">
         <input type="text" id="edit-task-title" placeholder="Modifier le titre" />
         <label for="edit-attachment-input" class="attachment-label">Ajouter un document/photo</label>
-        <input type="file" id="edit-attachment-input" accept="image/*,.pdf" multiple />
+        <input type="file" id="edit-attachment-input" multiple />
         <div id="edit-attachment-preview"></div>
       </div>
 <!-- Dans la section de modification d'un devoir, ajoutez : -->
@@ -146,7 +149,7 @@
   <div id="add-manual-modal" class="modal hidden">
     <div class="modal-content">
       <h3>Ajouter un manuel</h3>
-      <input type="file" id="manual-file-input" accept="application/pdf" />
+      <input type="file" id="manual-file-input" />
         <!-- Conteneur pour la barre de progression du manuel -->
         <div id="manual-progress-container" class="hidden">
           <div id="manual-progress-bar" style="width:0%; height:5px; background-color:#4caf50;"></div>

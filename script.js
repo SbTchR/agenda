@@ -922,6 +922,92 @@ function updateAttachmentPreview() {
       img.style.display = "block";
       previewDiv.appendChild(img);
     } else {
+      if (file.type === "application/pdf") {
+        // Pour les PDF, on affiche un aperçu via PDF.js
+        // Créez un conteneur pour l’aperçu du PDF
+        const pdfPreviewContainer = document.createElement("div");
+        pdfPreviewContainer.style.position = "relative";
+        pdfPreviewContainer.style.display = "inline-block";
+        pdfPreviewContainer.style.marginRight = "10px";
+      
+        // Appelle la fonction renderPDFPreview qui va créer le canvas et afficher l’aperçu
+        renderPDFPreview(file, pdfPreviewContainer);
+        
+        // Ajoutez aussi le nom du fichier en dessous
+        const caption = document.createElement("div");
+        caption.textContent = file.name;
+        caption.style.fontSize = "12px";
+        caption.style.marginTop = "5px";
+        pdfPreviewContainer.appendChild(caption);
+        
+        // Ajoutez la croix pour supprimer l'aperçu
+        const deleteIcon = document.createElement("span");
+        deleteIcon.textContent = "✖";
+        deleteIcon.classList.add("delete-icon");
+        deleteIcon.style.position = "absolute";
+        deleteIcon.style.top = "0";
+        deleteIcon.style.right = "0";
+        deleteIcon.style.cursor = "pointer";
+        deleteIcon.addEventListener("click", () => {
+          selectedFiles.splice(index, 1);
+          updateAttachmentPreview();
+        });
+        pdfPreviewContainer.appendChild(deleteIcon);
+        
+        previewContainer.appendChild(pdfPreviewContainer);
+      } else if (file.type.startsWith("image/")) {
+        // Pour les images, le comportement reste le même
+        const previewDiv = document.createElement("div");
+        previewDiv.style.display = "inline-block";
+        previewDiv.style.position = "relative";
+        previewDiv.style.marginRight = "10px";
+        
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        img.style.maxWidth = "200px";
+        img.style.display = "block";
+        previewDiv.appendChild(img);
+        
+        const deleteIcon = document.createElement("span");
+        deleteIcon.textContent = "✖";
+        deleteIcon.classList.add("delete-icon");
+        deleteIcon.style.position = "absolute";
+        deleteIcon.style.top = "0";
+        deleteIcon.style.right = "0";
+        deleteIcon.style.cursor = "pointer";
+        deleteIcon.addEventListener("click", () => {
+          selectedFiles.splice(index, 1);
+          updateAttachmentPreview();
+        });
+        previewDiv.appendChild(deleteIcon);
+        
+        previewContainer.appendChild(previewDiv);
+      } else {
+        // Pour d'autres types de fichiers, afficher le nom
+        const previewDiv = document.createElement("div");
+        previewDiv.style.display = "inline-block";
+        previewDiv.style.position = "relative";
+        previewDiv.style.marginRight = "10px";
+        
+        const p = document.createElement("p");
+        p.textContent = file.name;
+        previewDiv.appendChild(p);
+        
+        const deleteIcon = document.createElement("span");
+        deleteIcon.textContent = "✖";
+        deleteIcon.classList.add("delete-icon");
+        deleteIcon.style.position = "absolute";
+        deleteIcon.style.top = "0";
+        deleteIcon.style.right = "0";
+        deleteIcon.style.cursor = "pointer";
+        deleteIcon.addEventListener("click", () => {
+          selectedFiles.splice(index, 1);
+          updateAttachmentPreview();
+        });
+        previewDiv.appendChild(deleteIcon);
+        
+        previewContainer.appendChild(previewDiv);
+      }
       // Pour un PDF ou autre, afficher le nom du fichier
       const p = document.createElement("p");
       p.textContent = file.name;
@@ -994,4 +1080,44 @@ function updateEditAttachmentPreview() {
     
     previewContainer.appendChild(previewDiv);
   });
+}
+async function renderPDFPreview(file, container) {
+  // Crée un élément canvas pour afficher le PDF
+  const canvas = document.createElement("canvas");
+  canvas.style.maxWidth = "200px";  // Ajustez selon vos besoins
+  container.appendChild(canvas);
+  
+  // Convertit le fichier en URL temporaire
+  const fileURL = URL.createObjectURL(file);
+  
+  // Charge le PDF avec PDF.js
+  const loadingTask = pdfjsLib.getDocument(fileURL);
+  try {
+    const pdf = await loadingTask.promise;
+    // On affiche seulement la première page
+    const page = await pdf.getPage(1);
+    
+    // Définir l'échelle (zoom)
+    const scale = 1.5;
+    const viewport = page.getViewport({ scale: scale });
+    
+    // Configure le canvas pour la taille de la page
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+    
+    // Prépare le contexte et les rendus
+    const renderContext = {
+      canvasContext: canvas.getContext("2d"),
+      viewport: viewport,
+    };
+    
+    // Rendre la page dans le canvas
+    await page.render(renderContext).promise;
+    
+    // Libérer l'URL temporaire
+    URL.revokeObjectURL(fileURL);
+  } catch (error) {
+    console.error("Erreur lors du rendu du PDF :", error);
+    container.innerHTML = "<p>Impossible d'afficher l'aperçu du PDF.</p>";
+  }
 }
