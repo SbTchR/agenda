@@ -140,15 +140,8 @@ async function requestNotificationPermission() {
 // Appelez cette fonction au chargement ou lors d'une action utilisateur
 requestNotificationPermission();
 
-// Après avoir obtenu le token FCM dans requestNotificationPermission()
-firebase.functions().httpsCallable('subscribeToDailyReminder')({ token: currentToken })
-  .then((result) => {
-    console.log('Abonnement réussi:', result.data);
-  })
-  .catch((error) => {
-    console.error('Erreur lors de l’abonnement au topic:', error);
-  });
-  
+
+
 /*****************************************************
  * Initialisation
  *****************************************************/
