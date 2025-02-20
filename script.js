@@ -102,46 +102,6 @@ const branches = [
   { code: "Autre", color: "#ffffff" }
 ];
 
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('firebase-messaging-sw.js')
-    .then((registration) => {
-      console.log('Service Worker enregistré avec succès:', registration);
-    })
-    .catch((error) => {
-      console.error('Erreur lors de l’enregistrement du Service Worker:', error);
-    });
-}
-
-const messaging = firebase.messaging();
-
-async function requestNotificationPermission() {
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      console.log('Permission accordée pour les notifications.');
-      const currentToken = await messaging.getToken({
-        vapidKey: 'BOJLPzgDdngVbx4fqzeUGamA_sA87e3CaTWtHm_sX3z4dyUu96fyqSswEs05sBvjWGIMyYvPbYWplvhYC7N-zJc'
-      });
-      if (currentToken) {
-        console.log('Token FCM:', currentToken);
-        // Vous pouvez ensuite envoyer ce token à votre serveur pour l'abonnement
-      } else {
-        console.log('Aucun token obtenu.');
-      }
-    } else {
-      console.log('Permission refusée pour les notifications.');
-    }
-  } catch (error) {
-    console.error('Erreur lors de la demande de permission:', error);
-  }
-}
-
-// Appelez cette fonction au chargement ou lors d'une action utilisateur
-requestNotificationPermission();
-
-
-
 /*****************************************************
  * Initialisation
  *****************************************************/
