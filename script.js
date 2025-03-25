@@ -117,8 +117,9 @@ document.addEventListener("DOMContentLoaded", () => {
     weekList.appendChild(div);
   }
 
-  // Sélection de la semaine initiale
-  selectWeek(1);
+  // Sélection dynamique de la semaine en cours
+  const currentWeekNumber = findCurrentWeek();
+  selectWeek(currentWeekNumber);
 
   // Génère les 5 jours à l'écran principal
   generateDays();
@@ -146,6 +147,19 @@ function toggleWeekList(forceHide = null) {
     return;
   }
   weekList.classList.toggle("hidden");
+}
+
+function findCurrentWeek() {
+  const today = new Date();
+  for (let i = 1; i <= 39; i++) {
+    const { monday, friday } = getWeekDates(i);
+    // Si le jour courant est compris entre lundi et vendredi de la semaine i
+    if (today >= monday && today <= friday) {
+      return i;
+    }
+  }
+  // Par défaut, si on ne trouve pas, retourner 1
+  return 1;
 }
 
 function selectWeek(week) {
