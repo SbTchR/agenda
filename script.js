@@ -117,9 +117,8 @@ document.addEventListener("DOMContentLoaded", () => {
     weekList.appendChild(div);
   }
 
-  // Sélection dynamique de la semaine en cours
-  const currentWeekNumber = findCurrentWeek();
-  selectWeek(currentWeekNumber);
+  // Sélection de la semaine initiale en fonction de la date actuelle
+  selectWeek(findCurrentWeek());
 
   // Génère les 5 jours à l'écran principal
   generateDays();
@@ -1174,8 +1173,24 @@ function updateWeekDatesDisplay(weekNumber) {
   }
 }
 
-// Exemple d'appel : mettre à jour l'affichage pour la semaine 1
-updateWeekDatesDisplay(1);
+// Nouvelle fonction pour obtenir la semaine courante
+function getCurrentWeek() {
+  const today = new Date();
+  const firstMonday = new Date(2025, 7, 18); // Lundi de la semaine 1
+  if (today < firstMonday) {
+    return 1;
+  }
+  for (let week = 1; week <= 39; week++) {
+    const { monday, friday } = getWeekDates(week);
+    if (today >= monday && today <= friday) {
+      return week;
+    }
+  }
+  return 39;
+}
+
+// Exemple d'appel : mettre à jour l'affichage pour la semaine en cours
+updateWeekDatesDisplay(findCurrentWeek());
 
 function updateDayTitles(weekNumber) {
   // Récupère les dates pour la semaine sélectionnée
