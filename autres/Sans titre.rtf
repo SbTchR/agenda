@@ -1,0 +1,827 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2821
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red89\green138\blue67;\red24\green24\blue24;\red193\green193\blue193;
+\red70\green137\blue204;\red66\green179\blue255;\red202\green202\blue202;\red140\green211\blue254;\red194\green126\blue101;
+\red212\green214\blue154;\red167\green197\blue152;\red183\green111\blue179;}
+{\*\expandedcolortbl;;\cssrgb\c41569\c60000\c33333;\cssrgb\c12157\c12157\c12157;\cssrgb\c80000\c80000\c80000;
+\cssrgb\c33725\c61176\c83922;\cssrgb\c30980\c75686\c100000;\cssrgb\c83137\c83137\c83137;\cssrgb\c61176\c86275\c99608;\cssrgb\c80784\c56863\c47059;
+\cssrgb\c86275\c86275\c66667;\cssrgb\c70980\c80784\c65882;\cssrgb\c77255\c52549\c75294;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Configuration Firebase : \'e0 remplacer par tes infos\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 firebaseConfig\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3     \cf8 \strokec8 apiKey:\cf4 \strokec4  \cf9 \strokec9 "AIzaSyAmVSJwvMama0h79rPHiUvPKRgZnfjymXA"\cf4 \strokec4 ,\cb1 \
+\cb3     \cf8 \strokec8 authDomain:\cf4 \strokec4  \cf9 \strokec9 "agenda-bed4f.firebaseapp.com"\cf4 \strokec4 ,\cb1 \
+\cb3     \cf8 \strokec8 projectId:\cf4 \strokec4  \cf9 \strokec9 "agenda-bed4f"\cf4 \strokec4 ,\cb1 \
+\cb3     \cf8 \strokec8 storageBucket:\cf4 \strokec4  \cf9 \strokec9 "agenda-bed4f.firebasestorage.app"\cf4 \strokec4 ,\cb1 \
+\cb3     \cf8 \strokec8 messagingSenderId:\cf4 \strokec4  \cf9 \strokec9 "993980335293"\cf4 \strokec4 ,\cb1 \
+\cb3     \cf8 \strokec8 appId:\cf4 \strokec4  \cf9 \strokec9 "1:993980335293:web:90aa697c134c89e8b5e3d4"\cf4 \cb1 \strokec4 \
+\cb3   \};\cb1 \
+\cb3   \cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 // Initialisation de Firebase\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb3 \strokec8 firebase\cf4 \strokec4 .\cf10 \strokec10 initializeApp\cf4 \strokec4 (\cf6 \strokec6 firebaseConfig\cf4 \strokec4 );\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 db\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 firebase\cf4 \strokec4 .\cf10 \strokec10 firestore\cf4 \strokec4 ();\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 storage\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 firebase\cf4 \strokec4 .\cf10 \strokec10 storage\cf4 \strokec4 ();\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Variables et s\'e9lecteurs HTML\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 weekButton\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "week-button"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 weekList\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "week-list"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 currentWeekSpan\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "current-week"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 weekDates\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "week-dates"\cf4 \strokec4 );\cb1 \
+\
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 mainContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "main-content"\cf4 \strokec4 );\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 // \'c9crans\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 addTaskScreen\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "add-task-screen"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 taskDetailsScreen\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "task-details-screen"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 libraryScreen\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "library-screen"\cf4 \strokec4 );\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 // Boutons / Inputs (ajout d'un devoir)\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 cancelAddTaskBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "cancel-add-task"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 confirmAddTaskBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "confirm-add-task"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 taskTitleInput\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "task-title-input"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 attachmentInput\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "attachment-input"\cf4 \strokec4 );\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 // S\'e9lection de branche (container)\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 branchSelectionContainer\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 querySelector\cf4 \strokec4 (\cf9 \strokec9 ".branch-selection"\cf4 \strokec4 );\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 // Boutons du type de devoir\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 typeDevoirBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "type-devoir"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 typeTaBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "type-ta"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 typeTsBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "type-ts"\cf4 \strokec4 );\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 // D\'e9tails devoir\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 backToMainBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "back-to-main"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 detailsTaskTitle\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "details-task-title"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 attachmentsList\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "attachments-list"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 toggleEditBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "toggle-edit"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 validateChangesBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "validate-changes"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 editTaskTitleInput\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "edit-task-title"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 editAttachmentInput\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "edit-attachment-input"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 deleteTaskBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "delete-task"\cf4 \strokec4 );\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 // Modale de mot de passe pour suppression\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 passwordModal\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "password-modal"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 deletePasswordInput\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "delete-password"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 cancelDeleteBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "cancel-delete"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 confirmDeleteBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "confirm-delete"\cf4 \strokec4 );\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 // Biblioth\'e8que\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 libraryButton\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "library-button"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 closeLibraryBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "close-library"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 libraryBranchesContainer\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "library-branches"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 manualsListContainer\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "manuals-list-container"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 manualsList\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "manuals-list"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 selectedBranchTitle\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "selected-branch-title"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 addManualButton\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "add-manual-button"\cf4 \strokec4 );\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 // Modale pour ajouter un manuel\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 addManualModal\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "add-manual-modal"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 manualFileInput\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "manual-file-input"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 cancelAddManualBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "cancel-add-manual"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 confirmAddManualBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "confirm-add-manual"\cf4 \strokec4 );\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 // Variables en m\'e9moire\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 let\cf4 \strokec4  \cf8 \strokec8 selectedBranch\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf5 \strokec5 null\cf4 \strokec4 ;        \cf2 \strokec2 // Pour la biblioth\'e8que\cf4 \cb1 \strokec4 \
+\cf5 \cb3 \strokec5 let\cf4 \strokec4  \cf8 \strokec8 currentWeek\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf11 \strokec11 1\cf4 \strokec4 ;\cb1 \
+\cf5 \cb3 \strokec5 let\cf4 \strokec4  \cf8 \strokec8 currentDayClicked\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf5 \strokec5 null\cf4 \strokec4 ;     \cf2 \strokec2 // Jour cliqu\'e9 pour ajouter un devoir\cf4 \cb1 \strokec4 \
+\cf5 \cb3 \strokec5 let\cf4 \strokec4  \cf8 \strokec8 selectedTaskId\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf5 \strokec5 null\cf4 \strokec4 ;        \cf2 \strokec2 // ID de la t\'e2che s\'e9lectionn\'e9e pour d\'e9tails\cf4 \cb1 \strokec4 \
+\cf5 \cb3 \strokec5 let\cf4 \strokec4  \cf8 \strokec8 selectedTaskData\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf5 \strokec5 null\cf4 \strokec4 ;      \cf2 \strokec2 // Donn\'e9es de la t\'e2che\cf4 \cb1 \strokec4 \
+\cf5 \cb3 \strokec5 let\cf4 \strokec4  \cf8 \strokec8 selectedTaskType\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf5 \strokec5 null\cf4 \strokec4 ;      \cf2 \strokec2 // "Devoir", "TA", "TS"\cf4 \cb1 \strokec4 \
+\cf5 \cb3 \strokec5 let\cf4 \strokec4  \cf8 \strokec8 selectedTaskBranch\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf5 \strokec5 null\cf4 \strokec4 ;    \cf2 \strokec2 // "All", "Fra", etc.\cf4 \cb1 \strokec4 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 // Modale de mot de passe pour ajout\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 passwordModalAdd\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "password-modal-add"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 addPasswordInput\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "add-password-input"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 cancelAddPwdBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "cancel-add-pwd"\cf4 \strokec4 );\cb1 \
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 confirmAddPwdBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "confirm-add-pwd"\cf4 \strokec4 );\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Liste des branches et leurs codes/couleurs\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 branches\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  [\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \{ \cf8 \strokec8 code:\cf4 \strokec4  \cf9 \strokec9 "All"\cf4 \strokec4 , \cf8 \strokec8 color:\cf4 \strokec4  \cf9 \strokec9 "#ffc107"\cf4 \strokec4  \},\cb1 \
+\cb3   \{ \cf8 \strokec8 code:\cf4 \strokec4  \cf9 \strokec9 "Fra"\cf4 \strokec4 , \cf8 \strokec8 color:\cf4 \strokec4  \cf9 \strokec9 "#e91e63"\cf4 \strokec4  \},\cb1 \
+\cb3   \{ \cf8 \strokec8 code:\cf4 \strokec4  \cf9 \strokec9 "Math"\cf4 \strokec4 , \cf8 \strokec8 color:\cf4 \strokec4  \cf9 \strokec9 "#ff9800"\cf4 \strokec4  \},\cb1 \
+\cb3   \{ \cf8 \strokec8 code:\cf4 \strokec4  \cf9 \strokec9 "His"\cf4 \strokec4 , \cf8 \strokec8 color:\cf4 \strokec4  \cf9 \strokec9 "#9c27b0"\cf4 \strokec4  \},\cb1 \
+\cb3   \{ \cf8 \strokec8 code:\cf4 \strokec4  \cf9 \strokec9 "G\'e9o"\cf4 \strokec4 , \cf8 \strokec8 color:\cf4 \strokec4  \cf9 \strokec9 "#4caf50"\cf4 \strokec4  \},\cb1 \
+\cb3   \{ \cf8 \strokec8 code:\cf4 \strokec4  \cf9 \strokec9 "Ang"\cf4 \strokec4 , \cf8 \strokec8 color:\cf4 \strokec4  \cf9 \strokec9 "#00bcd4"\cf4 \strokec4  \},\cb1 \
+\cb3   \{ \cf8 \strokec8 code:\cf4 \strokec4  \cf9 \strokec9 "Scn"\cf4 \strokec4 , \cf8 \strokec8 color:\cf4 \strokec4  \cf9 \strokec9 "#9e9d24"\cf4 \strokec4  \},\cb1 \
+\cb3   \{ \cf8 \strokec8 code:\cf4 \strokec4  \cf9 \strokec9 "Mus"\cf4 \strokec4 , \cf8 \strokec8 color:\cf4 \strokec4  \cf9 \strokec9 "#f44336"\cf4 \strokec4  \},\cb1 \
+\cb3   \{ \cf8 \strokec8 code:\cf4 \strokec4  \cf9 \strokec9 "AVI"\cf4 \strokec4 , \cf8 \strokec8 color:\cf4 \strokec4  \cf9 \strokec9 "#795548"\cf4 \strokec4  \},\cb1 \
+\cb3   \{ \cf8 \strokec8 code:\cf4 \strokec4  \cf9 \strokec9 "Forgen"\cf4 \strokec4 , \cf8 \strokec8 color:\cf4 \strokec4  \cf9 \strokec9 "#009688"\cf4 \strokec4  \},\cb1 \
+\cb3   \{ \cf8 \strokec8 code:\cf4 \strokec4  \cf9 \strokec9 "Autre"\cf4 \strokec4 , \cf8 \strokec8 color:\cf4 \strokec4  \cf9 \strokec9 "#ffffff"\cf4 \strokec4  \}\cb1 \
+\cb3 ];\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Initialisation\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb3 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "DOMContentLoaded"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf2 \strokec2 // Cr\'e9e la liste des semaines 1 \'e0 39\cf4 \cb1 \strokec4 \
+\cb3   \cf12 \strokec12 for\cf4 \strokec4  (\cf5 \strokec5 let\cf4 \strokec4  \cf8 \strokec8 i\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf11 \strokec11 1\cf4 \strokec4 ; \cf8 \strokec8 i\cf4 \strokec4  \cf7 \strokec7 <=\cf4 \strokec4  \cf11 \strokec11 39\cf4 \strokec4 ; \cf8 \strokec8 i\cf7 \strokec7 ++\cf4 \strokec4 ) \{\cb1 \
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 div\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 createElement\cf4 \strokec4 (\cf9 \strokec9 "div"\cf4 \strokec4 );\cb1 \
+\cb3     \cf6 \strokec6 div\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 "S. "\cf4 \strokec4  \cf7 \strokec7 +\cf4 \strokec4  \cf8 \strokec8 i\cf4 \strokec4 ;\cb1 \
+\cb3     \cf6 \strokec6 div\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3       \cf10 \strokec10 selectWeek\cf4 \strokec4 (\cf8 \strokec8 i\cf4 \strokec4 );\cb1 \
+\cb3       \cf10 \strokec10 toggleWeekList\cf4 \strokec4 (\cf5 \strokec5 false\cf4 \strokec4 );\cb1 \
+\cb3     \});\cb1 \
+\cb3     \cf6 \strokec6 weekList\cf4 \strokec4 .\cf10 \strokec10 appendChild\cf4 \strokec4 (\cf8 \strokec8 div\cf4 \strokec4 );\cb1 \
+\cb3   \}\cb1 \
+\
+\cb3   \cf2 \strokec2 // S\'e9lection de la semaine initiale\cf4 \cb1 \strokec4 \
+\cb3   \cf10 \strokec10 selectWeek\cf4 \strokec4 (\cf11 \strokec11 1\cf4 \strokec4 );\cb1 \
+\
+\cb3   \cf2 \strokec2 // G\'e9n\'e8re les 5 jours \'e0 l'\'e9cran principal\cf4 \cb1 \strokec4 \
+\cb3   \cf10 \strokec10 generateDays\cf4 \strokec4 ();\cb1 \
+\
+\cb3   \cf2 \strokec2 // G\'e9n\'e8re les boutons de branches pour l'ajout d'un devoir\cf4 \cb1 \strokec4 \
+\cb3   \cf10 \strokec10 generateBranchSelection\cf4 \strokec4 ();\cb1 \
+\
+\cb3   \cf2 \strokec2 // G\'e9n\'e8re les boutons de branches pour la biblioth\'e8que\cf4 \cb1 \strokec4 \
+\cb3   \cf10 \strokec10 generateLibraryBranches\cf4 \strokec4 ();\cb1 \
+\
+\cb3   \cf2 \strokec2 // Chargement initial des t\'e2ches\cf4 \cb1 \strokec4 \
+\cb3   \cf10 \strokec10 loadTasksForWeek\cf4 \strokec4 (\cf8 \strokec8 currentWeek\cf4 \strokec4 );\cb1 \
+\cb3 \});\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Fonctions de gestion de la semaine\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb3 \strokec8 weekButton\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf10 \strokec10 toggleWeekList\cf4 \strokec4 ();\cb1 \
+\cb3 \});\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 function\cf4 \strokec4  \cf10 \strokec10 toggleWeekList\cf4 \strokec4 (\cf8 \strokec8 forceHide\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf5 \strokec5 null\cf4 \strokec4 ) \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf12 \strokec12 if\cf4 \strokec4  (\cf8 \strokec8 forceHide\cf4 \strokec4  \cf7 \strokec7 ===\cf4 \strokec4  \cf5 \strokec5 true\cf4 \strokec4 ) \{\cb1 \
+\cb3     \cf8 \strokec8 weekList\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3     \cf12 \strokec12 return\cf4 \strokec4 ;\cb1 \
+\cb3   \}\cb1 \
+\cb3   \cf8 \strokec8 weekList\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 toggle\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 function\cf4 \strokec4  \cf10 \strokec10 selectWeek\cf4 \strokec4 (\cf8 \strokec8 week\cf4 \strokec4 ) \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf8 \strokec8 currentWeek\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 week\cf4 \strokec4 ;\cb1 \
+\cb3   \cf8 \strokec8 currentWeekSpan\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 week\cf4 \strokec4 ;\cb1 \
+\cb3   \cf2 \strokec2 // Juste un affichage simplifi\'e9, dans la r\'e9alit\'e9 on calculerait la vraie date\cf4 \cb1 \strokec4 \
+\cb3   \cf8 \strokec8 weekDates\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 `Semaine \cf5 \strokec5 $\{\cf8 \strokec8 week\cf5 \strokec5 \}\cf9 \strokec9 `\cf4 \strokec4 ;\cb1 \
+\
+\cb3   \cf10 \strokec10 loadTasksForWeek\cf4 \strokec4 (\cf8 \strokec8 week\cf4 \strokec4 );\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * G\'e9n\'e9ration de l'affichage des jours (lundi->vendredi)\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 function\cf4 \strokec4  \cf10 \strokec10 generateDays\cf4 \strokec4 () \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 days\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  [\cf9 \strokec9 "Lundi"\cf4 \strokec4 , \cf9 \strokec9 "Mardi"\cf4 \strokec4 , \cf9 \strokec9 "Mercredi"\cf4 \strokec4 , \cf9 \strokec9 "Jeudi"\cf4 \strokec4 , \cf9 \strokec9 "Vendredi"\cf4 \strokec4 ];\cb1 \
+\cb3   \cf6 \strokec6 mainContent\cf4 \strokec4 .\cf8 \strokec8 innerHTML\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 ""\cf4 \strokec4 ;\cb1 \
+\cb3   \cf6 \strokec6 days\cf4 \strokec4 .\cf10 \strokec10 forEach\cf4 \strokec4 ((\cf8 \strokec8 day\cf4 \strokec4 ) \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 dayContainer\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 createElement\cf4 \strokec4 (\cf9 \strokec9 "div"\cf4 \strokec4 );\cb1 \
+\cb3     \cf6 \strokec6 dayContainer\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "day-container"\cf4 \strokec4 );\cb1 \
+\
+\cb3     \cf2 \strokec2 // Exemple date fictive\cf4 \cb1 \strokec4 \
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 randomDate\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 "04.10"\cf4 \strokec4 ;\cb1 \
+\
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 dayTitle\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 createElement\cf4 \strokec4 (\cf9 \strokec9 "h3"\cf4 \strokec4 );\cb1 \
+\cb3     \cf6 \strokec6 dayTitle\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 `\cf5 \strokec5 $\{\cf8 \strokec8 day\cf5 \strokec5 \}\cf9 \strokec9  \cf5 \strokec5 $\{\cf6 \strokec6 randomDate\cf5 \strokec5 \}\cf9 \strokec9 `\cf4 \strokec4 ;\cb1 \
+\cb3     \cf6 \strokec6 dayTitle\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3       \cf2 \strokec2 // Ouvrir l'\'e9cran d'ajout de devoir pour ce jour\cf4 \cb1 \strokec4 \
+\cb3       \cf8 \strokec8 currentDayClicked\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 day\cf4 \strokec4 ;\cb1 \
+\cb3       \cf10 \strokec10 openAddTaskScreen\cf4 \strokec4 ();\cb1 \
+\cb3     \});\cb1 \
+\
+\cb3     \cf6 \strokec6 dayContainer\cf4 \strokec4 .\cf10 \strokec10 appendChild\cf4 \strokec4 (\cf6 \strokec6 dayTitle\cf4 \strokec4 );\cb1 \
+\
+\cb3     \cf2 \strokec2 // Liste de t\'e2ches\cf4 \cb1 \strokec4 \
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 tasksList\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 createElement\cf4 \strokec4 (\cf9 \strokec9 "div"\cf4 \strokec4 );\cb1 \
+\cb3     \cf6 \strokec6 tasksList\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "tasks-list"\cf4 \strokec4 );\cb1 \
+\cb3     \cf6 \strokec6 tasksList\cf4 \strokec4 .\cf8 \strokec8 id\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 `tasks-\cf5 \strokec5 $\{\cf8 \strokec8 day\cf5 \strokec5 \}\cf9 \strokec9 `\cf4 \strokec4 ;\cb1 \
+\cb3     \cf6 \strokec6 dayContainer\cf4 \strokec4 .\cf10 \strokec10 appendChild\cf4 \strokec4 (\cf6 \strokec6 tasksList\cf4 \strokec4 );\cb1 \
+\
+\cb3     \cf6 \strokec6 mainContent\cf4 \strokec4 .\cf10 \strokec10 appendChild\cf4 \strokec4 (\cf6 \strokec6 dayContainer\cf4 \strokec4 );\cb1 \
+\cb3   \});\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Chargement des devoirs depuis Firestore\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 function\cf4 \strokec4  \cf10 \strokec10 loadTasksForWeek\cf4 \strokec4 (\cf8 \strokec8 week\cf4 \strokec4 ) \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf2 \strokec2 // On vide l'affichage\cf4 \cb1 \strokec4 \
+\cb3   \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 days\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  [\cf9 \strokec9 "Lundi"\cf4 \strokec4 , \cf9 \strokec9 "Mardi"\cf4 \strokec4 , \cf9 \strokec9 "Mercredi"\cf4 \strokec4 , \cf9 \strokec9 "Jeudi"\cf4 \strokec4 , \cf9 \strokec9 "Vendredi"\cf4 \strokec4 ];\cb1 \
+\cb3   \cf6 \strokec6 days\cf4 \strokec4 .\cf10 \strokec10 forEach\cf4 \strokec4 (\cf8 \strokec8 day\cf4 \strokec4  \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 tasksList\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 `tasks-\cf5 \strokec5 $\{\cf8 \strokec8 day\cf5 \strokec5 \}\cf9 \strokec9 `\cf4 \strokec4 );\cb1 \
+\cb3     \cf12 \strokec12 if\cf4 \strokec4  (\cf6 \strokec6 tasksList\cf4 \strokec4 ) \cf6 \strokec6 tasksList\cf4 \strokec4 .\cf8 \strokec8 innerHTML\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 ""\cf4 \strokec4 ;\cb1 \
+\cb3   \});\cb1 \
+\
+\cb3   \cf6 \strokec6 db\cf4 \strokec4 .\cf10 \strokec10 collection\cf4 \strokec4 (\cf9 \strokec9 "tasks"\cf4 \strokec4 )\cb1 \
+\cb3     .\cf10 \strokec10 where\cf4 \strokec4 (\cf9 \strokec9 "week"\cf4 \strokec4 , \cf9 \strokec9 "=="\cf4 \strokec4 , \cf8 \strokec8 week\cf4 \strokec4 )\cb1 \
+\cb3     .\cf10 \strokec10 get\cf4 \strokec4 ()\cb1 \
+\cb3     .\cf10 \strokec10 then\cf4 \strokec4 ((\cf8 \strokec8 snapshot\cf4 \strokec4 ) \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3       \cf8 \strokec8 snapshot\cf4 \strokec4 .\cf10 \strokec10 forEach\cf4 \strokec4 ((\cf8 \strokec8 doc\cf4 \strokec4 ) \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3         \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 taskData\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 doc\cf4 \strokec4 .\cf10 \strokec10 data\cf4 \strokec4 ();\cb1 \
+\cb3       \});\cb1 \
+\cb3     \})\cb1 \
+\cb3     .\cf10 \strokec10 catch\cf4 \strokec4 ((\cf8 \strokec8 error\cf4 \strokec4 ) \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3       \cf8 \strokec8 console\cf4 \strokec4 .\cf10 \strokec10 error\cf4 \strokec4 (\cf9 \strokec9 "Erreur lors du chargement des t\'e2ches:"\cf4 \strokec4 , \cf8 \strokec8 error\cf4 \strokec4 );\cb1 \
+\cb3     \});\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Affichage d'un devoir dans la liste\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 function\cf4 \strokec4  \cf10 \strokec10 displayTask\cf4 \strokec4 (\cf8 \strokec8 taskId\cf4 \strokec4 , \cf8 \strokec8 taskData\cf4 \strokec4 ) \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 tasksList\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 `tasks-\cf5 \strokec5 $\{\cf8 \strokec8 taskData\cf7 \strokec7 .\cf8 \strokec8 day\cf5 \strokec5 \}\cf9 \strokec9 `\cf4 \strokec4 );\cb1 \
+\cb3   \cf12 \strokec12 if\cf4 \strokec4  (\cf7 \strokec7 !\cf6 \strokec6 tasksList\cf4 \strokec4 ) \cf12 \strokec12 return\cf4 \strokec4 ; \cf2 \strokec2 // Si "day" n'est pas un des 5 jours, on ignore\cf4 \cb1 \strokec4 \
+\
+\cb3   \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 taskItem\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 createElement\cf4 \strokec4 (\cf9 \strokec9 "div"\cf4 \strokec4 );\cb1 \
+\cb3   \cf6 \strokec6 taskItem\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "task-item"\cf4 \strokec4 );\cb1 \
+\
+\cb3   \cf2 \strokec2 // Couleur et style selon le type\cf4 \cb1 \strokec4 \
+\cb3   \cf12 \strokec12 if\cf4 \strokec4  (\cf8 \strokec8 taskData\cf4 \strokec4 .\cf8 \strokec8 type\cf4 \strokec4  \cf7 \strokec7 ===\cf4 \strokec4  \cf9 \strokec9 "Devoir"\cf4 \strokec4 ) \{\cb1 \
+\cb3     \cf6 \strokec6 taskItem\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "devoir"\cf4 \strokec4 );\cb1 \
+\cb3   \} \cf12 \strokec12 else\cf4 \strokec4  \cf12 \strokec12 if\cf4 \strokec4  (\cf8 \strokec8 taskData\cf4 \strokec4 .\cf8 \strokec8 type\cf4 \strokec4  \cf7 \strokec7 ===\cf4 \strokec4  \cf9 \strokec9 "TA"\cf4 \strokec4 ) \{\cb1 \
+\cb3     \cf6 \strokec6 taskItem\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "ta"\cf4 \strokec4 );\cb1 \
+\cb3   \} \cf12 \strokec12 else\cf4 \strokec4  \cf12 \strokec12 if\cf4 \strokec4  (\cf8 \strokec8 taskData\cf4 \strokec4 .\cf8 \strokec8 type\cf4 \strokec4  \cf7 \strokec7 ===\cf4 \strokec4  \cf9 \strokec9 "TS"\cf4 \strokec4 ) \{\cb1 \
+\cb3     \cf6 \strokec6 taskItem\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "ts"\cf4 \strokec4 );\cb1 \
+\cb3   \}\cb1 \
+\
+\cb3   \cf2 \strokec2 // Couleur par branche (ex: .all, .fra, etc.)\cf4 \cb1 \strokec4 \
+\cb3   \cf12 \strokec12 if\cf4 \strokec4  (\cf8 \strokec8 taskData\cf4 \strokec4 .\cf8 \strokec8 branch\cf4 \strokec4 ) \{\cb1 \
+\cb3     \cf6 \strokec6 taskItem\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf8 \strokec8 taskData\cf4 \strokec4 .\cf8 \strokec8 branch\cf4 \strokec4 .\cf10 \strokec10 toLowerCase\cf4 \strokec4 ());\cb1 \
+\cb3   \}\cb1 \
+\
+\cb3   \cf6 \strokec6 taskItem\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 `\cf5 \strokec5 $\{\cf8 \strokec8 taskData\cf7 \strokec7 .\cf8 \strokec8 branch\cf5 \strokec5 \}\cf9 \strokec9  : \cf5 \strokec5 $\{\cf8 \strokec8 taskData\cf7 \strokec7 .\cf8 \strokec8 title\cf5 \strokec5 \}\cf9 \strokec9 `\cf4 \strokec4 ;\cb1 \
+\
+\cb3   \cf6 \strokec6 taskItem\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3     \cf10 \strokec10 openTaskDetailsScreen\cf4 \strokec4 (\cf8 \strokec8 taskId\cf4 \strokec4 , \cf8 \strokec8 taskData\cf4 \strokec4 );\cb1 \
+\cb3   \});\cb1 \
+\
+\cb3   \cf6 \strokec6 tasksList\cf4 \strokec4 .\cf10 \strokec10 appendChild\cf4 \strokec4 (\cf8 \strokec8 taskItem\cf4 \strokec4 );\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Ouverture de l'\'e9cran d'ajout de devoir\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 function\cf4 \strokec4  \cf10 \strokec10 openAddTaskScreen\cf4 \strokec4 () \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf6 \strokec6 addTaskScreen\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 remove\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3   \cf10 \strokec10 clearAddTaskForm\cf4 \strokec4 ();\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 function\cf4 \strokec4  \cf10 \strokec10 clearAddTaskForm\cf4 \strokec4 () \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf8 \strokec8 selectedTaskBranch\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf5 \strokec5 null\cf4 \strokec4 ;\cb1 \
+\cb3   \cf8 \strokec8 selectedTaskType\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf5 \strokec5 null\cf4 \strokec4 ;\cb1 \
+\cb3   \cf8 \strokec8 taskTitleInput\cf4 \strokec4 .\cf8 \strokec8 value\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 ""\cf4 \strokec4 ;\cb1 \
+\cb3   \cf8 \strokec8 attachmentInput\cf4 \strokec4 .\cf8 \strokec8 value\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 ""\cf4 \strokec4 ;\cb1 \
+\
+\cb3   \cf2 \strokec2 // Retire la s\'e9lection visuelle sur les branch-button\cf4 \cb1 \strokec4 \
+\cb3   \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 querySelectorAll\cf4 \strokec4 (\cf9 \strokec9 ".branch-button"\cf4 \strokec4 ).\cf10 \strokec10 forEach\cf4 \strokec4 (\cf8 \strokec8 btn\cf4 \strokec4  \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3     \cf8 \strokec8 btn\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 remove\cf4 \strokec4 (\cf9 \strokec9 "selected-branch"\cf4 \strokec4 );\cb1 \
+\cb3   \});\cb1 \
+\cb3   \cf2 \strokec2 // Retire la s\'e9lection visuelle sur type de devoir\cf4 \cb1 \strokec4 \
+\cb3   [\cf8 \strokec8 typeDevoirBtn\cf4 \strokec4 , \cf8 \strokec8 typeTaBtn\cf4 \strokec4 , \cf8 \strokec8 typeTsBtn\cf4 \strokec4 ].\cf10 \strokec10 forEach\cf4 \strokec4 (\cf8 \strokec8 btn\cf4 \strokec4  \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3     \cf8 \strokec8 btn\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 remove\cf4 \strokec4 (\cf9 \strokec9 "selected-type"\cf4 \strokec4 );\cb1 \
+\cb3   \});\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Fermeture de l'\'e9cran d'ajout de devoir\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb3 \strokec8 cancelAddTaskBtn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf8 \strokec8 addTaskScreen\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3 \});\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * G\'e9n\'e9ration de la liste de branches (ajout de devoir)\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 function\cf4 \strokec4  \cf10 \strokec10 generateBranchSelection\cf4 \strokec4 () \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf8 \strokec8 branches\cf4 \strokec4 .\cf10 \strokec10 forEach\cf4 \strokec4 ((\cf8 \strokec8 branch\cf4 \strokec4 ) \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 btn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 createElement\cf4 \strokec4 (\cf9 \strokec9 "button"\cf4 \strokec4 );\cb1 \
+\cb3     \cf8 \strokec8 btn\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "branch-button"\cf4 \strokec4 );\cb1 \
+\cb3     \cf8 \strokec8 btn\cf4 \strokec4 .\cf8 \strokec8 style\cf4 \strokec4 .\cf8 \strokec8 backgroundColor\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 branch\cf4 \strokec4 .\cf8 \strokec8 color\cf4 \strokec4 ;\cb1 \
+\cb3     \cf8 \strokec8 btn\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 branch\cf4 \strokec4 .\cf8 \strokec8 code\cf4 \strokec4 ;\cb1 \
+\
+\cb3     \cf8 \strokec8 btn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3       \cf2 \strokec2 // Retire la s\'e9lection sur tous\cf4 \cb1 \strokec4 \
+\cb3       \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 querySelectorAll\cf4 \strokec4 (\cf9 \strokec9 ".branch-button"\cf4 \strokec4 ).\cf10 \strokec10 forEach\cf4 \strokec4 (\cf8 \strokec8 b\cf4 \strokec4  \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3         \cf8 \strokec8 b\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 remove\cf4 \strokec4 (\cf9 \strokec9 "selected-branch"\cf4 \strokec4 );\cb1 \
+\cb3       \});\cb1 \
+\cb3       \cf2 \strokec2 // Applique sur celui cliqu\'e9\cf4 \cb1 \strokec4 \
+\cb3       \cf8 \strokec8 btn\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "selected-branch"\cf4 \strokec4 );\cb1 \
+\cb3       \cf8 \strokec8 selectedTaskBranch\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 branch\cf4 \strokec4 .\cf8 \strokec8 code\cf4 \strokec4 ;\cb1 \
+\cb3     \});\cb1 \
+\
+\cb3     \cf6 \strokec6 branchSelectionContainer\cf4 \strokec4 .\cf10 \strokec10 appendChild\cf4 \strokec4 (\cf6 \strokec6 btn\cf4 \strokec4 );\cb1 \
+\cb3   \});\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * S\'e9lection du type de devoir\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3 [\cf6 \strokec6 typeDevoirBtn\cf4 \strokec4 , \cf6 \strokec6 typeTaBtn\cf4 \strokec4 , \cf6 \strokec6 typeTsBtn\cf4 \strokec4 ].\cf10 \strokec10 forEach\cf4 \strokec4 (\cf8 \strokec8 button\cf4 \strokec4  \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3   \cf8 \strokec8 button\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3     [\cf6 \strokec6 typeDevoirBtn\cf4 \strokec4 , \cf6 \strokec6 typeTaBtn\cf4 \strokec4 , \cf6 \strokec6 typeTsBtn\cf4 \strokec4 ].\cf10 \strokec10 forEach\cf4 \strokec4 (\cf8 \strokec8 b\cf4 \strokec4  \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3       \cf8 \strokec8 b\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 remove\cf4 \strokec4 (\cf9 \strokec9 "selected-type"\cf4 \strokec4 );\cb1 \
+\cb3     \});\cb1 \
+\cb3     \cf8 \strokec8 button\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "selected-type"\cf4 \strokec4 );\cb1 \
+\cb3     \cf8 \strokec8 selectedTaskType\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 button\cf4 \strokec4 .\cf6 \strokec6 dataset\cf4 \strokec4 .\cf8 \strokec8 type\cf4 \strokec4 ;\cb1 \
+\cb3   \});\cb1 \
+\cb3 \});\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Ajout d'un devoir (avec mot de passe via modale)\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2 // 1) Quand on clique sur \'93Ajouter\'94 dans le formulaire\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf6 \cb3 \strokec6 confirmAddTaskBtn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3     \cf2 \strokec2 // Ouvrir la modale \'93password-modal-add\'94\cf4 \cb1 \strokec4 \
+\cb3     \cf8 \strokec8 passwordModalAdd\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 remove\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3     \cf8 \strokec8 addPasswordInput\cf4 \strokec4 .\cf8 \strokec8 value\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 ""\cf4 \strokec4 ; \cf2 \strokec2 // on vide le champ\cf4 \cb1 \strokec4 \
+\cb3   \});\cb1 \
+\cb3   \cb1 \
+\cb3   \cf2 \strokec2 // 2) Bouton \'93Annuler\'94 dans la modale\cf4 \cb1 \strokec4 \
+\cb3   \cf8 \strokec8 cancelAddPwdBtn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3     \cf8 \strokec8 passwordModalAdd\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3   \});\cb1 \
+\cb3   \cb1 \
+\cb3   \cf2 \strokec2 // 3) Bouton \'93Confirmer\'94 dans la modale\cf4 \cb1 \strokec4 \
+\cb3   \cf8 \strokec8 confirmAddPwdBtn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , \cf5 \strokec5 async\cf4 \strokec4  () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3     \cf2 \strokec2 // V\'e9rifier le mot de passe\cf4 \cb1 \strokec4 \
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 pwd\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 addPasswordInput\cf4 \strokec4 .\cf8 \strokec8 value\cf4 \strokec4 ;\cb1 \
+\cb3     \cf12 \strokec12 if\cf4 \strokec4  (\cf8 \strokec8 pwd\cf4 \strokec4  \cf7 \strokec7 !==\cf4 \strokec4  \cf9 \strokec9 "9vg1"\cf4 \strokec4 ) \{\cb1 \
+\cb3       \cf10 \strokec10 alert\cf4 \strokec4 (\cf9 \strokec9 "Mot de passe incorrect."\cf4 \strokec4 );\cb1 \
+\cb3       \cf12 \strokec12 return\cf4 \strokec4 ;\cb1 \
+\cb3     \}\cb1 \
+\cb3   \cb1 \
+\cb3     \cf2 \strokec2 // Si c'est correct, on ferme la modale\cf4 \cb1 \strokec4 \
+\cb3     \cf8 \strokec8 passwordModalAdd\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3   \cb1 \
+\cb3     \cf2 \strokec2 // Maintenant on ex\'e9cute le code d\'92ajout\cf4 \cb1 \strokec4 \
+\cb3     \cf12 \strokec12 if\cf4 \strokec4  (\cf7 \strokec7 !\cf8 \strokec8 selectedTaskBranch\cf4 \strokec4  \cf7 \strokec7 ||\cf4 \strokec4  \cf7 \strokec7 !\cf8 \strokec8 selectedTaskType\cf4 \strokec4 ) \{\cb1 \
+\cb3       \cf10 \strokec10 alert\cf4 \strokec4 (\cf9 \strokec9 "Merci de s\'e9lectionner une branche et un type de devoir (Devoir, TA ou TS)."\cf4 \strokec4 );\cb1 \
+\cb3       \cf12 \strokec12 return\cf4 \strokec4 ;\cb1 \
+\cb3     \}\cb1 \
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 title\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 taskTitleInput\cf4 \strokec4 .\cf8 \strokec8 value\cf4 \strokec4 .\cf10 \strokec10 trim\cf4 \strokec4 ();\cb1 \
+\cb3     \cf12 \strokec12 if\cf4 \strokec4  (\cf7 \strokec7 !\cf8 \strokec8 title\cf4 \strokec4 ) \{\cb1 \
+\cb3       \cf10 \strokec10 alert\cf4 \strokec4 (\cf9 \strokec9 "Merci d'indiquer un titre de devoir."\cf4 \strokec4 );\cb1 \
+\cb3       \cf12 \strokec12 return\cf4 \strokec4 ;\cb1 \
+\cb3     \}\cb1 \
+\cb3   \cb1 \
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 attachments\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 attachmentInput\cf4 \strokec4 .\cf8 \strokec8 files\cf4 \strokec4 ; \cf2 \strokec2 // FileList\cf4 \cb1 \strokec4 \
+\cb3   \cb1 \
+\cb3     \cf12 \strokec12 try\cf4 \strokec4  \{\cb1 \
+\cb3       \cf2 \strokec2 // Cr\'e9e d'abord le document Firestore\cf4 \cb1 \strokec4 \
+\cb3       \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 docRef\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf12 \strokec12 await\cf4 \strokec4  \cf8 \strokec8 db\cf4 \strokec4 .\cf10 \strokec10 collection\cf4 \strokec4 (\cf9 \strokec9 "tasks"\cf4 \strokec4 ).\cf10 \strokec10 add\cf4 \strokec4 (\{\cb1 \
+\cb3         \cf8 \strokec8 branch:\cf4 \strokec4  \cf8 \strokec8 selectedTaskBranch\cf4 \strokec4 ,\cb1 \
+\cb3         \cf8 \strokec8 type:\cf4 \strokec4  \cf8 \strokec8 selectedTaskType\cf4 \strokec4 ,\cb1 \
+\cb3         \cf8 \strokec8 title:\cf4 \strokec4  \cf8 \strokec8 title\cf4 \strokec4 ,\cb1 \
+\cb3         \cf8 \strokec8 day:\cf4 \strokec4  \cf8 \strokec8 currentDayClicked\cf4 \strokec4 ,\cb1 \
+\cb3         \cf8 \strokec8 week:\cf4 \strokec4  \cf8 \strokec8 currentWeek\cf4 \strokec4 ,\cb1 \
+\cb3         \cf8 \strokec8 attachments:\cf4 \strokec4  []\cb1 \
+\cb3       \});\cb1 \
+\cb3   \cb1 \
+\cb3       \cf2 \strokec2 // Upload des pi\'e8ces jointes (simplifi\'e9, pas de barre de progression)\cf4 \cb1 \strokec4 \
+\cb3       \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 attachmentURLs\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  [];\cb1 \
+\cb3       \cf12 \strokec12 for\cf4 \strokec4  (\cf5 \strokec5 let\cf4 \strokec4  \cf8 \strokec8 i\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf11 \strokec11 0\cf4 \strokec4 ; \cf8 \strokec8 i\cf4 \strokec4  \cf7 \strokec7 <\cf4 \strokec4  \cf8 \strokec8 attachments\cf4 \strokec4 .\cf8 \strokec8 length\cf4 \strokec4 ; \cf8 \strokec8 i\cf7 \strokec7 ++\cf4 \strokec4 ) \{\cb1 \
+\cb3         \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 file\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 attachments\cf4 \strokec4 [\cf8 \strokec8 i\cf4 \strokec4 ];\cb1 \
+\cb3         \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 storageRef\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 storage\cf4 \strokec4 .\cf10 \strokec10 ref\cf4 \strokec4 (\cf9 \strokec9 `attachments/\cf5 \strokec5 $\{\cf8 \strokec8 docRef\cf7 \strokec7 .\cf8 \strokec8 id\cf5 \strokec5 \}\cf9 \strokec9 /\cf5 \strokec5 $\{\cf8 \strokec8 file\cf7 \strokec7 .\cf8 \strokec8 name\cf5 \strokec5 \}\cf9 \strokec9 `\cf4 \strokec4 );\cb1 \
+\cb3         \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 snapshot\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf12 \strokec12 await\cf4 \strokec4  \cf6 \strokec6 storageRef\cf4 \strokec4 .\cf10 \strokec10 put\cf4 \strokec4 (\cf6 \strokec6 file\cf4 \strokec4 );\cb1 \
+\cb3         \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 url\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf12 \strokec12 await\cf4 \strokec4  \cf6 \strokec6 snapshot\cf4 \strokec4 .\cf8 \strokec8 ref\cf4 \strokec4 .\cf10 \strokec10 getDownloadURL\cf4 \strokec4 ();\cb1 \
+\cb3         \cf6 \strokec6 attachmentURLs\cf4 \strokec4 .\cf10 \strokec10 push\cf4 \strokec4 (\{ \cf8 \strokec8 name:\cf4 \strokec4  \cf6 \strokec6 file\cf4 \strokec4 .\cf8 \strokec8 name\cf4 \strokec4 , \cf8 \strokec8 url\cf4 \strokec4  \});\cb1 \
+\cb3       \}\cb1 \
+\cb3   \cb1 \
+\cb3       \cf2 \strokec2 // Mise \'e0 jour Firestore si on a des pi\'e8ces jointes\cf4 \cb1 \strokec4 \
+\cb3       \cf12 \strokec12 if\cf4 \strokec4  (\cf6 \strokec6 attachmentURLs\cf4 \strokec4 .\cf8 \strokec8 length\cf4 \strokec4  \cf7 \strokec7 >\cf4 \strokec4  \cf11 \strokec11 0\cf4 \strokec4 ) \{\cb1 \
+\cb3         \cf12 \strokec12 await\cf4 \strokec4  \cf6 \strokec6 db\cf4 \strokec4 .\cf10 \strokec10 collection\cf4 \strokec4 (\cf9 \strokec9 "tasks"\cf4 \strokec4 ).\cf10 \strokec10 doc\cf4 \strokec4 (\cf6 \strokec6 docRef\cf4 \strokec4 .\cf8 \strokec8 id\cf4 \strokec4 ).\cf10 \strokec10 update\cf4 \strokec4 (\{\cb1 \
+\cb3           \cf8 \strokec8 attachments:\cf4 \strokec4  \cf6 \strokec6 attachmentURLs\cf4 \cb1 \strokec4 \
+\cb3         \});\cb1 \
+\cb3       \}\cb1 \
+\cb3   \cb1 \
+\cb3       \cf2 \strokec2 // Recharge l\'92affichage\cf4 \cb1 \strokec4 \
+\cb3       \cf10 \strokec10 loadTasksForWeek\cf4 \strokec4 (\cf8 \strokec8 currentWeek\cf4 \strokec4 );\cb1 \
+\cb3       \cf2 \strokec2 // Ferme l\'92\'e9cran principal d\'92ajout\cf4 \cb1 \strokec4 \
+\cb3       \cf6 \strokec6 addTaskScreen\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3     \} \cf12 \strokec12 catch\cf4 \strokec4  (\cf8 \strokec8 err\cf4 \strokec4 ) \{\cb1 \
+\cb3       \cf8 \strokec8 console\cf4 \strokec4 .\cf10 \strokec10 error\cf4 \strokec4 (\cf9 \strokec9 "Erreur lors de l'ajout de devoir:"\cf4 \strokec4 , \cf8 \strokec8 err\cf4 \strokec4 );\cb1 \
+\cb3       \cf10 \strokec10 alert\cf4 \strokec4 (\cf9 \strokec9 "Une erreur s'est produite lors de l'ajout du devoir."\cf4 \strokec4 );\cb1 \
+\cb3     \}\cb1 \
+\cb3   \});\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Affichage des d\'e9tails d'un devoir\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 function\cf4 \strokec4  \cf10 \strokec10 openTaskDetailsScreen\cf4 \strokec4 (\cf8 \strokec8 taskId\cf4 \strokec4 , \cf8 \strokec8 taskData\cf4 \strokec4 ) \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf8 \strokec8 selectedTaskId\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 taskId\cf4 \strokec4 ;\cb1 \
+\cb3   \cf8 \strokec8 selectedTaskData\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 taskData\cf4 \strokec4 ;\cb1 \
+\cb3   \cf6 \strokec6 taskDetailsScreen\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 remove\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\
+\cb3   \cf6 \strokec6 detailsTaskTitle\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 `\cf5 \strokec5 $\{\cf8 \strokec8 taskData\cf7 \strokec7 .\cf8 \strokec8 branch\cf5 \strokec5 \}\cf9 \strokec9  : \cf5 \strokec5 $\{\cf8 \strokec8 taskData\cf7 \strokec7 .\cf8 \strokec8 title\cf5 \strokec5 \}\cf9 \strokec9 `\cf4 \strokec4 ;\cb1 \
+\cb3   \cf6 \strokec6 attachmentsList\cf4 \strokec4 .\cf8 \strokec8 innerHTML\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 ""\cf4 \strokec4 ;\cb1 \
+\
+\cb3   \cf12 \strokec12 if\cf4 \strokec4  (\cf8 \strokec8 taskData\cf4 \strokec4 .\cf8 \strokec8 attachments\cf4 \strokec4  \cf7 \strokec7 &&\cf4 \strokec4  \cf8 \strokec8 taskData\cf4 \strokec4 .\cf8 \strokec8 attachments\cf4 \strokec4 .\cf8 \strokec8 length\cf4 \strokec4  \cf7 \strokec7 >\cf4 \strokec4  \cf11 \strokec11 0\cf4 \strokec4 ) \{\cb1 \
+\cb3     \cf8 \strokec8 taskData\cf4 \strokec4 .\cf8 \strokec8 attachments\cf4 \strokec4 .\cf10 \strokec10 forEach\cf4 \strokec4 ((\cf8 \strokec8 att\cf4 \strokec4 ) \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3       \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 attItem\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 createElement\cf4 \strokec4 (\cf9 \strokec9 "div"\cf4 \strokec4 );\cb1 \
+\cb3       \cf6 \strokec6 attItem\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "attachment-item"\cf4 \strokec4 );\cb1 \
+\cb3       \cf6 \strokec6 attItem\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 att\cf4 \strokec4 .\cf8 \strokec8 name\cf4 \strokec4 ;\cb1 \
+\cb3       \cf6 \strokec6 attItem\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3         \cf8 \strokec8 window\cf4 \strokec4 .\cf10 \strokec10 open\cf4 \strokec4 (\cf8 \strokec8 att\cf4 \strokec4 .\cf8 \strokec8 url\cf4 \strokec4 , \cf9 \strokec9 "_blank"\cf4 \strokec4 );\cb1 \
+\cb3       \});\cb1 \
+\cb3       \cf6 \strokec6 attachmentsList\cf4 \strokec4 .\cf10 \strokec10 appendChild\cf4 \strokec4 (\cf6 \strokec6 attItem\cf4 \strokec4 );\cb1 \
+\cb3     \});\cb1 \
+\cb3   \}\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Retour \'e0 l'\'e9cran principal sans modifier\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf6 \cb3 \strokec6 backToMainBtn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf6 \strokec6 taskDetailsScreen\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3   \cf10 \strokec10 disableEditMode\cf4 \strokec4 ();\cb1 \
+\cb3 \});\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Basculer en mode \'e9dition\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb3 \strokec8 toggleEditBtn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 editModeContainer\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "edit-mode"\cf4 \strokec4 );\cb1 \
+\cb3   \cf8 \strokec8 editModeContainer\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 toggle\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3   \cf8 \strokec8 validateChangesBtn\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 toggle\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\
+\cb3   \cf12 \strokec12 if\cf4 \strokec4  (\cf7 \strokec7 !\cf8 \strokec8 editModeContainer\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 contains\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 )) \{\cb1 \
+\cb3     \cf2 \strokec2 // On active l'\'e9dition\cf4 \cb1 \strokec4 \
+\cb3     \cf8 \strokec8 toggleEditBtn\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 "Annuler"\cf4 \strokec4 ;\cb1 \
+\cb3     \cf2 \strokec2 // Pr\'e9-remplit le champ\cf4 \cb1 \strokec4 \
+\cb3     \cf8 \strokec8 editTaskTitleInput\cf4 \strokec4 .\cf8 \strokec8 value\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 selectedTaskData\cf4 \strokec4 .\cf8 \strokec8 title\cf4 \strokec4 ;\cb1 \
+\cb3   \} \cf12 \strokec12 else\cf4 \strokec4  \{\cb1 \
+\cb3     \cf2 \strokec2 // On annule\cf4 \cb1 \strokec4 \
+\cb3     \cf8 \strokec8 toggleEditBtn\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 "Modifier"\cf4 \strokec4 ;\cb1 \
+\cb3   \}\cb1 \
+\cb3 \});\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 function\cf4 \strokec4  \cf10 \strokec10 disableEditMode\cf4 \strokec4 () \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 getElementById\cf4 \strokec4 (\cf9 \strokec9 "edit-mode"\cf4 \strokec4 ).\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3   \cf8 \strokec8 validateChangesBtn\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3   \cf8 \strokec8 toggleEditBtn\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 "Modifier"\cf4 \strokec4 ;\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Validation des modifications du devoir\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb3 \strokec8 validateChangesBtn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , \cf5 \strokec5 async\cf4 \strokec4  () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 newTitle\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 editTaskTitleInput\cf4 \strokec4 .\cf8 \strokec8 value\cf4 \strokec4 .\cf10 \strokec10 trim\cf4 \strokec4 ();\cb1 \
+\cb3   \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 newAttachments\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 editAttachmentInput\cf4 \strokec4 .\cf8 \strokec8 files\cf4 \strokec4 ; \cf2 \strokec2 // Pi\'e8ces jointes suppl\'e9mentaires\cf4 \cb1 \strokec4 \
+\cb3   \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 updates\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \{\};\cb1 \
+\
+\cb3   \cf12 \strokec12 if\cf4 \strokec4  (\cf8 \strokec8 newTitle\cf4 \strokec4  \cf7 \strokec7 &&\cf4 \strokec4  \cf8 \strokec8 newTitle\cf4 \strokec4  \cf7 \strokec7 !==\cf4 \strokec4  \cf8 \strokec8 selectedTaskData\cf4 \strokec4 .\cf8 \strokec8 title\cf4 \strokec4 ) \{\cb1 \
+\cb3     \cf8 \strokec8 updates\cf4 \strokec4 .\cf8 \strokec8 title\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 newTitle\cf4 \strokec4 ;\cb1 \
+\cb3   \}\cb1 \
+\
+\cb3   \cf12 \strokec12 if\cf4 \strokec4  (\cf8 \strokec8 newAttachments\cf4 \strokec4 .\cf8 \strokec8 length\cf4 \strokec4  \cf7 \strokec7 >\cf4 \strokec4  \cf11 \strokec11 0\cf4 \strokec4 ) \{\cb1 \
+\cb3     \cf2 \strokec2 // On part de l'existant, ou []\cf4 \cb1 \strokec4 \
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 existingAtt\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 selectedTaskData\cf4 \strokec4 .\cf8 \strokec8 attachments\cf4 \strokec4  \cf7 \strokec7 ?\cf4 \strokec4  [\cf7 \strokec7 ...\cf8 \strokec8 selectedTaskData\cf4 \strokec4 .\cf8 \strokec8 attachments\cf4 \strokec4 ] \cf7 \strokec7 :\cf4 \strokec4  [];\cb1 \
+\cb3     \cf12 \strokec12 for\cf4 \strokec4  (\cf5 \strokec5 let\cf4 \strokec4  \cf8 \strokec8 i\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf11 \strokec11 0\cf4 \strokec4 ; \cf8 \strokec8 i\cf4 \strokec4  \cf7 \strokec7 <\cf4 \strokec4  \cf8 \strokec8 newAttachments\cf4 \strokec4 .\cf8 \strokec8 length\cf4 \strokec4 ; \cf8 \strokec8 i\cf7 \strokec7 ++\cf4 \strokec4 ) \{\cb1 \
+\cb3       \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 file\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 newAttachments\cf4 \strokec4 [\cf8 \strokec8 i\cf4 \strokec4 ];\cb1 \
+\cb3       \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 storageRef\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 storage\cf4 \strokec4 .\cf10 \strokec10 ref\cf4 \strokec4 (\cf9 \strokec9 `attachments/\cf5 \strokec5 $\{\cf8 \strokec8 selectedTaskId\cf5 \strokec5 \}\cf9 \strokec9 /\cf5 \strokec5 $\{\cf8 \strokec8 file\cf7 \strokec7 .\cf8 \strokec8 name\cf5 \strokec5 \}\cf9 \strokec9 `\cf4 \strokec4 );\cb1 \
+\cb3       \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 snapshot\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf12 \strokec12 await\cf4 \strokec4  \cf8 \strokec8 storageRef\cf4 \strokec4 .\cf10 \strokec10 put\cf4 \strokec4 (\cf8 \strokec8 file\cf4 \strokec4 );\cb1 \
+\cb3       \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 url\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf12 \strokec12 await\cf4 \strokec4  \cf8 \strokec8 snapshot\cf4 \strokec4 .\cf8 \strokec8 ref\cf4 \strokec4 .\cf10 \strokec10 getDownloadURL\cf4 \strokec4 ();\cb1 \
+\cb3       \cf8 \strokec8 existingAtt\cf4 \strokec4 .\cf10 \strokec10 push\cf4 \strokec4 (\{ \cf8 \strokec8 name:\cf4 \strokec4  \cf8 \strokec8 file\cf4 \strokec4 .\cf8 \strokec8 name\cf4 \strokec4 , \cf8 \strokec8 url\cf4 \strokec4  \});\cb1 \
+\cb3     \}\cb1 \
+\cb3     \cf8 \strokec8 updates\cf4 \strokec4 .\cf8 \strokec8 attachments\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 existingAtt\cf4 \strokec4 ;\cb1 \
+\cb3   \}\cb1 \
+\
+\cb3   \cf12 \strokec12 try\cf4 \strokec4  \{\cb1 \
+\cb3     \cf12 \strokec12 if\cf4 \strokec4  (\cf8 \strokec8 Object\cf4 \strokec4 .\cf10 \strokec10 keys\cf4 \strokec4 (\cf8 \strokec8 updates\cf4 \strokec4 ).\cf8 \strokec8 length\cf4 \strokec4  \cf7 \strokec7 >\cf4 \strokec4  \cf11 \strokec11 0\cf4 \strokec4 ) \{\cb1 \
+\cb3       \cf12 \strokec12 await\cf4 \strokec4  \cf8 \strokec8 db\cf4 \strokec4 .\cf10 \strokec10 collection\cf4 \strokec4 (\cf9 \strokec9 "tasks"\cf4 \strokec4 ).\cf10 \strokec10 doc\cf4 \strokec4 (\cf8 \strokec8 selectedTaskId\cf4 \strokec4 ).\cf10 \strokec10 update\cf4 \strokec4 (\cf8 \strokec8 updates\cf4 \strokec4 );\cb1 \
+\cb3     \}\cb1 \
+\cb3     \cf2 \strokec2 // Recharge le doc\cf4 \cb1 \strokec4 \
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 docSnap\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf12 \strokec12 await\cf4 \strokec4  \cf8 \strokec8 db\cf4 \strokec4 .\cf10 \strokec10 collection\cf4 \strokec4 (\cf9 \strokec9 "tasks"\cf4 \strokec4 ).\cf10 \strokec10 doc\cf4 \strokec4 (\cf8 \strokec8 selectedTaskId\cf4 \strokec4 ).\cf10 \strokec10 get\cf4 \strokec4 ();\cb1 \
+\cb3     \cf12 \strokec12 if\cf4 \strokec4  (\cf8 \strokec8 docSnap\cf4 \strokec4 .\cf8 \strokec8 exists\cf4 \strokec4 ) \{\cb1 \
+\cb3       \cf8 \strokec8 selectedTaskData\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 docSnap\cf4 \strokec4 .\cf10 \strokec10 data\cf4 \strokec4 ();\cb1 \
+\cb3       \cf8 \strokec8 detailsTaskTitle\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 `\cf5 \strokec5 $\{\cf8 \strokec8 selectedTaskData\cf7 \strokec7 .\cf8 \strokec8 branch\cf5 \strokec5 \}\cf9 \strokec9  : \cf5 \strokec5 $\{\cf8 \strokec8 selectedTaskData\cf7 \strokec7 .\cf8 \strokec8 title\cf5 \strokec5 \}\cf9 \strokec9 `\cf4 \strokec4 ;\cb1 \
+\cb3       \cf8 \strokec8 attachmentsList\cf4 \strokec4 .\cf8 \strokec8 innerHTML\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 ""\cf4 \strokec4 ;\cb1 \
+\cb3       \cf12 \strokec12 if\cf4 \strokec4  (\cf8 \strokec8 selectedTaskData\cf4 \strokec4 .\cf8 \strokec8 attachments\cf4 \strokec4 ) \{\cb1 \
+\cb3         \cf8 \strokec8 selectedTaskData\cf4 \strokec4 .\cf8 \strokec8 attachments\cf4 \strokec4 .\cf10 \strokec10 forEach\cf4 \strokec4 (\cf8 \strokec8 att\cf4 \strokec4  \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3           \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 attItem\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 createElement\cf4 \strokec4 (\cf9 \strokec9 "div"\cf4 \strokec4 );\cb1 \
+\cb3           \cf8 \strokec8 attItem\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "attachment-item"\cf4 \strokec4 );\cb1 \
+\cb3           \cf8 \strokec8 attItem\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 att\cf4 \strokec4 .\cf8 \strokec8 name\cf4 \strokec4 ;\cb1 \
+\cb3           \cf8 \strokec8 attItem\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3             \cf8 \strokec8 window\cf4 \strokec4 .\cf10 \strokec10 open\cf4 \strokec4 (\cf8 \strokec8 att\cf4 \strokec4 .\cf8 \strokec8 url\cf4 \strokec4 , \cf9 \strokec9 "_blank"\cf4 \strokec4 );\cb1 \
+\cb3           \});\cb1 \
+\cb3           \cf8 \strokec8 attachmentsList\cf4 \strokec4 .\cf10 \strokec10 appendChild\cf4 \strokec4 (\cf8 \strokec8 attItem\cf4 \strokec4 );\cb1 \
+\cb3         \});\cb1 \
+\cb3       \}\cb1 \
+\cb3     \}\cb1 \
+\cb3     \cf10 \strokec10 disableEditMode\cf4 \strokec4 ();\cb1 \
+\cb3   \} \cf12 \strokec12 catch\cf4 \strokec4  (\cf8 \strokec8 error\cf4 \strokec4 ) \{\cb1 \
+\cb3     \cf8 \strokec8 console\cf4 \strokec4 .\cf10 \strokec10 error\cf4 \strokec4 (\cf9 \strokec9 "Erreur lors de la mise \'e0 jour du devoir:"\cf4 \strokec4 , \cf8 \strokec8 error\cf4 \strokec4 );\cb1 \
+\cb3   \}\cb1 \
+\cb3 \});\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Suppression du devoir (demande mot de passe)\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb3 \strokec8 deleteTaskBtn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf8 \strokec8 passwordModal\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 remove\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3   \cf8 \strokec8 deletePasswordInput\cf4 \strokec4 .\cf8 \strokec8 value\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 ""\cf4 \strokec4 ;\cb1 \
+\cb3 \});\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb3 \strokec8 cancelDeleteBtn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf8 \strokec8 passwordModal\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3 \});\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb3 \strokec8 confirmDeleteBtn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 pwd\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 deletePasswordInput\cf4 \strokec4 .\cf8 \strokec8 value\cf4 \strokec4 ;\cb1 \
+\cb3   \cf12 \strokec12 if\cf4 \strokec4  (\cf8 \strokec8 pwd\cf4 \strokec4  \cf7 \strokec7 !==\cf4 \strokec4  \cf9 \strokec9 "xxx"\cf4 \strokec4 ) \{\cb1 \
+\cb3     \cf10 \strokec10 alert\cf4 \strokec4 (\cf9 \strokec9 "Mot de passe incorrect."\cf4 \strokec4 );\cb1 \
+\cb3     \cf12 \strokec12 return\cf4 \strokec4 ;\cb1 \
+\cb3   \}\cb1 \
+\cb3   \cf2 \strokec2 // Supprimer le document\cf4 \cb1 \strokec4 \
+\cb3   \cf8 \strokec8 db\cf4 \strokec4 .\cf10 \strokec10 collection\cf4 \strokec4 (\cf9 \strokec9 "tasks"\cf4 \strokec4 ).\cf10 \strokec10 doc\cf4 \strokec4 (\cf8 \strokec8 selectedTaskId\cf4 \strokec4 ).\cf10 \strokec10 delete\cf4 \strokec4 ().\cf10 \strokec10 then\cf4 \strokec4 (() \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3     \cf8 \strokec8 passwordModal\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3     \cf8 \strokec8 taskDetailsScreen\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3     \cf10 \strokec10 loadTasksForWeek\cf4 \strokec4 (\cf8 \strokec8 currentWeek\cf4 \strokec4 );\cb1 \
+\cb3   \}).\cf10 \strokec10 catch\cf4 \strokec4 (\cf8 \strokec8 err\cf4 \strokec4  \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3     \cf8 \strokec8 console\cf4 \strokec4 .\cf10 \strokec10 error\cf4 \strokec4 (\cf9 \strokec9 "Erreur lors de la suppression:"\cf4 \strokec4 , \cf8 \strokec8 err\cf4 \strokec4 );\cb1 \
+\cb3   \});\cb1 \
+\cb3 \});\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Biblioth\'e8que\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb3 \strokec8 libraryButton\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf8 \strokec8 libraryScreen\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 remove\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3 \});\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb3 \strokec8 closeLibraryBtn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf8 \strokec8 libraryScreen\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3   \cf8 \strokec8 manualsListContainer\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3   \cf2 \strokec2 // Retire la s\'e9lection lib-branch\cf4 \cb1 \strokec4 \
+\cb3   \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 querySelectorAll\cf4 \strokec4 (\cf9 \strokec9 ".library-branch-button"\cf4 \strokec4 ).\cf10 \strokec10 forEach\cf4 \strokec4 (\cf8 \strokec8 b\cf4 \strokec4  \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3     \cf8 \strokec8 b\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 remove\cf4 \strokec4 (\cf9 \strokec9 "selected-lib-branch"\cf4 \strokec4 );\cb1 \
+\cb3   \});\cb1 \
+\cb3 \});\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /* G\'e9n\'e8re les boutons de branches pour la biblioth\'e8que */\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 function\cf4 \strokec4  \cf10 \strokec10 generateLibraryBranches\cf4 \strokec4 () \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf8 \strokec8 branches\cf4 \strokec4 .\cf10 \strokec10 forEach\cf4 \strokec4 ((\cf8 \strokec8 branch\cf4 \strokec4 ) \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 btn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 createElement\cf4 \strokec4 (\cf9 \strokec9 "button"\cf4 \strokec4 );\cb1 \
+\cb3     \cf8 \strokec8 btn\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "library-branch-button"\cf4 \strokec4 );\cb1 \
+\cb3     \cf8 \strokec8 btn\cf4 \strokec4 .\cf8 \strokec8 style\cf4 \strokec4 .\cf8 \strokec8 backgroundColor\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 branch\cf4 \strokec4 .\cf8 \strokec8 color\cf4 \strokec4 ;\cb1 \
+\cb3     \cf8 \strokec8 btn\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 branch\cf4 \strokec4 .\cf8 \strokec8 code\cf4 \strokec4 ;\cb1 \
+\
+\cb3     \cf8 \strokec8 btn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3       \cf2 \strokec2 // Retire la s\'e9lection sur toutes\cf4 \cb1 \strokec4 \
+\cb3       \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 querySelectorAll\cf4 \strokec4 (\cf9 \strokec9 ".library-branch-button"\cf4 \strokec4 ).\cf10 \strokec10 forEach\cf4 \strokec4 (\cf8 \strokec8 b\cf4 \strokec4  \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3         \cf8 \strokec8 b\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 remove\cf4 \strokec4 (\cf9 \strokec9 "selected-lib-branch"\cf4 \strokec4 );\cb1 \
+\cb3       \});\cb1 \
+\cb3       \cf8 \strokec8 btn\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "selected-lib-branch"\cf4 \strokec4 );\cb1 \
+\
+\cb3       \cf8 \strokec8 selectedBranch\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 branch\cf4 \strokec4 .\cf8 \strokec8 code\cf4 \strokec4 ;\cb1 \
+\cb3       \cf8 \strokec8 selectedBranchTitle\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 `Manuels pour \cf5 \strokec5 $\{\cf8 \strokec8 branch\cf7 \strokec7 .\cf8 \strokec8 code\cf5 \strokec5 \}\cf9 \strokec9 `\cf4 \strokec4 ;\cb1 \
+\cb3       \cf8 \strokec8 manualsList\cf4 \strokec4 .\cf8 \strokec8 innerHTML\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 ""\cf4 \strokec4 ;\cb1 \
+\cb3       \cf8 \strokec8 manualsListContainer\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 remove\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\
+\cb3       \cf10 \strokec10 loadManualsForBranch\cf4 \strokec4 (\cf8 \strokec8 branch\cf4 \strokec4 .\cf8 \strokec8 code\cf4 \strokec4 );\cb1 \
+\cb3     \});\cb1 \
+\
+\cb3     \cf8 \strokec8 libraryBranchesContainer\cf4 \strokec4 .\cf10 \strokec10 appendChild\cf4 \strokec4 (\cf8 \strokec8 btn\cf4 \strokec4 );\cb1 \
+\cb3   \});\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /* Charger la liste des manuels pour une branche */\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 function\cf4 \strokec4  \cf10 \strokec10 loadManualsForBranch\cf4 \strokec4 (\cf8 \strokec8 branchCode\cf4 \strokec4 ) \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf8 \strokec8 db\cf4 \strokec4 .\cf10 \strokec10 collection\cf4 \strokec4 (\cf9 \strokec9 "manuals"\cf4 \strokec4 )\cb1 \
+\cb3     .\cf10 \strokec10 where\cf4 \strokec4 (\cf9 \strokec9 "branch"\cf4 \strokec4 , \cf9 \strokec9 "=="\cf4 \strokec4 , \cf8 \strokec8 branchCode\cf4 \strokec4 )\cb1 \
+\cb3     .\cf10 \strokec10 get\cf4 \strokec4 ()\cb1 \
+\cb3     .\cf10 \strokec10 then\cf4 \strokec4 ((\cf8 \strokec8 snapshot\cf4 \strokec4 ) \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3       \cf8 \strokec8 manualsList\cf4 \strokec4 .\cf8 \strokec8 innerHTML\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 ""\cf4 \strokec4 ;\cb1 \
+\cb3       \cf8 \strokec8 snapshot\cf4 \strokec4 .\cf10 \strokec10 forEach\cf4 \strokec4 (\cf8 \strokec8 doc\cf4 \strokec4  \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3         \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 data\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 doc\cf4 \strokec4 .\cf10 \strokec10 data\cf4 \strokec4 ();\cb1 \
+\cb3         \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 li\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 createElement\cf4 \strokec4 (\cf9 \strokec9 "li"\cf4 \strokec4 );\cb1 \
+\cb3         \cf2 \strokec2 // Le titre est tir\'e9 du champ "title"\cf4 \cb1 \strokec4 \
+\cb3         \cf2 \strokec2 // Ici on suppose qu'on met le nom du PDF comme "title", si on veut\cf4 \cb1 \strokec4 \
+\cb3         \cf2 \strokec2 // un champ "title" plus humain, on peut parse le nom du fichier\cf4 \cb1 \strokec4 \
+\cb3         \cf2 \strokec2 // ou demander un input. A toi de voir. \cf4 \cb1 \strokec4 \
+\cb3         \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 spanTitle\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 createElement\cf4 \strokec4 (\cf9 \strokec9 "span"\cf4 \strokec4 );\cb1 \
+\cb3         \cf8 \strokec8 spanTitle\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 data\cf4 \strokec4 .\cf8 \strokec8 title\cf4 \strokec4  \cf7 \strokec7 ||\cf4 \strokec4  \cf9 \strokec9 "Manuel PDF"\cf4 \strokec4 ;\cb1 \
+\cb3         \cf8 \strokec8 spanTitle\cf4 \strokec4 .\cf8 \strokec8 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "manual-title"\cf4 \strokec4 );\cb1 \
+\cb3         \cf8 \strokec8 spanTitle\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3           \cf8 \strokec8 window\cf4 \strokec4 .\cf10 \strokec10 open\cf4 \strokec4 (\cf8 \strokec8 data\cf4 \strokec4 .\cf8 \strokec8 pdfUrl\cf4 \strokec4 , \cf9 \strokec9 "_blank"\cf4 \strokec4 );\cb1 \
+\cb3         \});\cb1 \
+\cb3         \cf8 \strokec8 li\cf4 \strokec4 .\cf10 \strokec10 appendChild\cf4 \strokec4 (\cf8 \strokec8 spanTitle\cf4 \strokec4 );\cb1 \
+\
+\cb3         \cf2 \strokec2 // Bouton de suppression du manuel\cf4 \cb1 \strokec4 \
+\cb3         \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 deleteBtn\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf8 \strokec8 document\cf4 \strokec4 .\cf10 \strokec10 createElement\cf4 \strokec4 (\cf9 \strokec9 "button"\cf4 \strokec4 );\cb1 \
+\cb3         \cf8 \strokec8 deleteBtn\cf4 \strokec4 .\cf8 \strokec8 textContent\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 "X"\cf4 \strokec4 ;\cb1 \
+\cb3         \cf8 \strokec8 deleteBtn\cf4 \strokec4 .\cf8 \strokec8 style\cf4 \strokec4 .\cf8 \strokec8 marginLeft\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 "1rem"\cf4 \strokec4 ;\cb1 \
+\cb3         \cf8 \strokec8 deleteBtn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3           \cf10 \strokec10 askDeleteManual\cf4 \strokec4 (\cf8 \strokec8 doc\cf4 \strokec4 .\cf8 \strokec8 id\cf4 \strokec4 );\cb1 \
+\cb3         \});\cb1 \
+\cb3         \cf8 \strokec8 li\cf4 \strokec4 .\cf10 \strokec10 appendChild\cf4 \strokec4 (\cf8 \strokec8 deleteBtn\cf4 \strokec4 );\cb1 \
+\
+\cb3         \cf6 \strokec6 manualsList\cf4 \strokec4 .\cf10 \strokec10 appendChild\cf4 \strokec4 (\cf6 \strokec6 li\cf4 \strokec4 );\cb1 \
+\cb3       \});\cb1 \
+\cb3     \})\cb1 \
+\cb3     .\cf10 \strokec10 catch\cf4 \strokec4 (\cf8 \strokec8 err\cf4 \strokec4  \cf5 \strokec5 =>\cf4 \strokec4  \cf8 \strokec8 console\cf4 \strokec4 .\cf10 \strokec10 error\cf4 \strokec4 (\cf9 \strokec9 "Erreur lors du chargement des manuels:"\cf4 \strokec4 , \cf8 \strokec8 err\cf4 \strokec4 ));\cb1 \
+\cb3 \}\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Ajouter un manuel (upload PDF)\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf6 \cb3 \strokec6 addManualButton\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf12 \strokec12 if\cf4 \strokec4  (\cf7 \strokec7 !\cf8 \strokec8 selectedBranch\cf4 \strokec4 ) \{\cb1 \
+\cb3     \cf10 \strokec10 alert\cf4 \strokec4 (\cf9 \strokec9 "Veuillez d'abord s\'e9lectionner une branche."\cf4 \strokec4 );\cb1 \
+\cb3     \cf12 \strokec12 return\cf4 \strokec4 ;\cb1 \
+\cb3   \}\cb1 \
+\cb3   \cf6 \strokec6 addManualModal\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 remove\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3   \cf6 \strokec6 manualFileInput\cf4 \strokec4 .\cf8 \strokec8 value\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 ""\cf4 \strokec4 ;\cb1 \
+\cb3 \});\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf6 \cb3 \strokec6 cancelAddManualBtn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf6 \strokec6 addManualModal\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3   \cf6 \strokec6 manualFileInput\cf4 \strokec4 .\cf8 \strokec8 value\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 ""\cf4 \strokec4 ;\cb1 \
+\cb3 \});\cb1 \
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Ajout d'un manuel (avec mot de passe via modale)\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf6 \cb3 \strokec6 confirmAddManualBtn\cf4 \strokec4 .\cf10 \strokec10 addEventListener\cf4 \strokec4 (\cf9 \strokec9 "click"\cf4 \strokec4 , () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3     \cf2 \strokec2 // On affiche la m\'eame modale \'93password-modal-add\'94\cf4 \cb1 \strokec4 \
+\cb3     \cf6 \strokec6 passwordModalAdd\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 remove\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3     \cf6 \strokec6 addPasswordInput\cf4 \strokec4 .\cf8 \strokec8 value\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 ""\cf4 \strokec4 ;\cb1 \
+\cb3   \});\cb1 \
+\cb3   \cb1 \
+\cb3   \cf2 \strokec2 // On peut r\'e9utiliser le m\'eame bouton \'93ConfirmAddPwdBtn\'94, \cf4 \cb1 \strokec4 \
+\cb3   \cf2 \strokec2 // mais l'op\'e9ration (ajout de devoir ou manuel) d\'e9pend \cf4 \cb1 \strokec4 \
+\cb3   \cf2 \strokec2 // d\'92une variable ou d\'92un flag. \cf4 \cb1 \strokec4 \
+\cb3   \cf2 \strokec2 // => Pour faire simple, on fait une solution distincte :\cf4 \cb1 \strokec4 \
+\cb3   \cb1 \
+\cb3   \cf6 \strokec6 confirmAddPwdBtn\cf4 \strokec4 .\cf10 \strokec10 onclick\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf5 \strokec5 async\cf4 \strokec4  () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 pwd\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf6 \strokec6 addPasswordInput\cf4 \strokec4 .\cf8 \strokec8 value\cf4 \strokec4 ;\cb1 \
+\cb3     \cf12 \strokec12 if\cf4 \strokec4  (\cf6 \strokec6 pwd\cf4 \strokec4  \cf7 \strokec7 !==\cf4 \strokec4  \cf9 \strokec9 "9vg1"\cf4 \strokec4 ) \{\cb1 \
+\cb3       \cf10 \strokec10 alert\cf4 \strokec4 (\cf9 \strokec9 "Mot de passe incorrect."\cf4 \strokec4 );\cb1 \
+\cb3       \cf12 \strokec12 return\cf4 \strokec4 ;\cb1 \
+\cb3     \}\cb1 \
+\cb3     \cf6 \strokec6 passwordModalAdd\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3   \cb1 \
+\cb3     \cf2 \strokec2 // Ici on fait l'ajout du manuel\cf4 \cb1 \strokec4 \
+\cb3     \cf12 \strokec12 if\cf4 \strokec4  (\cf7 \strokec7 !\cf8 \strokec8 selectedBranch\cf4 \strokec4 ) \{\cb1 \
+\cb3       \cf10 \strokec10 alert\cf4 \strokec4 (\cf9 \strokec9 "Aucune branche s\'e9lectionn\'e9e."\cf4 \strokec4 );\cb1 \
+\cb3       \cf12 \strokec12 return\cf4 \strokec4 ;\cb1 \
+\cb3     \}\cb1 \
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 file\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf6 \strokec6 manualFileInput\cf4 \strokec4 .\cf8 \strokec8 files\cf4 \strokec4 [\cf11 \strokec11 0\cf4 \strokec4 ];\cb1 \
+\cb3     \cf12 \strokec12 if\cf4 \strokec4  (\cf7 \strokec7 !\cf6 \strokec6 file\cf4 \strokec4 ) \{\cb1 \
+\cb3       \cf10 \strokec10 alert\cf4 \strokec4 (\cf9 \strokec9 "Veuillez s\'e9lectionner un fichier PDF \'e0 t\'e9l\'e9verser."\cf4 \strokec4 );\cb1 \
+\cb3       \cf12 \strokec12 return\cf4 \strokec4 ;\cb1 \
+\cb3     \}\cb1 \
+\cb3   \cb1 \
+\cb3     \cf12 \strokec12 try\cf4 \strokec4  \{\cb1 \
+\cb3       \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 storageRef\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf6 \strokec6 storage\cf4 \strokec4 .\cf10 \strokec10 ref\cf4 \strokec4 (\cf9 \strokec9 `manuals/\cf5 \strokec5 $\{\cf8 \strokec8 selectedBranch\cf5 \strokec5 \}\cf9 \strokec9 /\cf5 \strokec5 $\{\cf6 \strokec6 file\cf7 \strokec7 .\cf8 \strokec8 name\cf5 \strokec5 \}\cf9 \strokec9 `\cf4 \strokec4 );\cb1 \
+\cb3       \cf12 \strokec12 await\cf4 \strokec4  \cf6 \strokec6 storageRef\cf4 \strokec4 .\cf10 \strokec10 put\cf4 \strokec4 (\cf6 \strokec6 file\cf4 \strokec4 );\cb1 \
+\cb3       \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 url\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf12 \strokec12 await\cf4 \strokec4  \cf6 \strokec6 storageRef\cf4 \strokec4 .\cf10 \strokec10 getDownloadURL\cf4 \strokec4 ();\cb1 \
+\cb3   \cb1 \
+\cb3       \cf12 \strokec12 await\cf4 \strokec4  \cf6 \strokec6 db\cf4 \strokec4 .\cf10 \strokec10 collection\cf4 \strokec4 (\cf9 \strokec9 "manuals"\cf4 \strokec4 ).\cf10 \strokec10 add\cf4 \strokec4 (\{\cb1 \
+\cb3         \cf8 \strokec8 branch:\cf4 \strokec4  \cf8 \strokec8 selectedBranch\cf4 \strokec4 ,\cb1 \
+\cb3         \cf8 \strokec8 title:\cf4 \strokec4  \cf6 \strokec6 file\cf4 \strokec4 .\cf8 \strokec8 name\cf4 \strokec4 ,\cb1 \
+\cb3         \cf8 \strokec8 pdfUrl:\cf4 \strokec4  \cf6 \strokec6 url\cf4 \cb1 \strokec4 \
+\cb3       \});\cb1 \
+\cb3       \cf6 \strokec6 addManualModal\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3       \cf10 \strokec10 loadManualsForBranch\cf4 \strokec4 (\cf8 \strokec8 selectedBranch\cf4 \strokec4 );\cb1 \
+\cb3     \} \cf12 \strokec12 catch\cf4 \strokec4  (\cf8 \strokec8 error\cf4 \strokec4 ) \{\cb1 \
+\cb3       \cf8 \strokec8 console\cf4 \strokec4 .\cf10 \strokec10 error\cf4 \strokec4 (\cf9 \strokec9 "Erreur lors de l'ajout du manuel:"\cf4 \strokec4 , \cf8 \strokec8 error\cf4 \strokec4 );\cb1 \
+\cb3       \cf10 \strokec10 alert\cf4 \strokec4 (\cf9 \strokec9 "Une erreur est survenue lors de l'upload du PDF."\cf4 \strokec4 );\cb1 \
+\cb3     \}\cb1 \
+\cb3   \};\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 \strokec2 /*****************************************************\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  * Suppression d'un manuel (demande mot de passe)\cf4 \cb1 \strokec4 \
+\cf2 \cb3 \strokec2  *****************************************************/\cf4 \cb1 \strokec4 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3 \strokec5 function\cf4 \strokec4  \cf10 \strokec10 askDeleteManual\cf4 \strokec4 (\cf8 \strokec8 manualId\cf4 \strokec4 ) \{\cb1 \
+\pard\pardeftab720\partightenfactor0
+\cf4 \cb3   \cf6 \strokec6 passwordModal\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 remove\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3   \cf6 \strokec6 deletePasswordInput\cf4 \strokec4 .\cf8 \strokec8 value\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf9 \strokec9 ""\cf4 \strokec4 ;\cb1 \
+\
+\cb3   \cf6 \strokec6 confirmDeleteBtn\cf4 \strokec4 .\cf10 \strokec10 onclick\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  () \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3     \cf5 \strokec5 const\cf4 \strokec4  \cf6 \strokec6 pwd\cf4 \strokec4  \cf7 \strokec7 =\cf4 \strokec4  \cf6 \strokec6 deletePasswordInput\cf4 \strokec4 .\cf8 \strokec8 value\cf4 \strokec4 ;\cb1 \
+\cb3     \cf12 \strokec12 if\cf4 \strokec4  (\cf6 \strokec6 pwd\cf4 \strokec4  \cf7 \strokec7 !==\cf4 \strokec4  \cf9 \strokec9 "xxx"\cf4 \strokec4 ) \{\cb1 \
+\cb3       \cf10 \strokec10 alert\cf4 \strokec4 (\cf9 \strokec9 "Mot de passe incorrect."\cf4 \strokec4 );\cb1 \
+\cb3       \cf12 \strokec12 return\cf4 \strokec4 ;\cb1 \
+\cb3     \}\cb1 \
+\cb3     \cf2 \strokec2 // Supprime le doc Firestore\cf4 \cb1 \strokec4 \
+\cb3     \cf6 \strokec6 db\cf4 \strokec4 .\cf10 \strokec10 collection\cf4 \strokec4 (\cf9 \strokec9 "manuals"\cf4 \strokec4 ).\cf10 \strokec10 doc\cf4 \strokec4 (\cf8 \strokec8 manualId\cf4 \strokec4 ).\cf10 \strokec10 delete\cf4 \strokec4 ()\cb1 \
+\cb3       .\cf10 \strokec10 then\cf4 \strokec4 (() \cf5 \strokec5 =>\cf4 \strokec4  \{\cb1 \
+\cb3         \cf6 \strokec6 passwordModal\cf4 \strokec4 .\cf6 \strokec6 classList\cf4 \strokec4 .\cf10 \strokec10 add\cf4 \strokec4 (\cf9 \strokec9 "hidden"\cf4 \strokec4 );\cb1 \
+\cb3         \cf10 \strokec10 loadManualsForBranch\cf4 \strokec4 (\cf8 \strokec8 selectedBranch\cf4 \strokec4 );\cb1 \
+\cb3       \})\cb1 \
+\cb3       .\cf10 \strokec10 catch\cf4 \strokec4 (\cf8 \strokec8 err\cf4 \strokec4  \cf5 \strokec5 =>\cf4 \strokec4  \cf8 \strokec8 console\cf4 \strokec4 .\cf10 \strokec10 error\cf4 \strokec4 (\cf9 \strokec9 "Erreur lors de la suppression du manuel:"\cf4 \strokec4 , \cf8 \strokec8 err\cf4 \strokec4 ));\cb1 \
+\cb3   \};\cb1 \
+\cb3 \}\cb1 \
+}
