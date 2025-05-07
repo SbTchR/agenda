@@ -1094,12 +1094,12 @@ function getSchoolWeekMonday(weekNumber) {
   // Date de départ : lundi 19 août 2024 (rentrée 2024‑2025)
   const baseMonday = new Date(2024, 7, 19); // mois 0 = janvier → 7 = août
 
-  // Périodes de vacances 2024‑2025 (à ajuster si besoin)
+  // Définir les périodes de vacances (attention : les mois commencent à 0)
   const vacations = [
-    { start: new Date(2024, 9, 12), end: new Date(2024, 9, 27) },   // 12‑27 oct 2024
-    { start: new Date(2024, 11, 21), end: new Date(2025, 0, 5) },   // 21 déc 2024 ‑ 5 jan 2025
-    { start: new Date(2025, 1, 15), end: new Date(2025, 1, 23) },   // 15‑23 fév 2025
-    { start: new Date(2025, 3, 19), end: new Date(2025, 4, 4) }     // 19 avr ‑ 4 mai 2025
+    { start: new Date(2025, 9, 11), end: new Date(2025, 9, 25) },  // 11 ‑ 26 octobre 2025
+    { start: new Date(2025, 11, 20), end: new Date(2026, 0, 3) },  // 20 déc 2025 ‑ 4 janv 2026
+    { start: new Date(2026, 1, 14), end: new Date(2026, 1, 21) },  // 14 ‑ 22 févr 2026
+    { start: new Date(2026, 3, 4),  end: new Date(2026, 3, 18) }   // 4 ‑ 19 avr 2026
   ];
 
   let count = 1;
