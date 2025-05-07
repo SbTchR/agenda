@@ -1096,7 +1096,7 @@ function getSchoolWeekMonday(weekNumber) {
 
   // Définir les périodes de vacances (attention : les mois commencent à 0)
   const vacations = [
-    { start: new Date(2024, 9, 12), end: new Date(2024, 9, 27) },  // 11 ‑ 26 octobre 2025
+    { start: new Date(2024, 9, 12), end: new Date(2024, 9, 26) },  // 11 ‑ 26 octobre 2025
     { start: new Date(2024, 11, 21), end: new Date(2024, 0, 5) },  // 20 déc 2025 ‑ 4 janv 2026
     { start: new Date(2025, 1, 15), end: new Date(2025, 1, 23) },  // 14 ‑ 22 févr 2026
     { start: new Date(2025, 3, 12),  end: new Date(2025, 3, 27) }   // 4 ‑ 19 avr 2026
