@@ -583,21 +583,33 @@ main {
 /**************************************
  * Barres de progression pour l'upload
  **************************************/
+/* Progress overlays : apparaissent au-dessus de tout le reste */
 #upload-progress-container,
 #edit-upload-progress-container,
 #manual-progress-container {
-  display: none;
-  margin-top: 10px;
+  position: fixed;           /* s’étend sur tout l’écran */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;             /* centre le contenu */
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);   /* voile sombre */
+  z-index: 1000;             /* devant tous les autres écrans */
 }
 
-#upload-progress-container div,
-#edit-upload-progress-container div,
-#manual-progress-container div {
-  height: 5px;
-  background-color: #4caf50;
-  width: 0%;
+/* Aspect de la barre verte */
+#upload-progress-bar,
+#edit-upload-progress-bar,
+#manual-progress-bar {
+  width: 0%;                 /* mis à jour par JS */
+  height: 40px;              /* barre plus épaisse */
+  background-color: #4caf50; /* vert */
+  border-radius: 8px;
   transition: width 0.2s;
 }
+
 
 /**************************************
  * Responsive design
@@ -609,4 +621,22 @@ main {
   #week-list {
     max-height: 800px;
   }
+}
+/* Carré bleu pour les semaines de vacances */
+#week-list .vacation-week {
+  background: #2196f3 !important;   /* bleu prioritaire */
+  color: #ffffff !important;
+}
+.vacation-week {
+  background: #2196f3;   /* bleu */
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 0.8rem !important;
+  cursor: default;
+  border: 1px solid #ffffff;
+}
+
+/* Hover facultatif (surtout esthétique) */
+.vacation-week:hover {
+  background: #1976d2;
 }

@@ -103,18 +103,65 @@ const branches = [
 ];
 
 /*****************************************************
+ * Vacances scolaires (modifiable chaque année)
+ * ---------------------------------------------------
+ * - label  : texte qui apparaîtra dans le carré bleu
+ * - start  : premier jour de vacance (Date JS)
+ * - end    : dernier jour de vacance (inclus)
+ *****************************************************/
+const vacations = [
+  { label: "vac. d' automne", start: new Date(2024, 9, 12), end: new Date(2024, 9, 27) },
+  { label: "vac. de Noël",   start: new Date(2024,11,21), end: new Date(2025, 0,  5) },
+  { label: "Relâches",       start: new Date(2025, 1, 15), end: new Date(2025, 1, 23) },
+  { label: "vac. de Pâques", start: new Date(2025, 3, 12), end: new Date(2025, 3, 27) }
+];
+
+/* ------------------------------------------------------------------
+ * Renvoie true si la date se trouve dans une période de vacances
+ * ------------------------------------------------------------------ */
+function isDateInVacation(date) {
+  return vacations.some(v => date >= v.start && date <= v.end);
+}
+
+/*****************************************************
  * Initialisation
  *****************************************************/
 document.addEventListener("DOMContentLoaded", () => {
-  // Crée la liste des semaines 1 à 39
-  for (let i = 1; i <= 39; i++) {
-    const div = document.createElement("div");
-    div.textContent = "S. " + i;
-    div.addEventListener("click", () => {
-      selectWeek(i);
-      toggleWeekList(false);
-    });
-    weekList.appendChild(div);
+    // On veut afficher les 39 semaines DE COURS + insérer en plus
+  // des carrés « vacances » dès qu'un lundi tombe dans une période
+  // de congé. On part du premier lundi scolaire et on avance
+  // de 7 jours à chaque tour.
+
+  let teachingWeek = 1;           // 1 → 39
+  let currentMonday = getSchoolWeekMonday(1);
+
+  while (teachingWeek <= 39) {
+    if (isDateInVacation(currentMonday)) {
+      // Crée un carré bleu pour cette semaine de vacances
+      const div = document.createElement("div");
+      const vacLabel = vacations.find(v => currentMonday >= v.start && currentMonday <= v.end).label;
+      div.textContent = vacLabel;
+      div.classList.add("vacation-week");
+      weekList.appendChild(div);
+
+      // Passe au lundi suivant
+      currentMonday.setDate(currentMonday.getDate() + 7);
+      // (teachingWeek ne bouge pas, on n’a pas encore ajouté de semaine de cours)
+    } else {
+      // Crée un carré normal « S. n »
+      const div = document.createElement("div");
+      const weekNum = teachingWeek;          // capture immuable
+      div.textContent = "S. " + weekNum;
+      div.addEventListener("click", () => {
+        selectWeek(weekNum);
+        toggleWeekList(false);
+      });
+      weekList.appendChild(div);
+
+      // Passe au lundi suivant et incrémente le numéro de semaine de cours
+      currentMonday.setDate(currentMonday.getDate() + 7);
+      teachingWeek++;
+    }
   }
 
   // Génère d'abord les 5 jours à l'écran principal
@@ -1094,13 +1141,7 @@ function getSchoolWeekMonday(weekNumber) {
   // Date de départ : lundi 19 août 2024 (rentrée 2024‑2025)
   const baseMonday = new Date(2024, 7, 19); // mois 0 = janvier → 7 = août
 
-  // Définir les périodes de vacances (attention : les mois commencent à 0)
-  const vacations = [
-    { start: new Date(2024, 9, 12), end: new Date(2024, 9, 27) },  // 11 ‑ 26 octobre 2025
-    { start: new Date(2024, 11, 21), end: new Date(2025, 0, 5) },  // 20 déc 2025 ‑ 4 janv 2026
-    { start: new Date(2025, 1, 15), end: new Date(2025, 1, 23) },  // 14 ‑ 22 févr 2026
-    { start: new Date(2025, 3, 12),  end: new Date(2025, 3, 27) }   // 4 ‑ 19 avr 2026
-  ];
+ 
 
   let count = 1;
   let currentMonday = new Date(baseMonday);

@@ -68,22 +68,24 @@
         <input type="text" id="task-title-input" placeholder="Titre du devoir" />
       </div>
 
+
       <!-- Ajout de pièces jointes (image ou PDF) -->
       <div class="attachment-container">
         <label for="attachment-input" class="attachment-label">Ajouter un document/photo</label>
         <input type="file" id="attachment-input" multiple />
       </div>
-
+      <!-- Bouton valider l'ajout -->
+      <button id="confirm-add-task" class="confirm-button">Ajouter</button>
+      
       <!-- Conteneur pour afficher un aperçu des pièces jointes -->
 <div id="attachment-preview"></div>
 
 <!-- Conteneur pour la barre de progression (masqué par défaut) -->
 <div id="upload-progress-container" class="hidden">
-  <div id="upload-progress-bar" style="width:0%; height:5px; background-color:#4caf50;"></div>
+  <div id="upload-progress-bar" style="width:0%; background-color:#4caf50;"></div>
 </div>
 
-      <!-- Bouton valider l'ajout -->
-      <button id="confirm-add-task" class="confirm-button">Ajouter</button>
+
     </div>
   </section>
 
@@ -108,7 +110,7 @@
       </div>
 <!-- Dans la section de modification d'un devoir, ajoutez : -->
 <div id="edit-upload-progress-container" class="hidden">
-  <div id="edit-upload-progress-bar" style="width:0%; height:5px; background-color:#4caf50;"></div>
+  <div id="edit-upload-progress-bar" style="width:0%; background-color:#4caf50;"></div>
 </div>
       <div class="buttons-row">
         <button id="toggle-edit" class="secondary-button">Modifier</button>
@@ -153,7 +155,7 @@
       <input type="file" id="manual-file-input" />
         <!-- Conteneur pour la barre de progression du manuel -->
         <div id="manual-progress-container" class="hidden">
-          <div id="manual-progress-bar" style="width:0%; height:5px; background-color:#4caf50;"></div>
+          <div id="manual-progress-bar" style="width:0%; background-color:#4caf50;"></div>
         </div>
       <div class="buttons-row">
         <button id="cancel-add-manual" class="secondary-button">Annuler</button>
