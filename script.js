@@ -117,13 +117,11 @@ document.addEventListener("DOMContentLoaded", () => {
     weekList.appendChild(div);
   }
 
-  // Génère d'abord les 5 jours à l'écran principal (nécessaire avant d'afficher la semaine)
-  generateDays();
+  // Sélection de la semaine initiale
+  selectWeek(1);
 
-  // Sélection de la semaine initiale : calcul automatique
-  const today = new Date();
-  const thisWeekNumber = getSchoolWeekNumber(today);
-  selectWeek(thisWeekNumber);
+  // Génère les 5 jours à l'écran principal
+  generateDays();
 
   // Génère les boutons de branches pour l'ajout d'un devoir
   generateBranchSelection();
@@ -1091,15 +1089,15 @@ function updateEditAttachmentPreview() {
 
 // Fonction qui retourne le lundi de la n-ième semaine scolaire
 function getSchoolWeekMonday(weekNumber) {
-  // Date de départ : lundi 19 août 2024 (rentrée 2024‑2025)
-  const baseMonday = new Date(2024, 7, 19); // mois 0 = janvier → 7 = août
+  // Date de départ : lundi 18 août 2025
+  const baseMonday = new Date(2025, 7, 18); // août = 7 (les mois commencent à 0)
   
-  // Périodes de vacances cantonales 2024‑2025 (approximatives, à ajuster si nécessaire)
+  // Définir les périodes de vacances (attention : les mois commencent à 0)
   const vacations = [
-    { start: new Date(2024, 9, 12), end: new Date(2024, 9, 27) },  // 12‑27 octobre 2024
-    { start: new Date(2024, 11, 21), end: new Date(2025, 0, 5) },  // 21 déc 2024 ‑ 5 jan 2025
-    { start: new Date(2025, 1, 15), end: new Date(2025, 1, 23) },  // 15‑23 février 2025
-    { start: new Date(2025, 3, 19), end: new Date(2025, 4, 4) }    // 19 avr ‑ 4 mai 2025
+    { start: new Date(2025, 9, 11), end: new Date(2025, 9, 25) },  // 11 - 26 octobre 2025
+    { start: new Date(2025, 11, 20), end: new Date(2026, 0, 3) },   // 20 déc 2025 - 4 janv 2026
+    { start: new Date(2026, 1, 14), end: new Date(2026, 1, 21) },   // 14 - 22 fév 2026
+    { start: new Date(2026, 3, 4), end: new Date(2026, 3, 18) }      // 4 - 19 avr 2026
   ];
 
   let count = 1;
@@ -1129,23 +1127,6 @@ function getSchoolWeekMonday(weekNumber) {
   }
   
   return currentMonday;
-}
-
-/* ------------------------------------------------------------------
- * Calcule le numéro de la semaine scolaire correspondant à une date
- * (par défaut : aujourd'hui). Parcourt les 39 semaines possibles
- * et retourne celle dans laquelle se trouve la date.
- * ------------------------------------------------------------------ */
-function getSchoolWeekNumber(date = new Date()) {
-  for (let w = 1; w <= 39; w++) {
-    const monday = getSchoolWeekMonday(w);
-    const nextMonday = w < 39 ? getSchoolWeekMonday(w + 1) : null;
-    if (date >= monday && (nextMonday === null || date < nextMonday)) {
-      return w;
-    }
-  }
-  // Si la date est hors période scolaire (avant la rentrée), on renvoie 1
-  return 1;
 }
 
 // Fonction qui retourne les dates du lundi au vendredi de la semaine scolaire n° weekNumber
