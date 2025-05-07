@@ -117,8 +117,10 @@ document.addEventListener("DOMContentLoaded", () => {
     weekList.appendChild(div);
   }
 
-  // Sélection de la semaine initiale
-  selectWeek(1);
+  // Sélection de la semaine initiale : calcul automatique
+  const today = new Date();
+  const thisWeekNumber = getSchoolWeekNumber(today);
+  selectWeek(thisWeekNumber);
 
   // Génère les 5 jours à l'écran principal
   generateDays();
@@ -1127,6 +1129,23 @@ function getSchoolWeekMonday(weekNumber) {
   }
   
   return currentMonday;
+}
+
+/* ------------------------------------------------------------------
+ * Calcule le numéro de la semaine scolaire correspondant à une date
+ * (par défaut : aujourd'hui). Parcourt les 39 semaines possibles
+ * et retourne celle dans laquelle se trouve la date.
+ * ------------------------------------------------------------------ */
+function getSchoolWeekNumber(date = new Date()) {
+  for (let w = 1; w <= 39; w++) {
+    const monday = getSchoolWeekMonday(w);
+    const nextMonday = w < 39 ? getSchoolWeekMonday(w + 1) : null;
+    if (date >= monday && (nextMonday === null || date < nextMonday)) {
+      return w;
+    }
+  }
+  // Si la date est hors période scolaire (avant la rentrée), on renvoie 1
+  return 1;
 }
 
 // Fonction qui retourne les dates du lundi au vendredi de la semaine scolaire n° weekNumber
