@@ -1096,8 +1096,8 @@ function getSchoolWeekMonday(weekNumber) {
 
   // Définir les périodes de vacances (attention : les mois commencent à 0)
   const vacations = [
-    { start: new Date(2024, 9, 12), end: new Date(2024, 9, 26) },  // 11 ‑ 26 octobre 2025
-    { start: new Date(2024, 11, 21), end: new Date(2024, 0, 5) },  // 20 déc 2025 ‑ 4 janv 2026
+    { start: new Date(2024, 9, 12), end: new Date(2024, 9, 27) },  // 11 ‑ 26 octobre 2025
+    { start: new Date(2024, 11, 21), end: new Date(2025, 0, 5) },  // 20 déc 2025 ‑ 4 janv 2026
     { start: new Date(2025, 1, 15), end: new Date(2025, 1, 23) },  // 14 ‑ 22 févr 2026
     { start: new Date(2025, 3, 12),  end: new Date(2025, 3, 27) }   // 4 ‑ 19 avr 2026
   ];
@@ -1115,10 +1115,10 @@ function getSchoolWeekMonday(weekNumber) {
       if (candidate >= vac.start && candidate <= vac.end) {
         // Si candidate est dans les vacances, la remplacer par le lundi suivant la fin des vacances.
         let nextMonday = new Date(vac.end);
-        // Calculer le nombre de jours à ajouter pour atteindre le lundi suivant.
-        // getDay() renvoie 0 pour dimanche, 1 pour lundi, etc.
-        let daysToAdd = (8 - nextMonday.getDay());
-        nextMonday.setDate(nextMonday.getDate() + daysToAdd);
+// Avance jour par jour jusqu'au prochain lundi
+while (nextMonday.getDay() !== 1) {
+  nextMonday.setDate(nextMonday.getDate() + 1);
+}
         candidate = nextMonday;
         break; // On ne vérifie plus d'autres vacances pour ce candidat.
       }
