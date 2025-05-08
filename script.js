@@ -102,6 +102,7 @@ const branches = [
   { code: "Mus", color: "#e164b1" },
   { code: "AVI", color: "#795548" },
   { code: "Forgen", color: "#009688" },
+  { code: "Circulaires",  color: "#ffffff" },   // Circulaires
   { code: "Autre", color: "#ffffff" }
 ];
 

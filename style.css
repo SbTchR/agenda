@@ -408,6 +408,7 @@ main {
   font-weight: bold;
   transition: background 0.2s, transform 0.2s;
   margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .confirm-button:hover {
