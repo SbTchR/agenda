@@ -640,3 +640,38 @@ main {
 .vacation-week:hover {
   background: #1976d2;
 }
+
+/* Added missing rule as per instructions */
+.task-notes-container textarea,
+#edit-task-notes-input {
+  width: 100%;
+  min-height: 150px;   /* boîte de texte plus haute */
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  resize: vertical;
+}
+
+/* ----- Améliorations pour l'écran de modification ----- */
+
+/* Boîte de notes (édition) encore plus haute et espacée */
+#edit-task-notes-input {
+  min-height: 100px;   /* plus de hauteur qu'en création */
+  margin-top: 0rem;
+}
+
+/* Boîte de titre (édition) plus confortable */
+#edit-task-title {
+  width: 100%;
+  padding: 0.7rem;
+  font-size: 1.2rem;   /* texte plus grand */
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+/* Mise en forme des libellés dans le mode édition */
+.edit-label {
+  display: block;
+  margin-top: 0.8rem;
+  font-weight: bold;
+}

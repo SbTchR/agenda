@@ -68,6 +68,11 @@
         <input type="text" id="task-title-input" placeholder="Titre du devoir" />
       </div>
 
+      <!-- Champ texte pour les notes (facultatif) -->
+      <div class="task-notes-container">
+        <textarea id="task-notes-input" placeholder="Notes supplémentaires (facultatif)"></textarea>
+      </div>
+
 
       <!-- Ajout de pièces jointes (image ou PDF) -->
       <div class="attachment-container">
@@ -98,15 +103,23 @@
     </header>
     <div class="content">
       <h2 id="details-task-title"></h2>
+      <p id="details-task-notes" class="task-notes"></p>
       <div class="attachments-list" id="attachments-list">
         <!-- Liste des pièces jointes -->
       </div>
 
       <div id="edit-mode" class="hidden">
+        <!-- Nouveau titre -->
+        <label for="edit-task-title" class="edit-label">Nouveau titre :</label>
         <input type="text" id="edit-task-title" placeholder="Modifier le titre" />
+
+        <!-- Modifier les notes -->
+        <label for="edit-task-notes-input" class="edit-label">Modifier les notes :</label>
+        <textarea id="edit-task-notes-input" placeholder="Modifier les notes"></textarea>
+
+        <!-- Ajout de pièces jointes -->
         <label for="edit-attachment-input" class="attachment-label">Ajouter un document/photo</label>
         <input type="file" id="edit-attachment-input" multiple />
-        <div id="edit-attachment-preview"></div>
       </div>
 <!-- Dans la section de modification d'un devoir, ajoutez : -->
 <div id="edit-upload-progress-container" class="hidden">

@@ -30,11 +30,12 @@ const addTaskScreen = document.getElementById("add-task-screen");
 const taskDetailsScreen = document.getElementById("task-details-screen");
 const libraryScreen = document.getElementById("library-screen");
 
-// Boutons / Inputs (ajout d'un devoir)
-const cancelAddTaskBtn = document.getElementById("cancel-add-task");
-const confirmAddTaskBtn = document.getElementById("confirm-add-task");
-const taskTitleInput = document.getElementById("task-title-input");
-const attachmentInput = document.getElementById("attachment-input");
+  // Boutons / Inputs (ajout d'un devoir)
+  const cancelAddTaskBtn = document.getElementById("cancel-add-task");
+  const confirmAddTaskBtn = document.getElementById("confirm-add-task");
+  const taskTitleInput = document.getElementById("task-title-input");
+  const taskNotesInput = document.getElementById("task-notes-input");
+  const attachmentInput = document.getElementById("attachment-input");
 
 // Sélection de branche (container)
 const branchSelectionContainer = document.querySelector(".branch-selection");
@@ -46,10 +47,12 @@ const typeTsBtn = document.getElementById("type-ts");
 // Détails devoir
 const backToMainBtn = document.getElementById("back-to-main");
 const detailsTaskTitle = document.getElementById("details-task-title");
+const detailsTaskNotes = document.getElementById("details-task-notes");
 const attachmentsList = document.getElementById("attachments-list");
 const toggleEditBtn = document.getElementById("toggle-edit");
 const validateChangesBtn = document.getElementById("validate-changes");
 const editTaskTitleInput = document.getElementById("edit-task-title");
+const editTaskNotesInput = document.getElementById("edit-task-notes-input");
 const editAttachmentInput = document.getElementById("edit-attachment-input");
 const deleteTaskBtn = document.getElementById("delete-task");
 
@@ -314,6 +317,7 @@ function clearAddTaskForm() {
   selectedTaskBranch = null;
   selectedTaskType = null;
   taskTitleInput.value = "";
+  taskNotesInput.value = "";
   attachmentInput.value = "";
 
   // Retire la sélection visuelle sur les branch-button
@@ -381,6 +385,7 @@ confirmAddTaskBtn.addEventListener("click", async () => {
   }
   
   const title = taskTitleInput.value.trim();
+  const notes = taskNotesInput.value.trim();
   if (!title) {
     alert("Merci d'indiquer un titre de devoir.");
     return;
@@ -395,6 +400,7 @@ confirmAddTaskBtn.addEventListener("click", async () => {
       branch: selectedTaskBranch,
       type: selectedTaskType,
       title: title,
+      notes: notes,
       day: currentDayClicked,
       week: currentWeek,
       attachments: []
@@ -468,6 +474,7 @@ function openTaskDetailsScreen(taskId, taskData) {
   taskDetailsScreen.classList.remove("hidden");
 
   detailsTaskTitle.textContent = `${taskData.branch} : ${taskData.title}`;
+  detailsTaskNotes.textContent = taskData.notes || "";
   attachmentsList.innerHTML = "";
 
   // Déterminez si nous sommes en mode édition :
@@ -570,6 +577,7 @@ toggleEditBtn.addEventListener("click", () => {
     toggleEditBtn.textContent = "Annuler";
     // Pré-remplit le champ
     editTaskTitleInput.value = selectedTaskData.title;
+    editTaskNotesInput.value = selectedTaskData.notes || "";
   } else {
     // On annule
     toggleEditBtn.textContent = "Modifier";
@@ -589,12 +597,17 @@ function disableEditMode() {
  *****************************************************/
 validateChangesBtn.addEventListener("click", async () => {
   const newTitle = editTaskTitleInput.value.trim();
+  const newNotes = editTaskNotesInput.value.trim();
   const newAttachments = editSelectedFiles; // On utilise le tableau global
   const updates = {};
 
   // Mise à jour du titre si modifié
   if (newTitle && newTitle !== selectedTaskData.title) {
     updates.title = newTitle;
+  }
+  // Mise à jour des notes si modifiées
+  if (newNotes !== selectedTaskData.notes) {
+    updates.notes = newNotes;
   }
 
   // S'il y a de nouveaux fichiers à uploader
@@ -639,7 +652,7 @@ validateChangesBtn.addEventListener("click", async () => {
   }
 
   try {
-    // Appliquer les mises à jour dans Firestore (titre et/ou attachments)
+    // Appliquer les mises à jour dans Firestore (titre, notes et/ou attachments)
     if (Object.keys(updates).length > 0) {
       await db.collection("tasks").doc(selectedTaskId).update(updates);
     }
@@ -650,6 +663,7 @@ validateChangesBtn.addEventListener("click", async () => {
       selectedTaskData = docSnap.data();
       // Si tu veux réafficher immédiatement dans l'écran detailsTaskTitle, ok :
       detailsTaskTitle.textContent = `${selectedTaskData.branch} : ${selectedTaskData.title}`;
+      detailsTaskNotes.textContent = selectedTaskData.notes || "";
       attachmentsList.innerHTML = "";
       if (selectedTaskData.attachments) {
         // On peut réafficher rapidement la liste, ou juste se fier au reload plus bas
