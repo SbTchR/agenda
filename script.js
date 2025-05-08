@@ -131,7 +131,7 @@ function isDateInVacation(date) {
  * Initialisation
  *****************************************************/
 document.addEventListener("DOMContentLoaded", () => {
-    // On veut afficher les 39 semaines DE COURS + insérer en plus
+  // On veut afficher les 39 semaines DE COURS + insérer en plus
   // des carrés « vacances » dès qu'un lundi tombe dans une période
   // de congé. On part du premier lundi scolaire et on avance
   // de 7 jours à chaque tour.
@@ -184,6 +184,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Chargement initial des tâches
   loadTasksForWeek(currentWeek);
+
+  /* ------------------------------------------------------------------
+   * Flèches navigation semaine
+   * ------------------------------------------------------------------ */
+  const prevWeekBtn = document.getElementById("prev-week");
+  const nextWeekBtn = document.getElementById("next-week");
+
+  if (prevWeekBtn && nextWeekBtn) {
+    prevWeekBtn.addEventListener("click", () => {
+      if (currentWeek > 1) {
+        selectWeek(currentWeek - 1);
+      }
+    });
+
+    nextWeekBtn.addEventListener("click", () => {
+      if (currentWeek < 39) {
+        selectWeek(currentWeek + 1);
+      }
+    });
+  }
 });
 
 /*****************************************************
