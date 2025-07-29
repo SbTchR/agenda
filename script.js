@@ -15,6 +15,9 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const storage = firebase.storage();
 
+// Nombre total de semaines d'enseignement pour l'année scolaire
+const TOTAL_WEEKS = 38;
+
 /*****************************************************
  * Variables et sélecteurs HTML
  *****************************************************/
@@ -114,10 +117,10 @@ const branches = [
  * - end    : dernier jour de vacance (inclus)
  *****************************************************/
 const vacations = [
-  { label: "vac. d' automne", start: new Date(2024, 9, 12), end: new Date(2024, 9, 27) },
-  { label: "vac. de Noël",   start: new Date(2024,11,21), end: new Date(2025, 0,  5) },
-  { label: "Relâches",       start: new Date(2025, 1, 15), end: new Date(2025, 1, 23) },
-  { label: "vac. de Pâques", start: new Date(2025, 3, 12), end: new Date(2025, 3, 27) }
+  { label: "vac. d' automne", start: new Date(2025, 9, 11), end: new Date(2025, 9, 26) },
+  { label: "vac. de Noël",   start: new Date(2025,11,20), end: new Date(2026, 0,  4) },
+  { label: "vac. de février", start: new Date(2026, 1, 9), end: new Date(2026, 1, 22) },
+  { label: "vac. de Pâques", start: new Date(2026, 3,  4), end: new Date(2026, 3, 19) }
 ];
 
 /* ------------------------------------------------------------------
@@ -131,15 +134,15 @@ function isDateInVacation(date) {
  * Initialisation
  *****************************************************/
 document.addEventListener("DOMContentLoaded", () => {
-  // On veut afficher les 39 semaines DE COURS + insérer en plus
+  // On veut afficher les TOTAL_WEEKS semaines DE COURS + insérer en plus
   // des carrés « vacances » dès qu'un lundi tombe dans une période
   // de congé. On part du premier lundi scolaire et on avance
   // de 7 jours à chaque tour.
 
-  let teachingWeek = 1;           // 1 → 39
+  let teachingWeek = 1;           // 1 → TOTAL_WEEKS
   let currentMonday = getSchoolWeekMonday(1);
 
-  while (teachingWeek <= 39) {
+  while (teachingWeek <= TOTAL_WEEKS) {
     if (isDateInVacation(currentMonday)) {
       // Crée un carré bleu pour cette semaine de vacances
       const div = document.createElement("div");
@@ -199,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     nextWeekBtn.addEventListener("click", () => {
-      if (currentWeek < 39) {
+      if (currentWeek < TOTAL_WEEKS) {
         selectWeek(currentWeek + 1);
       }
     });
@@ -1173,8 +1176,8 @@ function updateEditAttachmentPreview() {
 
 // Fonction qui retourne le lundi de la n-ième semaine scolaire
 function getSchoolWeekMonday(weekNumber) {
-  // Date de départ : lundi 19 août 2024 (rentrée 2024‑2025)
-  const baseMonday = new Date(2024, 7, 19); // mois 0 = janvier → 7 = août
+  // Date de départ : lundi 18 août 2025 (rentrée 2025‑2026)
+  const baseMonday = new Date(2025, 7, 18); // mois 0 = janvier → 7 = août
 
  
 
@@ -1209,13 +1212,13 @@ while (nextMonday.getDay() !== 1) {
 
 /* ------------------------------------------------------------------
  * Calcule le numéro de la semaine scolaire correspondant à une date
- * (par défaut : aujourd’hui). Parcourt les 39 semaines et retourne
+ * (par défaut : aujourd’hui). Parcourt les TOTAL_WEEKS semaines et retourne
  * celle qui contient la date. S’il n’y a pas correspondance, retourne 1.
  * ------------------------------------------------------------------ */
 function getSchoolWeekNumber(date = new Date()) {
-  for (let w = 1; w <= 39; w++) {
+  for (let w = 1; w <= TOTAL_WEEKS; w++) {
     const monday = getSchoolWeekMonday(w);
-    const nextMonday = (w < 39) ? getSchoolWeekMonday(w + 1) : null;
+    const nextMonday = (w < TOTAL_WEEKS) ? getSchoolWeekMonday(w + 1) : null;
     if (date >= monday && (nextMonday === null || date < nextMonday)) {
       return w;
     }
