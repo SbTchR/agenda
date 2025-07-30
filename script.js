@@ -120,6 +120,7 @@ const vacations = [
   { label: "vac. d' automne", start: new Date(2025, 9, 11), end: new Date(2025, 9, 26) },
   { label: "vac. de Noël",   start: new Date(2025,11,20), end: new Date(2026, 0,  4) },
   { label: "Relâches", start: new Date(2026, 1, 14), end: new Date(2026, 1, 22) },
+  { label: "vac. de février", start: new Date(2026, 1, 9), end: new Date(2026, 1, 22) },
   { label: "vac. de Pâques", start: new Date(2026, 3,  4), end: new Date(2026, 3, 19) }
 ];
 
