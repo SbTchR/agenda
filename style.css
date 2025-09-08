@@ -58,7 +58,7 @@ main {
   color: #000;
   cursor: pointer;
   font-weight: bold;
-  font-size: 1.5rem; /* police plus grande */
+  font-size: 1.2rem; /* police plus grande */
   border-radius: 4px;
   transition: background 0.2s;
 }
