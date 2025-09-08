@@ -637,6 +637,7 @@ main {
   border-radius: 6px;
   padding: 0.6rem 0.8rem;
   margin-bottom: 0.6rem;
+  position: relative;
 }
 .message-meta {
   font-size: 0.8rem;
@@ -646,6 +647,15 @@ main {
 .messages-new textarea {
   width: 100%;
   min-height: 90px;
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 1rem;
+}
+.messages-new input[type="text"] {
+  width: 100%;
+  margin-bottom: 0.5rem;
   padding: 0.6rem;
   border-radius: 6px;
   border: 1px solid #ccc;

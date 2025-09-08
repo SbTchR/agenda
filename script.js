@@ -40,6 +40,7 @@ const closeMessagesBtn = document.getElementById("close-messages");
 const messagesListEl = document.getElementById("messages-list");
 const newMessageInput = document.getElementById("new-message-input");
 const addMessageButton = document.getElementById("add-message-button");
+const newMessageNameInput = document.getElementById("new-message-name");
 
   // Boutons / Inputs (ajout d'un devoir)
   const cancelAddTaskBtn = document.getElementById("cancel-add-task");
@@ -270,9 +271,26 @@ function loadAnnouncements() {
         meta.className = "message-meta";
         const date = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : null;
         const dateStr = date ? date.toLocaleString("fr-FR") : "";
-        meta.textContent = dateStr;
+        const author = data.name ? data.name : "";
+        meta.textContent = `${author ? author + " — " : ""}${dateStr}`;
+        // Icône de suppression (protégée par code)
+        const deleteIcon = document.createElement("span");
+        deleteIcon.textContent = "✖";
+        deleteIcon.classList.add("delete-icon");
+        deleteIcon.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const code = prompt("Entrez le code pour supprimer ce message:");
+          if (code !== "xxx") {
+            alert("Code incorrect.");
+            return;
+          }
+          db.collection("announcements").doc(doc.id).delete()
+            .then(() => loadAnnouncements())
+            .catch(err => console.error("Erreur suppression message:", err));
+        });
         item.appendChild(text);
         item.appendChild(meta);
+        item.appendChild(deleteIcon);
         messagesListEl.appendChild(item);
       });
     })
@@ -286,16 +304,23 @@ function loadAnnouncements() {
 if (addMessageButton) {
   addMessageButton.addEventListener("click", async () => {
     const text = (newMessageInput?.value || "").trim();
+    const name = (newMessageNameInput?.value || "").trim();
     if (!text) {
       alert("Veuillez saisir un message.");
+      return;
+    }
+    if (!name) {
+      alert("Veuillez saisir votre nom.");
       return;
     }
     try {
       await db.collection("announcements").add({
         text,
+        name,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       newMessageInput.value = "";
+      if (newMessageNameInput) newMessageNameInput.value = "";
       loadAnnouncements();
     } catch (e) {
       console.error("Erreur ajout message:", e);
