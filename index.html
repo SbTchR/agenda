@@ -29,6 +29,10 @@
         <!-- Liste des 38 semaines insérées par script.js -->
       </div>
     </div>
+    <!-- Bouton messages importants -->
+    <button id="messages-button" class="icon-button" title="Messages importants">
+      <img src="https://img.icons8.com/ios-glyphs/30/ffffff/megaphone.png" alt="Messages" class="icon"/>
+    </button>
     <button id="prev-week" class="icon-button week-nav" title="Semaine précédente">
       <img src="https://img.icons8.com/ios-glyphs/30/ffffff/chevron-left.png" alt="Précédent" class="icon"/>
     </button>
@@ -194,7 +198,22 @@
         <button id="cancel-delete" class="secondary-button">Annuler</button>
         <button id="confirm-delete" class="delete-button">Supprimer</button>
       </div>
+  </div>
+
+  <!-- Fenêtre modale pour messages importants -->
+  <div id="messages-modal" class="modal hidden">
+    <div class="modal-content messages-modal-content">
+      <div class="messages-modal-header">
+        <h3>Messages importants</h3>
+        <button id="close-messages" class="secondary-button" style="margin-left: 1rem;">Fermer</button>
+      </div>
+      <div id="messages-list" class="messages-list"></div>
+      <div class="messages-new">
+        <textarea id="new-message-input" placeholder="Écrire un nouveau message…"></textarea>
+        <button id="add-message-button" class="confirm-button">Ajouter</button>
+      </div>
     </div>
+  </div>
 
   <!-- Scripts Firebase (ex: version 8.10.0) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>

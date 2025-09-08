@@ -33,6 +33,14 @@ const addTaskScreen = document.getElementById("add-task-screen");
 const taskDetailsScreen = document.getElementById("task-details-screen");
 const libraryScreen = document.getElementById("library-screen");
 
+// Messages importants (modale)
+const messagesButton = document.getElementById("messages-button");
+const messagesModal = document.getElementById("messages-modal");
+const closeMessagesBtn = document.getElementById("close-messages");
+const messagesListEl = document.getElementById("messages-list");
+const newMessageInput = document.getElementById("new-message-input");
+const addMessageButton = document.getElementById("add-message-button");
+
   // Boutons / Inputs (ajout d'un devoir)
   const cancelAddTaskBtn = document.getElementById("cancel-add-task");
   const confirmAddTaskBtn = document.getElementById("confirm-add-task");
@@ -188,6 +196,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Chargement initial des tâches
   loadTasksForWeek(currentWeek);
 
+  // Ouvre automatiquement la fenêtre de messages importants
+  openMessagesModal();
+
   /* ------------------------------------------------------------------
    * Flèches navigation semaine
    * ------------------------------------------------------------------ */
@@ -208,6 +219,90 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+/*****************************************************
+ * Messages importants (Firestore: collection "announcements")
+ *****************************************************/
+function openMessagesModal() {
+  if (!messagesModal) return;
+  messagesModal.classList.remove("hidden");
+  loadAnnouncements();
+}
+
+function closeMessagesModal() {
+  if (!messagesModal) return;
+  messagesModal.classList.add("hidden");
+}
+
+// Ouvrir/fermer via boutons
+if (messagesButton) {
+  messagesButton.addEventListener("click", () => {
+    openMessagesModal();
+  });
+}
+if (closeMessagesBtn) {
+  closeMessagesBtn.addEventListener("click", () => {
+    closeMessagesModal();
+  });
+}
+
+// Charger les annonces
+function loadAnnouncements() {
+  if (!messagesListEl) return;
+  messagesListEl.innerHTML = "<p>Chargement…</p>";
+  db.collection("announcements")
+    .orderBy("createdAt", "desc")
+    .limit(50)
+    .get()
+    .then((snapshot) => {
+      if (snapshot.empty) {
+        messagesListEl.innerHTML = "<p>Aucun message.</p>";
+        return;
+      }
+      messagesListEl.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const item = document.createElement("div");
+        item.className = "message-item";
+        const text = document.createElement("div");
+        text.textContent = data.text || "";
+        const meta = document.createElement("div");
+        meta.className = "message-meta";
+        const date = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : null;
+        const dateStr = date ? date.toLocaleString("fr-FR") : "";
+        meta.textContent = dateStr;
+        item.appendChild(text);
+        item.appendChild(meta);
+        messagesListEl.appendChild(item);
+      });
+    })
+    .catch((err) => {
+      console.error("Erreur chargement messages:", err);
+      messagesListEl.innerHTML = "<p>Erreur de chargement.</p>";
+    });
+}
+
+// Ajouter une annonce
+if (addMessageButton) {
+  addMessageButton.addEventListener("click", async () => {
+    const text = (newMessageInput?.value || "").trim();
+    if (!text) {
+      alert("Veuillez saisir un message.");
+      return;
+    }
+    try {
+      await db.collection("announcements").add({
+        text,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      newMessageInput.value = "";
+      loadAnnouncements();
+    } catch (e) {
+      console.error("Erreur ajout message:", e);
+      alert("Impossible d'ajouter le message.");
+    }
+  });
+}
 
 /*****************************************************
  * Fonctions de gestion de la semaine
@@ -1287,4 +1382,3 @@ function updateDayTitles(weekNumber) {
     }
   });
 }
-
