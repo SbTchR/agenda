@@ -16,7 +16,7 @@ const db = firebase.firestore();
 const storage = firebase.storage();
 
 // Nombre total de semaines d'enseignement pour l'année scolaire
-const TOTAL_WEEKS = 38;
+const TOTAL_WEEKS = 39;
 
 /*****************************************************
  * Variables et sélecteurs HTML
@@ -44,27 +44,31 @@ const newMessageNameInput = document.getElementById("new-message-name");
 
   // Boutons / Inputs (ajout d'un devoir)
   const cancelAddTaskBtn = document.getElementById("cancel-add-task");
+  const cancelAddTaskSecondaryBtn = document.getElementById("cancel-add-task-secondary");
   const confirmAddTaskBtn = document.getElementById("confirm-add-task");
   const taskTitleInput = document.getElementById("task-title-input");
   const taskNotesInput = document.getElementById("task-notes-input");
   const attachmentInput = document.getElementById("attachment-input");
+  const addTaskDay = document.getElementById("add-task-day");
 
 // Sélection de branche (container)
 const branchSelectionContainer = document.querySelector(".branch-selection");
-// Boutons du type de devoir
-const typeDevoirBtn = document.getElementById("type-devoir");
+// Options facultatives de mise en évidence
 const typeTaBtn = document.getElementById("type-ta");
 const typeTsBtn = document.getElementById("type-ts");
 
 // Détails devoir
 const backToMainBtn = document.getElementById("back-to-main");
 const detailsTaskTitle = document.getElementById("details-task-title");
+const detailsTaskBadge = document.getElementById("details-task-badge");
 const detailsTaskNotes = document.getElementById("details-task-notes");
 const attachmentsList = document.getElementById("attachments-list");
 const toggleEditBtn = document.getElementById("toggle-edit");
 const validateChangesBtn = document.getElementById("validate-changes");
 const editTaskTitleInput = document.getElementById("edit-task-title");
 const editTaskNotesInput = document.getElementById("edit-task-notes-input");
+const editTypeTaInput = document.getElementById("edit-type-ta");
+const editTypeTsInput = document.getElementById("edit-type-ts");
 const editAttachmentInput = document.getElementById("edit-attachment-input");
 const deleteTaskBtn = document.getElementById("delete-task");
 
@@ -95,7 +99,7 @@ let currentWeek = 1;
 let currentDayClicked = null;     // Jour cliqué pour ajouter un devoir
 let selectedTaskId = null;        // ID de la tâche sélectionnée pour détails
 let selectedTaskData = null;      // Données de la tâche
-let selectedTaskType = null;      // "Devoir", "TA", "TS"
+let selectedTaskType = "Devoir"; // Un devoir normal est la valeur par défaut
 let selectedTaskBranch = null;    // "All", "Fra", etc.
 let selectedFiles = [];
 let editSelectedFiles = [];
@@ -126,10 +130,10 @@ const branches = [
  * - end    : dernier jour de vacance (inclus)
  *****************************************************/
 const vacations = [
-  { label: "vac. d' automne", start: new Date(2025, 9, 11), end: new Date(2025, 9, 26) },
-  { label: "vac. de Noël",   start: new Date(2025,11,20), end: new Date(2026, 0,  4) },
-  { label: "Relâches", start: new Date(2026, 1, 14), end: new Date(2026, 1, 22) },
-  { label: "vac. de Pâques", start: new Date(2026, 3,  4), end: new Date(2026, 3, 19) }
+  { label: "Vacances d’automne", start: new Date(2026, 9, 10), end: new Date(2026, 9, 25) },
+  { label: "Vacances de Noël", start: new Date(2026, 11, 28), end: new Date(2027, 0, 10) },
+  { label: "Relâches", start: new Date(2027, 1, 8), end: new Date(2027, 1, 14) },
+  { label: "Vacances de Pâques", start: new Date(2027, 2, 29), end: new Date(2027, 3, 11) }
 ];
 
 /* ------------------------------------------------------------------
@@ -148,6 +152,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // de congé. On part du premier lundi scolaire et on avance
   // de 7 jours à chaque tour.
 
+  weekList.innerHTML = "";
+
   let teachingWeek = 1;           // 1 → TOTAL_WEEKS
   let currentMonday = getSchoolWeekMonday(1);
 
@@ -158,6 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const vacLabel = vacations.find(v => currentMonday >= v.start && currentMonday <= v.end).label;
       div.textContent = vacLabel;
       div.classList.add("vacation-week");
+      div.setAttribute("aria-hidden", "true");
       weekList.appendChild(div);
 
       // Passe au lundi suivant
@@ -167,7 +174,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // Crée un carré normal « S. n »
       const div = document.createElement("div");
       const weekNum = teachingWeek;          // capture immuable
-      div.textContent = "S. " + weekNum;
+      div.textContent = "Semaine " + weekNum;
+      div.setAttribute("role", "option");
+      div.dataset.week = String(weekNum);
       div.addEventListener("click", () => {
         selectWeek(weekNum);
         toggleWeekList(false);
@@ -339,17 +348,26 @@ weekButton.addEventListener("click", () => {
 function toggleWeekList(forceHide = null) {
   if (forceHide === true) {
     weekList.classList.add("hidden");
+    weekButton.setAttribute("aria-expanded", "false");
     return;
   }
   weekList.classList.toggle("hidden");
+  weekButton.setAttribute("aria-expanded", String(!weekList.classList.contains("hidden")));
 }
 
 function selectWeek(week) {
-  currentWeek = week;
-  currentWeekSpan.textContent = week;
-  updateWeekDatesDisplay(week);
-  updateDayTitles(week);
-  loadTasksForWeek(week);
+  currentWeek = Math.min(TOTAL_WEEKS, Math.max(1, Number(week) || 1));
+  currentWeekSpan.textContent = currentWeek;
+  weekButton.setAttribute("aria-label", `Semaine ${currentWeek}`);
+  weekList.querySelectorAll("[data-week]").forEach((option) => {
+    option.classList.toggle("current-option", Number(option.dataset.week) === currentWeek);
+    option.setAttribute("aria-selected", String(Number(option.dataset.week) === currentWeek));
+  });
+  document.getElementById("prev-week").disabled = currentWeek === 1;
+  document.getElementById("next-week").disabled = currentWeek === TOTAL_WEEKS;
+  updateWeekDatesDisplay(currentWeek);
+  updateDayTitles(currentWeek);
+  loadTasksForWeek(currentWeek);
 }
 
 /*****************************************************
@@ -359,16 +377,22 @@ function generateDays() {
   const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
   mainContent.innerHTML = "";
   days.forEach((day) => {
-    const dayContainer = document.createElement("div");
+    const dayContainer = document.createElement("section");
     dayContainer.classList.add("day-container");
+    dayContainer.dataset.day = day;
 
-    // Exemple date fictive
-    const randomDate = "04.10";
-
-    const dayTitle = document.createElement("h3");
-    dayTitle.textContent = `${day} ${randomDate}`;
+    const dayTitle = document.createElement("button");
+    dayTitle.classList.add("day-heading");
+    dayTitle.type = "button";
+    dayTitle.setAttribute("aria-label", `Ajouter un devoir pour ${day}`);
+    dayTitle.innerHTML = `
+      <span class="day-title-label">${day}</span>
+      <span class="day-add-action" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        <span>Ajouter</span>
+      </span>
+    `;
     dayTitle.addEventListener("click", () => {
-      // Ouvrir l'écran d'ajout de devoir pour ce jour
       currentDayClicked = day;
       openAddTaskScreen();
     });
@@ -422,16 +446,18 @@ function displayTask(taskId, taskData) {
       return; // Si oui, ne pas ajouter une nouvelle instance
     }
   
-    const taskItem = document.createElement("div");
+    const taskItem = document.createElement("button");
+    taskItem.type = "button";
     taskItem.setAttribute("data-task-id", taskId);
     taskItem.classList.add("task-item");
   
-    // Appliquer le style selon le type de devoir
-    if (taskData.type === "Devoir") {
+    // Les anciennes données sans type restent des devoirs ordinaires.
+    const taskType = ["TA", "TS"].includes(taskData.type) ? taskData.type : "Devoir";
+    if (taskType === "Devoir") {
       taskItem.classList.add("devoir");
-    } else if (taskData.type === "TA") {
+    } else if (taskType === "TA") {
       taskItem.classList.add("ta");
-    } else if (taskData.type === "TS") {
+    } else if (taskType === "TS") {
       taskItem.classList.add("ts");
     }
   
@@ -440,7 +466,29 @@ function displayTask(taskId, taskData) {
       taskItem.classList.add(taskData.branch.toLowerCase());
     }
   
-    taskItem.textContent = `${taskData.branch} : ${taskData.title}`;
+    const branchLabel = document.createElement("span");
+    branchLabel.className = "task-branch";
+    branchLabel.textContent = taskData.branch || "Autre";
+
+    const titleLabel = document.createElement("span");
+    titleLabel.className = "task-title";
+    titleLabel.textContent = taskData.title || "Devoir";
+
+    taskItem.appendChild(branchLabel);
+    taskItem.appendChild(titleLabel);
+
+    if (taskType !== "Devoir") {
+      const typeBadge = document.createElement("span");
+      typeBadge.className = "task-list-badge";
+      typeBadge.textContent = taskType;
+      taskItem.appendChild(typeBadge);
+    }
+
+    const chevron = document.createElement("span");
+    chevron.className = "task-chevron";
+    chevron.setAttribute("aria-hidden", "true");
+    chevron.innerHTML = '<svg viewBox="0 0 20 20"><path d="m7 4 6 6-6 6"/></svg>';
+    taskItem.appendChild(chevron);
   
     taskItem.addEventListener("click", () => {
       openTaskDetailsScreen(taskId, taskData);
@@ -455,29 +503,37 @@ function displayTask(taskId, taskData) {
 function openAddTaskScreen() {
   addTaskScreen.classList.remove("hidden");
   clearAddTaskForm();
+  const date = getWeekDates(currentWeek)[dayKeyFromFrenchName(currentDayClicked)];
+  addTaskDay.textContent = date
+    ? `${currentDayClicked} ${date.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}`
+    : currentDayClicked;
+  window.setTimeout(() => taskTitleInput.focus(), 0);
 }
 
 function clearAddTaskForm() {
   selectedTaskBranch = null;
-  selectedTaskType = null;
+  selectedTaskType = "Devoir";
   taskTitleInput.value = "";
   taskNotesInput.value = "";
   attachmentInput.value = "";
+  selectedFiles = [];
+  updateAttachmentPreview();
 
   // Retire la sélection visuelle sur les branch-button
   document.querySelectorAll(".branch-button").forEach(btn => {
     btn.classList.remove("selected-branch");
   });
-  // Retire la sélection visuelle sur type de devoir
-  [typeDevoirBtn, typeTaBtn, typeTsBtn].forEach(btn => {
-    btn.classList.remove("selected-type");
-  });
+  typeTaBtn.checked = false;
+  typeTsBtn.checked = false;
 }
 
 /*****************************************************
  * Fermeture de l'écran d'ajout de devoir
  *****************************************************/
 cancelAddTaskBtn.addEventListener("click", () => {
+  addTaskScreen.classList.add("hidden");
+});
+cancelAddTaskSecondaryBtn.addEventListener("click", () => {
   addTaskScreen.classList.add("hidden");
 });
 
@@ -506,25 +562,27 @@ function generateBranchSelection() {
 }
 
 /*****************************************************
- * Sélection du type de devoir
+ * Mise en évidence facultative (TA ou TS, au plus une)
  *****************************************************/
-[typeDevoirBtn, typeTaBtn, typeTsBtn].forEach(button => {
-  button.addEventListener("click", () => {
-    [typeDevoirBtn, typeTaBtn, typeTsBtn].forEach(b => {
-      b.classList.remove("selected-type");
-    });
-    button.classList.add("selected-type");
-    selectedTaskType = button.dataset.type;
-  });
-});
+function syncOptionalTaskType(changedInput, otherInput) {
+  if (changedInput.checked) {
+    otherInput.checked = false;
+    selectedTaskType = changedInput.dataset.type;
+  } else {
+    selectedTaskType = "Devoir";
+  }
+}
+
+typeTaBtn.addEventListener("change", () => syncOptionalTaskType(typeTaBtn, typeTsBtn));
+typeTsBtn.addEventListener("change", () => syncOptionalTaskType(typeTsBtn, typeTaBtn));
 
 /*****************************************************
  * Ajout du devoir en base + upload pièces jointes
  *****************************************************/
 confirmAddTaskBtn.addEventListener("click", async () => {
-  // Vérifie que la branche et le type ont été sélectionnés
-  if (!selectedTaskBranch || !selectedTaskType) {
-    alert("Merci de sélectionner une branche et un type de devoir (Devoir, TA ou TS).");
+  // Seule la branche est obligatoire : "Devoir" est implicite par défaut.
+  if (!selectedTaskBranch) {
+    alert("Merci de sélectionner une branche.");
     return;
   }
   
@@ -618,6 +676,11 @@ function openTaskDetailsScreen(taskId, taskData) {
   taskDetailsScreen.classList.remove("hidden");
 
   detailsTaskTitle.textContent = `${taskData.branch} : ${taskData.title}`;
+  const highlightedType = ["TA", "TS"].includes(taskData.type) ? taskData.type : "";
+  detailsTaskBadge.textContent = highlightedType;
+  detailsTaskBadge.className = highlightedType
+    ? `task-badge ${highlightedType.toLowerCase()}`
+    : "task-badge hidden";
   detailsTaskNotes.textContent = taskData.notes || "";
   attachmentsList.innerHTML = "";
 
@@ -722,11 +785,25 @@ toggleEditBtn.addEventListener("click", () => {
     // Pré-remplit le champ
     editTaskTitleInput.value = selectedTaskData.title;
     editTaskNotesInput.value = selectedTaskData.notes || "";
+    editTypeTaInput.checked = selectedTaskData.type === "TA";
+    editTypeTsInput.checked = selectedTaskData.type === "TS";
   } else {
     // On annule
     toggleEditBtn.textContent = "Modifier";
   }
   openTaskDetailsScreen(selectedTaskId, selectedTaskData);
+});
+
+editTypeTaInput.addEventListener("change", () => {
+  if (editTypeTaInput.checked) {
+    editTypeTsInput.checked = false;
+  }
+});
+
+editTypeTsInput.addEventListener("change", () => {
+  if (editTypeTsInput.checked) {
+    editTypeTaInput.checked = false;
+  }
 });
 
 function disableEditMode() {
@@ -752,6 +829,10 @@ validateChangesBtn.addEventListener("click", async () => {
   // Mise à jour des notes si modifiées
   if (newNotes !== selectedTaskData.notes) {
     updates.notes = newNotes;
+  }
+  const newType = editTypeTaInput.checked ? "TA" : editTypeTsInput.checked ? "TS" : "Devoir";
+  if (newType !== (selectedTaskData.type || "Devoir")) {
+    updates.type = newType;
   }
 
   // S'il y a de nouveaux fichiers à uploader
@@ -1296,8 +1377,8 @@ function updateEditAttachmentPreview() {
 
 // Fonction qui retourne le lundi de la n-ième semaine scolaire
 function getSchoolWeekMonday(weekNumber) {
-  // Date de départ : lundi 18 août 2025 (rentrée 2025‑2026)
-  const baseMonday = new Date(2025, 7, 18); // mois 0 = janvier → 7 = août
+  // Date de départ : lundi 17 août 2026 (rentrée 2026-2027)
+  const baseMonday = new Date(2026, 7, 17); // mois 0 = janvier → 7 = août
 
  
 
@@ -1369,8 +1450,18 @@ function formatDate(date) {
 // Fonction pour mettre à jour l'affichage des dates de la semaine dans la zone prévue (par ex. dans le header)
 function updateWeekDatesDisplay(weekNumber) {
   const dates = getWeekDates(weekNumber);
-  // On affiche par exemple "18 août - 22 août"
-  const formatted = `${formatDate(dates.monday)} - ${formatDate(dates.friday)}`;
+  const sameMonth = dates.monday.getMonth() === dates.friday.getMonth()
+    && dates.monday.getFullYear() === dates.friday.getFullYear();
+  const sameYear = dates.monday.getFullYear() === dates.friday.getFullYear();
+  let formatted;
+
+  if (sameMonth) {
+    formatted = `${String(dates.monday.getDate()).padStart(2, "0")} – ${formatDate(dates.friday)} ${dates.friday.getFullYear()}`;
+  } else if (sameYear) {
+    formatted = `${formatDate(dates.monday)} – ${formatDate(dates.friday)} ${dates.friday.getFullYear()}`;
+  } else {
+    formatted = `${formatDate(dates.monday)} ${dates.monday.getFullYear()} – ${formatDate(dates.friday)} ${dates.friday.getFullYear()}`;
+  }
   const weekDatesElement = document.getElementById("week-dates");
   if (weekDatesElement) {
     weekDatesElement.textContent = formatted;
@@ -1395,15 +1486,25 @@ function updateDayTitles(weekNumber) {
   // Récupère tous les conteneurs de jours
   const dayContainers = document.querySelectorAll(".day-container");
   dayContainers.forEach((container, index) => {
-    // On suppose que le titre (h3) est le premier enfant
-    const h3 = container.querySelector("h3");
-    if (h3 && dayDates[index]) {
+    const titleLabel = container.querySelector(".day-title-label");
+    const headingButton = container.querySelector(".day-heading");
+    if (titleLabel && dayDates[index]) {
       // Formate la date en "dd.mm"
       const date = dayDates[index];
       const dd = date.getDate().toString().padStart(2, "0");
       const mm = (date.getMonth() + 1).toString().padStart(2, "0");
-      // Met à jour le texte : "Lundi 18.08"
-      h3.textContent = `${dayNames[index]} ${dd}.${mm}`;
+      titleLabel.textContent = `${dayNames[index]} ${dd}.${mm}`;
+      headingButton?.setAttribute("aria-label", `Ajouter un devoir pour ${dayNames[index]} ${dd}.${mm}`);
     }
   });
+}
+
+function dayKeyFromFrenchName(dayName) {
+  return {
+    Lundi: "monday",
+    Mardi: "tuesday",
+    Mercredi: "wednesday",
+    Jeudi: "thursday",
+    Vendredi: "friday"
+  }[dayName] || "monday";
 }

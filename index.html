@@ -3,47 +3,75 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agenda Collaboratif</title>
+  <title>Agenda de classe</title>
     <!-- PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js"></script>
   
-  <!-- Police Nunito -->
+  <!-- Police Manrope -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link 
-    href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700;900&display=swap" 
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
     rel="stylesheet" 
   />
 
   <!-- Feuille de style -->
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=20260723-2" />
 
 </head>
 <body>
-  <!-- Barre supérieure : Semaine, Dates, Bouton Bibliothèque -->
+  <!-- Navigation principale et changement de semaine -->
   <header id="main-header">
-    <div class="week-selector">
-      <button id="week-button">S. <span id="current-week">1</span></button>
-      <div id="week-list" class="hidden">
-        <!-- Liste des 38 semaines insérées par script.js -->
+    <div class="brand-row">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" role="img">
+            <path d="M7 3v3M17 3v3M4.5 9h15M6.5 5h11a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/>
+            <path d="M8 13h3v3H8zM14 13h2"/>
+          </svg>
+        </span>
+        <span>Agenda de classe</span>
+      </div>
+      <div class="header-actions">
+        <button id="messages-button" class="header-action" title="Messages importants">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8l-4.5 3v-3H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/>
+          </svg>
+          <span>Messages</span>
+        </button>
+        <button id="library-button" class="header-action" title="Ouvrir la bibliothèque">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5v-16ZM20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5v-16Z"/>
+          </svg>
+          <span>Bibliothèque</span>
+        </button>
       </div>
     </div>
-    <!-- Bouton messages importants -->
-    <button id="messages-button" class="icon-button" title="Messages importants">
-      <img src="https://img.icons8.com/ios-glyphs/30/ffffff/megaphone.png" alt="Messages" class="icon"/>
-    </button>
-    <button id="prev-week" class="icon-button week-nav" title="Semaine précédente">
-      <img src="https://img.icons8.com/ios-glyphs/30/ffffff/chevron-left.png" alt="Précédent" class="icon"/>
-    </button>
-    <div class="week-dates" id="week-dates">4 - 8 octobre</div>
-    <button id="next-week" class="icon-button week-nav" title="Semaine suivante">
-      <img src="https://img.icons8.com/ios-glyphs/30/ffffff/chevron-right.png" alt="Suivant" class="icon"/>
-    </button>
-    <div class="library-button-container">
-      <button id="library-button" class="icon-button" title="Ouvrir la bibliothèque">
-        <img src="https://img.icons8.com/ios-filled/50/ffffff/books.png" alt="Bibliothèque" class="icon"/>
-      </button>
+
+    <div class="week-toolbar">
+      <div class="week-selector">
+        <button id="week-button" aria-haspopup="listbox" aria-expanded="false">
+          <span>Semaine</span>
+          <strong id="current-week">1</strong>
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg>
+        </button>
+        <div id="week-list" class="hidden" role="listbox" aria-label="Semaines de cours">
+          <!-- Liste des 39 semaines insérées par script.js -->
+        </div>
+      </div>
+
+      <div class="week-navigation">
+        <button id="prev-week" class="icon-button week-nav" title="Semaine précédente" aria-label="Semaine précédente">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="week-dates" id="week-dates">17 – 21 août 2026</div>
+        <button id="next-week" class="icon-button week-nav" title="Semaine suivante" aria-label="Semaine suivante">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+
+      <div class="toolbar-spacer" aria-hidden="true"></div>
     </div>
   </header>
 
@@ -52,55 +80,68 @@
     <!-- Les 5 jours s'affichent dynamiquement (lundi à vendredi) avec la date : "Lundi 04.10" etc. -->
   </main>
 
-  <!-- Écran (ou "section") d'ajout d'un devoir -->
-  <section id="add-task-screen" class="hidden screen">
-    <header>
-      <button id="cancel-add-task" class="icon-button" title="Annuler">
-        <img src="https://img.icons8.com/ios-glyphs/30/ffffff/delete-sign.png" alt="Annuler" />
-      </button>
-    </header>
-    <div class="content">
-      <h2>Ajouter un devoir</h2>
-      <!-- Sélection de la branche -->
-      <div class="branch-selection">
-        <!-- Les branches sont créées dynamiquement via script.js -->
+  <!-- Fenêtre d'ajout d'un devoir -->
+  <section id="add-task-screen" class="hidden screen" role="dialog" aria-modal="true" aria-labelledby="add-task-title">
+    <div class="screen-backdrop"></div>
+    <div class="content task-form-content">
+      <div class="modal-heading">
+        <div>
+          <h2 id="add-task-title">Ajouter un devoir</h2>
+          <p id="add-task-day" class="modal-subtitle"></p>
+        </div>
+        <button id="cancel-add-task" class="icon-button close-button" title="Annuler" aria-label="Fermer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
       </div>
 
-      <!-- Sélection du type de devoir (Devoir, TA, TS) -->
-      <div class="task-type-container">
-        <button class="task-type" data-type="Devoir" id="type-devoir">Devoir</button>
-        <button class="task-type" data-type="TA" id="type-ta">TA</button>
-        <button class="task-type" data-type="TS" id="type-ts">TS</button>
-      </div>
+      <fieldset class="form-section branch-fieldset">
+        <legend>Branche</legend>
+        <div class="branch-selection">
+          <!-- Les branches sont créées dynamiquement via script.js -->
+        </div>
+      </fieldset>
 
-      <!-- Champ texte pour le titre du devoir -->
-      <div class="task-title-container">
-        <input type="text" id="task-title-input" placeholder="Titre du devoir" />
-      </div>
+      <label class="field-label" for="task-title-input">Titre du devoir</label>
+      <input type="text" id="task-title-input" placeholder="Ex. Exercices, lecture, révisions…" />
 
-      <!-- Champ texte pour les notes (facultatif) -->
-      <div class="task-notes-container">
-        <textarea id="task-notes-input" placeholder="Notes supplémentaires (facultatif)"></textarea>
-      </div>
+      <label class="field-label" for="task-notes-input">Notes supplémentaires <span>(facultatif)</span></label>
+      <textarea id="task-notes-input" placeholder="Consignes, pages à lire ou informations utiles"></textarea>
 
-
-      <!-- Ajout de pièces jointes (image ou PDF) -->
       <div class="attachment-container">
-        <label for="attachment-input" class="attachment-label">Ajouter un document/photo</label>
+        <label for="attachment-input" class="attachment-label">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17V5M7 10l5-5 5 5M5 15v4h14v-4"/></svg>
+          <span><strong>Ajouter un document ou une photo</strong><small>PDF ou image, plusieurs fichiers possibles</small></span>
+        </label>
         <input type="file" id="attachment-input" multiple />
       </div>
-      <!-- Bouton valider l'ajout -->
-      <button id="confirm-add-task" class="confirm-button">Ajouter</button>
-      
-      <!-- Conteneur pour afficher un aperçu des pièces jointes -->
-<div id="attachment-preview"></div>
 
-<!-- Conteneur pour la barre de progression (masqué par défaut) -->
-<div id="upload-progress-container" class="hidden">
-  <div id="upload-progress-bar" style="width:0%; background-color:#4caf50;"></div>
-</div>
+      <fieldset class="form-section emphasis-fieldset">
+        <legend>Mise en évidence <span>(facultatif)</span></legend>
+        <div class="task-type-container">
+          <label class="task-type ta-option" for="type-ta">
+            <input type="checkbox" data-type="TA" id="type-ta" />
+            <span class="fake-checkbox" aria-hidden="true"></span>
+            <span><strong>TA</strong><small>Travail assimilé</small></span>
+          </label>
+          <label class="task-type ts-option" for="type-ts">
+            <input type="checkbox" data-type="TS" id="type-ts" />
+            <span class="fake-checkbox" aria-hidden="true"></span>
+            <span><strong>TS</strong><small>Travail significatif</small></span>
+          </label>
+        </div>
+        <p class="field-hint">Sélectionnez au plus une option.</p>
+      </fieldset>
 
+      <div id="attachment-preview"></div>
 
+      <div id="upload-progress-container" class="hidden" aria-label="Téléversement en cours">
+        <div id="upload-progress-bar"></div>
+      </div>
+
+      <div class="form-actions">
+        <button id="cancel-add-task-secondary" class="secondary-button">Annuler</button>
+        <button id="confirm-add-task" class="confirm-button">Ajouter le devoir</button>
+      </div>
     </div>
   </section>
 
@@ -112,7 +153,10 @@
       </button>
     </header>
     <div class="content">
-      <h2 id="details-task-title"></h2>
+      <div class="details-title-row">
+        <h2 id="details-task-title"></h2>
+        <span id="details-task-badge" class="task-badge hidden"></span>
+      </div>
       <p id="details-task-notes" class="task-notes"></p>
       <div class="attachments-list" id="attachments-list">
         <!-- Liste des pièces jointes -->
@@ -126,6 +170,22 @@
         <!-- Modifier les notes -->
         <label for="edit-task-notes-input" class="edit-label">Modifier les notes :</label>
         <textarea id="edit-task-notes-input" placeholder="Modifier les notes"></textarea>
+
+        <fieldset class="form-section emphasis-fieldset compact-emphasis">
+          <legend>Mise en évidence <span>(facultatif)</span></legend>
+          <div class="task-type-container">
+            <label class="task-type ta-option" for="edit-type-ta">
+              <input type="checkbox" data-type="TA" id="edit-type-ta" />
+              <span class="fake-checkbox" aria-hidden="true"></span>
+              <span><strong>TA</strong><small>Travail assimilé</small></span>
+            </label>
+            <label class="task-type ts-option" for="edit-type-ts">
+              <input type="checkbox" data-type="TS" id="edit-type-ts" />
+              <span class="fake-checkbox" aria-hidden="true"></span>
+              <span><strong>TS</strong><small>Travail significatif</small></span>
+            </label>
+          </div>
+        </fieldset>
 
         <!-- Ajout de pièces jointes -->
         <label for="edit-attachment-input" class="attachment-label">Ajouter un document/photo</label>
@@ -223,6 +283,6 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 
   <!-- Ton script -->
-  <script src="script.js"></script>
+  <script src="script.js?v=20260723-2"></script>
 </body>
 </html>
