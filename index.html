@@ -17,7 +17,7 @@
   />
 
   <!-- Feuille de style -->
-  <link rel="stylesheet" href="style.css?v=20260723-2" />
+  <link rel="stylesheet" href="style.css?v=20260724-1" />
 
 </head>
 <body>
@@ -108,11 +108,12 @@
       <textarea id="task-notes-input" placeholder="Consignes, pages à lire ou informations utiles"></textarea>
 
       <div class="attachment-container">
-        <label for="attachment-input" class="attachment-label">
+        <label for="attachment-input" class="attachment-label" id="attachment-drop-zone">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17V5M7 10l5-5 5 5M5 15v4h14v-4"/></svg>
-          <span><strong>Ajouter un document ou une photo</strong><small>PDF ou image, plusieurs fichiers possibles</small></span>
+          <span><strong>Ajouter ou déposer un document ou une photo</strong><small>PDF ou image, plusieurs fichiers possibles</small></span>
         </label>
-        <input type="file" id="attachment-input" multiple />
+        <input type="file" id="attachment-input" accept="application/pdf,image/*" multiple aria-describedby="attachment-feedback" />
+        <p id="attachment-feedback" class="attachment-feedback" role="status" aria-live="polite"></p>
       </div>
 
       <fieldset class="form-section emphasis-fieldset">
@@ -283,6 +284,6 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 
   <!-- Ton script -->
-  <script src="script.js?v=20260723-2"></script>
+  <script src="script.js?v=20260724-1"></script>
 </body>
 </html>

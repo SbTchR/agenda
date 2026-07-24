@@ -49,6 +49,8 @@ const newMessageNameInput = document.getElementById("new-message-name");
   const taskTitleInput = document.getElementById("task-title-input");
   const taskNotesInput = document.getElementById("task-notes-input");
   const attachmentInput = document.getElementById("attachment-input");
+  const attachmentDropZone = document.getElementById("attachment-drop-zone");
+  const attachmentFeedback = document.getElementById("attachment-feedback");
   const addTaskDay = document.getElementById("add-task-day");
 
 // Sélection de branche (container)
@@ -518,10 +520,15 @@ function clearAddTaskForm() {
   attachmentInput.value = "";
   selectedFiles = [];
   updateAttachmentPreview();
+  attachmentFeedback.textContent = "";
+  attachmentFeedback.classList.remove("is-error");
+  attachmentDropZone.classList.remove("is-dragging");
+  attachmentDragDepth = 0;
 
   // Retire la sélection visuelle sur les branch-button
   document.querySelectorAll(".branch-button").forEach(btn => {
     btn.classList.remove("selected-branch");
+    btn.setAttribute("aria-pressed", "false");
   });
   typeTaBtn.checked = false;
   typeTsBtn.checked = false;
@@ -544,16 +551,20 @@ function generateBranchSelection() {
   branches.forEach((branch) => {
     const btn = document.createElement("button");
     btn.classList.add("branch-button");
-    btn.style.backgroundColor = branch.color;
+    btn.type = "button";
+    btn.style.setProperty("--branch-color", branch.color);
+    btn.setAttribute("aria-pressed", "false");
     btn.textContent = branch.code;
 
     btn.addEventListener("click", () => {
       // Retire la sélection sur tous
       document.querySelectorAll(".branch-button").forEach(b => {
         b.classList.remove("selected-branch");
+        b.setAttribute("aria-pressed", "false");
       });
       // Applique sur celui cliqué
       btn.classList.add("selected-branch");
+      btn.setAttribute("aria-pressed", "true");
       selectedTaskBranch = branch.code;
     });
 
@@ -1167,17 +1178,65 @@ function askDeleteManual(manualId) {
   };
 }
 
-// Lorsque l'utilisateur sélectionne des fichiers dans l'input
+function isSupportedAttachment(file) {
+  const type = (file.type || "").toLowerCase();
+  const name = (file.name || "").toLowerCase();
+  return type === "application/pdf" || type.startsWith("image/") ||
+    name.endsWith(".pdf") || /\.(avif|bmp|gif|heic|heif|jpe?g|png|svg|webp)$/.test(name);
+}
+
+function addAttachmentFiles(fileList) {
+  const files = Array.from(fileList || []);
+  const acceptedFiles = files.filter(isSupportedAttachment);
+  const rejectedFiles = files.filter(file => !isSupportedAttachment(file));
+
+  if (acceptedFiles.length > 0) {
+    selectedFiles = selectedFiles.concat(acceptedFiles);
+    updateAttachmentPreview();
+  }
+
+  if (rejectedFiles.length > 0) {
+    const names = rejectedFiles.map(file => file.name).join(", ");
+    attachmentFeedback.textContent = `Fichier non accepté : ${names}. Choisissez un PDF ou une image.`;
+    attachmentFeedback.classList.add("is-error");
+  } else if (acceptedFiles.length > 0) {
+    const count = acceptedFiles.length;
+    attachmentFeedback.textContent = `${count} fichier${count > 1 ? "s" : ""} ajouté${count > 1 ? "s" : ""}.`;
+    attachmentFeedback.classList.remove("is-error");
+  }
+}
+
+// Le clic et le glisser-déposer utilisent le même flux d'ajout.
 attachmentInput.addEventListener("change", () => {
-  // Convertit le FileList en tableau et ajoute-le au tableau global
-  const filesArray = Array.from(attachmentInput.files);
-  selectedFiles = selectedFiles.concat(filesArray);
-  
-  // Met à jour l'aperçu des fichiers
-  updateAttachmentPreview();
-  
-  // Réinitialise l'input pour pouvoir sélectionner à nouveau les mêmes fichiers si besoin
+  addAttachmentFiles(attachmentInput.files);
   attachmentInput.value = "";
+});
+
+let attachmentDragDepth = 0;
+
+attachmentDropZone.addEventListener("dragenter", (event) => {
+  event.preventDefault();
+  attachmentDragDepth += 1;
+  attachmentDropZone.classList.add("is-dragging");
+});
+
+attachmentDropZone.addEventListener("dragover", (event) => {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = "copy";
+});
+
+attachmentDropZone.addEventListener("dragleave", () => {
+  attachmentDragDepth = Math.max(0, attachmentDragDepth - 1);
+  if (attachmentDragDepth === 0) {
+    attachmentDropZone.classList.remove("is-dragging");
+  }
+});
+
+attachmentDropZone.addEventListener("drop", (event) => {
+  event.preventDefault();
+  attachmentDragDepth = 0;
+  attachmentDropZone.classList.remove("is-dragging");
+  addAttachmentFiles(event.dataTransfer.files);
 });
 
 async function renderPDFPreview(file, container) {
